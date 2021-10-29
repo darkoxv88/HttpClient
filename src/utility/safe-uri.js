@@ -16,7 +16,7 @@ export function safeUriDecode(value) {
   }
   catch (err)
   {
-    return null;
+    return '';
   }
 
 }
