@@ -29,15 +29,13 @@ function serializeRequestBody(body) {
     return body;
   }
 
-  if (body instanceof AjaxParams) {
-    return body.toString();
-  }
-  
   if (typeof(body) === 'object' || typeof(body) === 'boolean' || Array.isArray(body)) {
     return safeJsonStringify(body);
   }
   
-  return body.toString();
+  if (typeof(body.toString) === 'function') {
+    return body.toString();
+  }
 }
 
 export function Ajax(type, url, body, reqBody, headers, options) {
@@ -97,7 +95,7 @@ export function Ajax(type, url, body, reqBody, headers, options) {
 
   this.toPromise = once(
     lambda(function(onFulfilled, onRejected, onFinally) {
-      this.__promise__ = promiseFactory(
+      this._promise = promiseFactory(
         lambda(function(resolve, reject) {
           if (this._state !== AjaxStatesEnum.Opened) {
             return;
@@ -153,7 +151,7 @@ export function Ajax(type, url, body, reqBody, headers, options) {
 
           }, this);
 
-          var __constOnError__ = lambda(function(ev) {
+          var __onError__ = lambda(function(ev) {
             this._state = AjaxStatesEnum.Rejected;
 
             var __status = this._xhr.status || 0;
@@ -163,9 +161,9 @@ export function Ajax(type, url, body, reqBody, headers, options) {
             )));
           }, this);
 
-          this._xhr.ontimeout = __constOnError__;
-          this._xhr.onabort = __constOnError__;
-          this._xhr.onerror = __constOnError__;
+          this._xhr.ontimeout = __onError__;
+          this._xhr.onabort = __onError__;
+          this._xhr.onerror = __onError__;
 
           this._xhr.send(serializeRequestBody(this._body));
 
@@ -175,10 +173,10 @@ export function Ajax(type, url, body, reqBody, headers, options) {
       .then(onFulfilled, onRejected)
       .finally(onFinally);
 
-      return this.__promise__;
+      return this._promise;
     }, this),
     lambda(function() {
-      return this.__promise__;
+      return this._promise;
     }, this)
   );
 
@@ -197,7 +195,7 @@ Ajax.prototype = {
   _isAsync: true,
   _xhr: null,
   _state: AjaxStatesEnum.Unknown,
-  __promise__: null,
+  _promise: null,
   _onUpload: null,
   _onDownload: null,
 

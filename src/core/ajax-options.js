@@ -13,12 +13,12 @@ AjaxOptions.defineTimeout = function (value, min) {
     return 60;
   }
 
-  if (value < min) {
-    return min;
-  }
-
   if (value < 0) {
     return 60;
+  }
+
+  if (value < min) {
+    return min;
   }
 
   return value;

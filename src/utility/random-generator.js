@@ -1,19 +1,8 @@
-export function randomStringIdGenerator(length) {
-  if (typeof(length) !== 'number') {
-    return '';
-  }
+export function randomStringIdGenerator() {
+  return 'xxxx-xxxx-xxxx-yxxx-xxxx-xxxx-xxxx-yxxx'.replace(/[xy]/g, function(char) {
+    var rand = Math.random() * 16 | 0; 
+    var out = (char == 'x') ? rand : (rand & 0x3 | 0x8);
 
-  if (length < 1) {
-    return '';
-  }
-
-  var charPool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-  var str = '';
-
-  for (var i = 0; i < length; i++) {
-    str += charPool.charAt(Math.floor(Math.random() * charPool.length));
-  }
-
-  return str;
+    return out.toString(16);
+  });
 }

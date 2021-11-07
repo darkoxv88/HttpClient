@@ -35,7 +35,6 @@ backup:
 
 (function() {
 "use strict";
-
 var __webpack_exports__ = {};
 
 var root = typeof window !== 'undefined' ? window : typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : ({ });
@@ -530,12 +529,12 @@ AjaxOptions.defineTimeout = function (value, min) {
     return 60;
   }
 
-  if (value < min) {
-    return min;
-  }
-
   if (value < 0) {
     return 60;
+  }
+
+  if (value < min) {
+    return min;
   }
 
   return value;
@@ -579,6 +578,7 @@ AjaxOptions.defineResponseType = function(type) {
   }
 }
 
+;// CONCATENATED MODULE: ./src/utility/define-obj-prop.js.js
 function defineObjProp(ref, key, getter, setter) {
   var def = ({
     enumerable: true
@@ -595,7 +595,6 @@ function defineObjProp(ref, key, getter, setter) {
   Object.defineProperty(ref, key, def);
 }
 
-;// CONCATENATED MODULE: ./src/utility/once.js
 function once(onFirstCall, onMultipleCalls) {
   var lHasBeenCalled = false;
 
@@ -992,15 +991,13 @@ function serializeRequestBody(body) {
     return body;
   }
 
-  if (body instanceof AjaxParams) {
-    return body.toString();
-  }
-  
   if (typeof(body) === 'object' || typeof(body) === 'boolean' || Array.isArray(body)) {
     return safeJsonStringify(body);
   }
   
-  return body.toString();
+  if (typeof(body.toString) === 'function') {
+    return body.toString();
+  }
 }
 
 function Ajax(type, url, body, reqBody, headers, options) {
@@ -1060,7 +1057,7 @@ function Ajax(type, url, body, reqBody, headers, options) {
 
   this.toPromise = once(
     lambda(function(onFulfilled, onRejected, onFinally) {
-      this.__promise__ = promiseFactory(
+      this._promise = promiseFactory(
         lambda(function(resolve, reject) {
           if (this._state !== AjaxStatesEnum.Opened) {
             return;
@@ -1116,7 +1113,7 @@ function Ajax(type, url, body, reqBody, headers, options) {
 
           }, this);
 
-          var __constOnError__ = lambda(function(ev) {
+          var __onError__ = lambda(function(ev) {
             this._state = AjaxStatesEnum.Rejected;
 
             var __status = this._xhr.status || 0;
@@ -1126,9 +1123,9 @@ function Ajax(type, url, body, reqBody, headers, options) {
             )));
           }, this);
 
-          this._xhr.ontimeout = __constOnError__;
-          this._xhr.onabort = __constOnError__;
-          this._xhr.onerror = __constOnError__;
+          this._xhr.ontimeout = __onError__;
+          this._xhr.onabort = __onError__;
+          this._xhr.onerror = __onError__;
 
           this._xhr.send(serializeRequestBody(this._body));
 
@@ -1138,10 +1135,10 @@ function Ajax(type, url, body, reqBody, headers, options) {
       .then(onFulfilled, onRejected)
       .finally(onFinally);
 
-      return this.__promise__;
+      return this._promise;
     }, this),
     lambda(function() {
-      return this.__promise__;
+      return this._promise;
     }, this)
   );
 
@@ -1160,7 +1157,7 @@ Ajax.prototype = {
   _isAsync: true,
   _xhr: null,
   _state: AjaxStatesEnum.Unknown,
-  __promise__: null,
+  _promise: null,
   _onUpload: null,
   _onDownload: null,
 
@@ -1237,30 +1234,19 @@ Ajax.options = function(url, body, headers, options) {
   return new Ajax('OPTIONS', url, body, true, headers, options);
 }
 
-function randomStringIdGenerator(length) {
-  if (typeof(length) !== 'number') {
-    return '';
-  }
+function randomStringIdGenerator() {
+  return 'xxxx-xxxx-xxxx-yxxx-xxxx-xxxx-xxxx-yxxx'.replace(/[xy]/g, function(char) {
+    var rand = Math.random() * 16 | 0; 
+    var out = (char == 'x') ? rand : (rand & 0x3 | 0x8);
 
-  if (length < 1) {
-    return '';
-  }
-
-  var charPool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-  var str = '';
-
-  for (var i = 0; i < length; i++) {
-    str += charPool.charAt(Math.floor(Math.random() * charPool.length));
-  }
-
-  return str;
+    return out.toString(16);
+  });
 }
 
 var indexInUse = ({ });
 
 function generateIndex() { 
-  var index = randomStringIdGenerator(12);
+  var index = randomStringIdGenerator();
 
   if (indexInUse[index]) {
     return generateIndex();

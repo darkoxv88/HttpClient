@@ -12,7 +12,7 @@ import { AjaxParams } from "./ajax-params";
 var indexInUse = ({ });
 
 function generateIndex() { 
-  var index = randomStringIdGenerator(12);
+  var index = randomStringIdGenerator();
 
   if (indexInUse[index]) {
     return generateIndex();
