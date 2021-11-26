@@ -235,8 +235,8 @@ Ajax.prototype = {
     this.params.append(key, value);
   },
 
-  toPromise: function() { },
-  sbscribe: function() { },
+  toPromise: null,
+  subscribe: null,
 
 }
 

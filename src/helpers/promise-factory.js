@@ -3,8 +3,12 @@ import { getRoot } from "./../refs/root";
 import { lambda } from "./../utility/lambda";
 import { tryCatch } from "./../utility/try-catch";
 
+function catchedError(err) {
+  console.error(err);
+}
+
 var localPromise = function(executor) {
-  this._executor = tryCatch(executor);
+  this._executor = tryCatch(executor, catchedError);
   this._value = undefined;
   this._onFulfilled = tryCatch(null);
   this._onRejected = tryCatch(null);
@@ -29,8 +33,8 @@ var localPromise = function(executor) {
 
 localPromise.prototype = {
   then: function(onFulfilled, onRejected) {
-    this._onFulfilled = tryCatch(onFulfilled);
-    this._onRejected = tryCatch(onRejected);
+    this._onFulfilled = tryCatch(onFulfilled, catchedError);
+    this._onRejected = tryCatch(onRejected, catchedError);
 
     if (this._state === 'FULFILLED') {
       this._onFulfilled(this._value);
@@ -43,7 +47,7 @@ localPromise.prototype = {
     return this;
   },
   catch: function(onRejected) {
-    this._onRejected = tryCatch(onRejected);
+    this._onRejected = tryCatch(onRejected, catchedError);
 
     if (this._state === 'REJECTED') {
       this._onRejected(this._value);
@@ -52,7 +56,7 @@ localPromise.prototype = {
     return this;
   },
   finally: function(onFinally) {
-    this._onFinally = tryCatch(onFinally);
+    this._onFinally = tryCatch(onFinally, catchedError);
 
     if (this._state !== 'PENDING') {
       this._onFinally();

@@ -33,8 +33,8 @@ backup:
 
 **/
 
-/******/ (() => { // webpackBootstrap
-/******/ 	"use strict";
+(() => {
+"use strict";
 var __webpack_exports__ = {};
 
 ;// CONCATENATED MODULE: ./src/refs/root.js
@@ -695,8 +695,12 @@ function tryCatch(func, onError) {
 
 
 
+function catchedError(err) {
+  console.error(err);
+}
+
 var localPromise = function(executor) {
-  this._executor = tryCatch(executor);
+  this._executor = tryCatch(executor, catchedError);
   this._value = undefined;
   this._onFulfilled = tryCatch(null);
   this._onRejected = tryCatch(null);
@@ -721,8 +725,8 @@ var localPromise = function(executor) {
 
 localPromise.prototype = {
   then: function(onFulfilled, onRejected) {
-    this._onFulfilled = tryCatch(onFulfilled);
-    this._onRejected = tryCatch(onRejected);
+    this._onFulfilled = tryCatch(onFulfilled, catchedError);
+    this._onRejected = tryCatch(onRejected, catchedError);
 
     if (this._state === 'FULFILLED') {
       this._onFulfilled(this._value);
@@ -735,7 +739,7 @@ localPromise.prototype = {
     return this;
   },
   catch: function(onRejected) {
-    this._onRejected = tryCatch(onRejected);
+    this._onRejected = tryCatch(onRejected, catchedError);
 
     if (this._state === 'REJECTED') {
       this._onRejected(this._value);
@@ -744,7 +748,7 @@ localPromise.prototype = {
     return this;
   },
   finally: function(onFinally) {
-    this._onFinally = tryCatch(onFinally);
+    this._onFinally = tryCatch(onFinally, catchedError);
 
     if (this._state !== 'PENDING') {
       this._onFinally();
@@ -892,12 +896,12 @@ function HttpErrorResponseEvent(err, xhr, status, url) {
 HttpErrorResponseEvent.prototype = { }
 
 ;// CONCATENATED MODULE: ./src/events/http/http-on-progress-event.js
-function HttpOnProgressEvent(type, loaded, total, partialText) {
+function HttpOnProgressEvent(type, processed, total, partialText) {
   this.type = type;
   Object.freeze(this.type);
 
-  this.loaded = loaded;
-  Object.freeze(this.loaded);
+  this.processed = processed;
+  Object.freeze(this.processed);
 
   this.total = total;
   Object.freeze(this.total);
@@ -924,7 +928,7 @@ function HttpResponseEvent(ev, xhr, status, url) {
   this._url = url;
   defineObjProp(this, 'url', function() { return this._url }, function() { });
 
-  this._name = 'HttpErrorResponse';
+  this._name = 'HttpResponse';
   defineObjProp(this, 'name', function() { return this._name }, function() { });
 
   this._body = (typeof(xhr.response) === 'undefined') ? xhr.responseText : xhr.response;
@@ -1268,8 +1272,8 @@ Ajax.prototype = {
     this.params.append(key, value);
   },
 
-  toPromise: function() { },
-  sbscribe: function() { },
+  toPromise: null,
+  subscribe: null,
 
 }
 
@@ -1453,9 +1457,9 @@ JSONP.prototype = {
   _timer: null,
   __promise__: null,
 
-  toPromise: function() { },
-  subscribe: function() { },
-
+  toPromise: null,
+  sbscribe: null,
+  
 }
 
 ;// CONCATENATED MODULE: ./src/http.js
@@ -1489,7 +1493,7 @@ HTTP.delete = function(url, headers, options) {
 }
 
 HTTP.head = function(url, headers, options) {
-  return Ajax["delete"](url, headers, options);
+  return Ajax.head(url, headers, options);
 }
 
 HTTP.post = function(url, body, headers, options) {
@@ -1554,4 +1558,4 @@ catch(err)
 	getRoot()['___webpack_export_dp_' + libName + '___'].definition = HTTP;
 }
 
-/******/ })();
+})();

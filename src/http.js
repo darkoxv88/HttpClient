@@ -28,7 +28,7 @@ HTTP.delete = function(url, headers, options) {
 }
 
 HTTP.head = function(url, headers, options) {
-  return Ajax.delete(url, headers, options);
+  return Ajax.head(url, headers, options);
 }
 
 HTTP.post = function(url, body, headers, options) {

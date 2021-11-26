@@ -13,7 +13,7 @@ export function HttpResponseEvent(ev, xhr, status, url) {
   this._url = url;
   defineObjProp(this, 'url', function() { return this._url }, function() { });
 
-  this._name = 'HttpErrorResponse';
+  this._name = 'HttpResponse';
   defineObjProp(this, 'name', function() { return this._name }, function() { });
 
   this._body = (typeof(xhr.response) === 'undefined') ? xhr.responseText : xhr.response;

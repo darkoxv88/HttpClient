@@ -135,7 +135,7 @@ JSONP.prototype = {
   _timer: null,
   __promise__: null,
 
-  toPromise: function() { },
-  subscribe: function() { },
-
+  toPromise: null,
+  sbscribe: null,
+  
 }

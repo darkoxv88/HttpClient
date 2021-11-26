@@ -1,9 +1,9 @@
-export function HttpOnProgressEvent(type, loaded, total, partialText) {
+export function HttpOnProgressEvent(type, processed, total, partialText) {
   this.type = type;
   Object.freeze(this.type);
 
-  this.loaded = loaded;
-  Object.freeze(this.loaded);
+  this.processed = processed;
+  Object.freeze(this.processed);
 
   this.total = total;
   Object.freeze(this.total);
