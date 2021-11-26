@@ -33,7 +33,7 @@ backup:
 
 **/
 
-(() => {
+(function() {
 "use strict";
 var __webpack_exports__ = {};
 
