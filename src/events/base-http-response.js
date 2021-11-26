@@ -1,5 +1,7 @@
 import { isProduction } from "../environment";
 
+import { defineObjProp } from "./../utility/define-obj-prop.js";
+
 function ResponseHeaders(xhr) {
   this._headers = null;
 
@@ -28,8 +30,6 @@ function ResponseHeaders(xhr) {
 
     this._headers = ({ });
   }
-
-  Object.freeze(this._headers);
 }
 ResponseHeaders.prototype = { 
   has: function(key) {
@@ -50,15 +50,15 @@ ResponseHeaders.prototype = {
 }
 
 export function baseHttpResponse(chieldRoot, xhr, status) {
-  chieldRoot['headers'] = new ResponseHeaders(xhr);
-  Object.freeze(chieldRoot['headers']);
+  chieldRoot._headers = new ResponseHeaders(xhr);
+  defineObjProp(chieldRoot, 'headers', function() { return this._headers }, function() { });
 
-  chieldRoot['status'] = status;
-  Object.freeze(chieldRoot['status']);
+  chieldRoot._status = status;
+  defineObjProp(chieldRoot, 'status', function() { return this._status }, function() { });
 
-  chieldRoot['ok'] = (chieldRoot['status'] >= 200 && chieldRoot['status'] < 300);
-  Object.freeze(chieldRoot['ok']);
+  chieldRoot._ok = (chieldRoot.status >= 200 && chieldRoot.status < 300);
+  defineObjProp(chieldRoot, 'ok', function() { return this._ok }, function() { });
 
-  chieldRoot['statusText'] = xhr.statusText || 'Unknown Error';
-  Object.freeze(chieldRoot['statusText']);
+  chieldRoot._statusText = xhr.statusText || 'Unknown Error';
+  defineObjProp(chieldRoot, 'statusText', function() { return this._statusText }, function() { });
 }

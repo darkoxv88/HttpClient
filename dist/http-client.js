@@ -33,26 +33,32 @@ backup:
 
 **/
 
-(function() {
-"use strict";
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
 var __webpack_exports__ = {};
 
+;// CONCATENATED MODULE: ./src/refs/root.js
 var root = typeof window !== 'undefined' ? window : typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : ({ });
 
 function getRoot() {
   return root;
 }
 
+;// CONCATENATED MODULE: ./src/environment.js
 var production = true;
 
 function isProduction() {
   return production;
 }
 
+;// CONCATENATED MODULE: ./src/utility/enum-value.js
 function enumValue(ref, key, value) {
   Object.defineProperty(ref, key, { enumerable: true, get: function() { return value; } });
   Object.freeze(ref[key]);
 };
+
+;// CONCATENATED MODULE: ./src/enums/http-status-code-enum.js
+
 
 function HttpStatusCode() {
   enumValue(this, 'Continue', 100);
@@ -126,6 +132,7 @@ var HttpStatusCodeEnum = new HttpStatusCode();
 
 Object.freeze(HttpStatusCodeEnum);
 
+;// CONCATENATED MODULE: ./src/utility/lambda.js
 function lambda(func, root) {
   if (typeof func !== 'function' || typeof root !== 'object') {
     return function() { }
@@ -136,6 +143,7 @@ function lambda(func, root) {
   }
 }
 
+;// CONCATENATED MODULE: ./src/helpers/xhr-body-type-checks.js
 function isArrayBuffer(value) {
   return !!(value) && (value instanceof ArrayBuffer);
 }
@@ -152,6 +160,7 @@ function isUrlSearchParams(value) {
   return !!(value) && (value instanceof URLSearchParams);
 }
 
+;// CONCATENATED MODULE: ./src/utility/safe-uri.js
 function safeUriEncode(value) {
   try 
   {
@@ -174,6 +183,12 @@ function safeUriDecode(value) {
   }
 
 }
+
+;// CONCATENATED MODULE: ./src/core/ajax-params.js
+
+
+
+
 
 function isParamValid(value) {
   if (Array.isArray(value) || typeof(value) === 'string' || typeof(value) === 'number' || typeof(value) === 'boolean') {
@@ -346,6 +361,14 @@ AjaxParams.prototype = {
   },
 }
 
+;// CONCATENATED MODULE: ./src/core/ajax-headers.js
+
+
+
+
+
+
+
 function AjaxHeaders(headers) {
   if (typeof(headers) !== 'object' || !headers) {
     headers = ({ });
@@ -514,6 +537,7 @@ AjaxHeaders.prototype = {
   }
 }
 
+;// CONCATENATED MODULE: ./src/core/ajax-options.js
 function AjaxOptions() { }
 
 AjaxOptions.prototype = {
@@ -595,6 +619,7 @@ function defineObjProp(ref, key, getter, setter) {
   Object.defineProperty(ref, key, def);
 }
 
+;// CONCATENATED MODULE: ./src/utility/once.js
 function once(onFirstCall, onMultipleCalls) {
   var lHasBeenCalled = false;
 
@@ -615,6 +640,7 @@ function once(onFirstCall, onMultipleCalls) {
   }
 }
 
+;// CONCATENATED MODULE: ./src/utility/safe-json.js
 function safeJsonParse(value) {
   try
   {
@@ -641,6 +667,7 @@ function safeJsonStringify(value) {
   }
 }
 
+;// CONCATENATED MODULE: ./src/utility/try-catch.js
 function tryCatch(func, onError) {
   if (typeof func !== 'function') {
     return function() { }
@@ -661,6 +688,12 @@ function tryCatch(func, onError) {
     }
   }
 }
+
+;// CONCATENATED MODULE: ./src/helpers/promise-factory.js
+
+
+
+
 
 var localPromise = function(executor) {
   this._executor = tryCatch(executor);
@@ -729,10 +762,12 @@ function promiseFactory(executor) {
   return new localPromise(executor);
 }
 
+;// CONCATENATED MODULE: ./src/helpers/xhr-factory.js
 function xhrFactory() {
   return new XMLHttpRequest();
 }
 
+;// CONCATENATED MODULE: ./src/helpers/xhr-get-response-url.js
 function getResponseUrl(xhr) {
   try
   {
@@ -752,6 +787,9 @@ function getResponseUrl(xhr) {
   }
 }
 
+;// CONCATENATED MODULE: ./src/enums/ajax-states-enum.js
+
+
 function AjaxStates() {
   enumValue(this, 'Unknown', 0);
   enumValue(this, 'Opened', 1);
@@ -766,6 +804,11 @@ AjaxStates.prototype = { };
 var AjaxStatesEnum = new AjaxStates();
 
 Object.freeze(AjaxStatesEnum);
+
+;// CONCATENATED MODULE: ./src/events/base-http-response.js
+
+
+
 
 function ResponseHeaders(xhr) {
   this._headers = null;
@@ -795,8 +838,6 @@ function ResponseHeaders(xhr) {
 
     this._headers = ({ });
   }
-
-  Object.freeze(this._headers);
 }
 ResponseHeaders.prototype = { 
   has: function(key) {
@@ -817,37 +858,40 @@ ResponseHeaders.prototype = {
 }
 
 function baseHttpResponse(chieldRoot, xhr, status) {
-  chieldRoot['headers'] = new ResponseHeaders(xhr);
-  Object.freeze(chieldRoot['headers']);
+  chieldRoot._headers = new ResponseHeaders(xhr);
+  defineObjProp(chieldRoot, 'headers', function() { return this._headers }, function() { });
 
-  chieldRoot['status'] = status;
-  Object.freeze(chieldRoot['status']);
+  chieldRoot._status = status;
+  defineObjProp(chieldRoot, 'status', function() { return this._status }, function() { });
 
-  chieldRoot['ok'] = (chieldRoot['status'] >= 200 && chieldRoot['status'] < 300);
-  Object.freeze(chieldRoot['ok']);
+  chieldRoot._ok = (chieldRoot.status >= 200 && chieldRoot.status < 300);
+  defineObjProp(chieldRoot, 'ok', function() { return this._ok }, function() { });
 
-  chieldRoot['statusText'] = xhr.statusText || 'Unknown Error';
-  Object.freeze(chieldRoot['statusText']);
+  chieldRoot._statusText = xhr.statusText || 'Unknown Error';
+  defineObjProp(chieldRoot, 'statusText', function() { return this._statusText }, function() { });
 }
+
+;// CONCATENATED MODULE: ./src/events/http/http-error-response-event.js
+
+
+
 
 function HttpErrorResponseEvent(err, xhr, status, url) {
   baseHttpResponse(this, xhr, status);
 
   this._timeStamp = err.timeStamp;
-  Object.freeze(this._timeStamp);
   defineObjProp(this, 'timeStamp', function() { return this._timeStamp }, function() { });
 
   this._url = url;
-  Object.freeze(this._url);
   defineObjProp(this, 'url', function() { return this._url }, function() { });
 
   this._name = 'HttpErrorResponse';
-  Object.freeze(this._name);
   defineObjProp(this, 'name', function() { return this._name }, function() { });
 }
 
 HttpErrorResponseEvent.prototype = { }
 
+;// CONCATENATED MODULE: ./src/events/http/http-on-progress-event.js
 function HttpOnProgressEvent(type, loaded, total, partialText) {
   this.type = type;
   Object.freeze(this.type);
@@ -864,21 +908,23 @@ function HttpOnProgressEvent(type, loaded, total, partialText) {
 
 HttpOnProgressEvent.prototype = { }
 
+;// CONCATENATED MODULE: ./src/events/http/http-response-event.js
+
+
+
+
 var XSSI_prefixRegEx = /^\)\]\}',?\n/;
 
 function HttpResponseEvent(ev, xhr, status, url) {
   baseHttpResponse(this, xhr, status);
 
   this._timeStamp = ev.timeStamp;
-  Object.freeze(this._timeStamp);
   defineObjProp(this, 'timeStamp', function() { return this._timeStamp }, function() { });
 
   this._url = url;
-  Object.freeze(this._url);
   defineObjProp(this, 'url', function() { return this._url }, function() { });
 
   this._name = 'HttpErrorResponse';
-  Object.freeze(this._name);
   defineObjProp(this, 'name', function() { return this._name }, function() { });
 
   this._body = (typeof(xhr.response) === 'undefined') ? xhr.responseText : xhr.response;
@@ -935,9 +981,11 @@ function HttpResponseEvent(ev, xhr, status, url) {
     }
   }
 
-  Object.freeze(this._body);
   defineObjProp(this, 'body', function() { return this._body }, function() { });
 }
+
+;// CONCATENATED MODULE: ./src/core/error-interceptor.js
+
 
 function ErrorInterceptor(callback) {
   if (typeof(callback) !== 'function') {
@@ -945,7 +993,6 @@ function ErrorInterceptor(callback) {
   }
 
   this._callback = tryCatch(callback, function(err) { });
-  Object.freeze(this._callback);
 }
 
 ErrorInterceptor.prototype = { 
@@ -968,6 +1015,7 @@ ErrorInterceptor.intercept = function(value) {
   return value;
 }
 
+;// CONCATENATED MODULE: ./src/core/settings.js
 var allowNoneAsync = false;
 
 function getAllowNoneAsyncCalls() {
@@ -981,6 +1029,29 @@ function setAllowNoneAsyncCalls(value) {
     console.warn('Synchronous calls have been allowed');
   }
 }
+
+;// CONCATENATED MODULE: ./src/core/ajax.js
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function serializeRequestBody(body) {
   if (body === null || body === undefined) {
@@ -1234,6 +1305,7 @@ Ajax.options = function(url, body, headers, options) {
   return new Ajax('OPTIONS', url, body, true, headers, options);
 }
 
+;// CONCATENATED MODULE: ./src/utility/random-generator.js
 function randomStringIdGenerator() {
   return 'xxxxyxxxyxxx'.replace(/[xy]/g, function(char) {
     var rand = Math.random() * 16 | 0; 
@@ -1242,6 +1314,18 @@ function randomStringIdGenerator() {
     return out.toString(16);
   });
 }
+
+;// CONCATENATED MODULE: ./src/core/jsonp.js
+
+
+
+
+
+
+
+
+
+
 
 var indexInUse = ({ });
 
@@ -1374,6 +1458,16 @@ JSONP.prototype = {
 
 }
 
+;// CONCATENATED MODULE: ./src/http.js
+
+
+
+
+
+
+
+
+
 function HTTP() { }
 
 HTTP.prototype = { }
@@ -1432,6 +1526,13 @@ HTTP.createRequestParams = function(params) {
 
 HTTP.HttpStatusCode = HttpStatusCodeEnum;
 
+;// CONCATENATED MODULE: ./src/index.js
+
+
+
+
+
+
 var libName = 'HttpClient';
 
 try
@@ -1453,4 +1554,4 @@ catch(err)
 	getRoot()['___webpack_export_dp_' + libName + '___'].definition = HTTP;
 }
 
-})();
+/******/ })();

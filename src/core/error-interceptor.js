@@ -6,7 +6,6 @@ export function ErrorInterceptor(callback) {
   }
 
   this._callback = tryCatch(callback, function(err) { });
-  Object.freeze(this._callback);
 }
 
 ErrorInterceptor.prototype = { 
