@@ -29,11 +29,11 @@ exports:
 
 backup:
 
-  window.___webpack_export_dp___.HttpClient
+  window.___webpack_export_dp___.HttpClient;
 
 **/
 
-/******/ (function() { // webpackBootstrap
+/******/ (function () { // webpackBootstrap
 /******/ 	"use strict";
 var __webpack_exports__ = {};
 
@@ -668,9 +668,7 @@ function safeJsonStringify(value) {
 }
 
 ;// CONCATENATED MODULE: ./src/utility/noop.js
-function noop() {
-
-}
+function noop() { }
 
 ;// CONCATENATED MODULE: ./src/utility/try-catch.js
 
@@ -996,7 +994,7 @@ function HttpResponseEvent(ev, xhr, status, url) {
     }
   }
 
-  defineObjProp(this, 'body', function() { return this._body }, function() { });
+  defineObjProp(this, 'body', function() { return this._body }, noop);
 }
 
 ;// CONCATENATED MODULE: ./src/core/error-interceptor.js
@@ -1008,7 +1006,7 @@ function ErrorInterceptor(callback) {
     callback = noop;
   }
 
-  this._callback = tryCatch(callback, function(err) { });
+  this._callback = tryCatch(callback, noop);
 }
 
 ErrorInterceptor.prototype = { 

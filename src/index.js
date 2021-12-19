@@ -33,7 +33,7 @@ exports:
 
 backup:
 
-  window.___webpack_export_dp___.HttpClient
+  window.___webpack_export_dp___.HttpClient;
 
 **/
 

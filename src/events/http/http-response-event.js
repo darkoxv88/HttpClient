@@ -71,5 +71,5 @@ export function HttpResponseEvent(ev, xhr, status, url) {
     }
   }
 
-  defineObjProp(this, 'body', function() { return this._body }, function() { });
+  defineObjProp(this, 'body', function() { return this._body }, noop);
 }

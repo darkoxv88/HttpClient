@@ -6,7 +6,7 @@ export function ErrorInterceptor(callback) {
     callback = noop;
   }
 
-  this._callback = tryCatch(callback, function(err) { });
+  this._callback = tryCatch(callback, noop);
 }
 
 ErrorInterceptor.prototype = { 
