@@ -127,9 +127,9 @@ AjaxParams.prototype = {
 
     try
     {
-      this.keys().forEach(lambda(function(key) {
+      this.keys().forEach(this, lambda(function(key) {
         out.set(key, this._map.get(key));
-      }, this));
+      }));
     }
     catch (err)
     { 
@@ -160,13 +160,13 @@ AjaxParams.prototype = {
   },
 
   toString: function() {
-    return this.keys().map(lambda(function(key) {
+    return this.keys().map(lambda(this, function(key) {
       
       return this._map.get(key).map(function(value) { 
         return safeUriEncode(key) + '=' + safeUriEncode(value); 
       }).join('&');
 
-    }, this))
+    }))
     .filter(function(param) { 
       return (param !== '');
     })

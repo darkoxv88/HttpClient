@@ -59,9 +59,9 @@ export function JSONP(url, options, callbackParamName, callbackName) {
   this._url = url;
 
   this.toPromise = once(
-    lambda(function(onFulfilled, onRejected, onFinally) {
+    lambda(this, function(onFulfilled, onRejected, onFinally) {
       this.__promise__ = promiseFactory(
-        lambda(function(resolve, reject) {
+        lambda(this, function(resolve, reject) {
 
           this.params.deleteByKey(callbackParamName);
           this.params.append(callbackParamName, getCallbackName(this._index));
@@ -70,7 +70,7 @@ export function JSONP(url, options, callbackParamName, callbackName) {
           this._script.type = 'text/javascript';
           this._script.async = true;
 
-          var __constFinalize__ = lambda(function() {
+          var __constFinalize__ = lambda(this, function() {
             detachCallback(this._index);
 
             if (this._script) {
@@ -78,9 +78,9 @@ export function JSONP(url, options, callbackParamName, callbackName) {
             }
 
             removeIndex(this._index);
-          }, this);
+          });
 
-          attachCallback(this._index, lambda(function(data) {
+          attachCallback(this._index, lambda(this, function(data) {
             if (this._timer) {
               clearTimeout(this._timer);
             }
@@ -88,9 +88,9 @@ export function JSONP(url, options, callbackParamName, callbackName) {
             __constFinalize__();
 
             resolve(data);
-          }, this));
+          }));
 
-          this._script.onerror = lambda(function(ev) {
+          this._script.onerror = lambda(this, function(ev) {
             if (this._timer) {
               clearTimeout(this._timer);
             }
@@ -98,26 +98,26 @@ export function JSONP(url, options, callbackParamName, callbackName) {
             __constFinalize__();
 
             reject(ev);
-          }, this);
+          });
 
           this._target.append(this._script);
 
-          this._timer = setTimeout(lambda(function() { 
+          this._timer = setTimeout(lambda(this, function() { 
             __constFinalize__();
 
             reject(new Error('JSONP request canceled.'));
-          }, this), (AjaxOptions.defineTimeout(options.timeout, 5) * 1000));
+          }), (AjaxOptions.defineTimeout(options.timeout, 5) * 1000));
 
-        }, this)
+        })
       )
       .then(onFulfilled, onRejected)
       .finally(onFinally);
 
       return this.__promise__;
-    }, this),
-    lambda(function() {
+    }),
+    lambda(this, function() {
       return this.__promise__;
-    }, this)
+    })
   );
 
   this.subscribe = function(onFulfilled, onRejected) {

@@ -15,20 +15,22 @@ var localPromise = function(executor) {
   this._onFinally = tryCatch(null);
   this._state = 'PENDING';
 
-  this._executor(
-    lambda(function(value) {
-      this._state = 'FULFILLED';
-      this._value = value;
-      this._onFulfilled(this._value);
-      this._onFinally(this._value);
-    }, this),
-    lambda(function(value) {
-      this._state = 'REJECTED';
-      this._value = value;
-      this._onRejected(this._value);
-      this._onFinally(this._value);
-    }, this)
-  );
+  setTimeout(lambda(this, function() {
+    this._executor(
+      lambda(this, function(value) {
+        this._state = 'FULFILLED';
+        this._value = value;
+        this._onFulfilled(this._value);
+        this._onFinally(this._value);
+      }),
+      lambda(this, function(value) {
+        this._state = 'REJECTED';
+        this._value = value;
+        this._onRejected(this._value);
+        this._onFinally(this._value);
+      })
+    );
+  }), 1);
 }
 
 localPromise.prototype = {

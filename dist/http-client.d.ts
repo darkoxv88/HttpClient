@@ -29,7 +29,7 @@ exports:
 
 backup:
 
-  window.___webpack_export_dp_HttpClient___.definition
+  window.___webpack_export_dp___.HttpClient
 
 **/
 
@@ -158,8 +158,8 @@ declare class Ajax {
   public abort(): void;
   public setHeader(key: string, value: string): void;
   public appendParam(key: string, value: string): void;
-  public toPromise(onFulfilled: (ev: HttpResponseEvent) => void, onRejected: (ev: HttpErrorResponseEvent) => void, onFinally: () => void): Promise<any>;
-  public subscribe(onFulfilled: (ev: HttpResponseEvent) => void, onRejected: (ev: HttpErrorResponseEvent) => void): void;
+  public toPromise(onFulfilled?: (ev: HttpResponseEvent) => void, onRejected?: (ev: HttpErrorResponseEvent) => void, onFinally?: () => void): Promise<any>;
+  public subscribe(onFulfilled: (ev: HttpResponseEvent) => void, onRejected?: (ev: HttpErrorResponseEvent) => void): void;
 
 }
 

@@ -57,11 +57,11 @@ AjaxHeaders.prototype = {
   iterate: function(callback) {
     try
     {
-      this.keys().forEach(lambda(function(key) {
+      this.keys().forEach(lambda(this, function(key) {
         this._headers.get(key).forEach(function(value) {
           callback(key, value);
         });
-      }, this));
+      }));
     }
     catch (err)
     { 
@@ -94,9 +94,9 @@ AjaxHeaders.prototype = {
 
     try
     {
-      this.keys().forEach(lambda(function(key) {
+      this.keys().forEach(lambda(this, function(key) {
         out.set(key, this._headers.get(key));
-      }, this));
+      }));
     }
     catch (err) 
     { 

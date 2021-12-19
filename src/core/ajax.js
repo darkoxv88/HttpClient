@@ -66,7 +66,7 @@ export function Ajax(type, url, body, reqBody, headers, options) {
 
   this._onUpload = null;
   this._onDownload = null;
-  this._xhr.onprogress = lambda(function(ev) {
+  this._xhr.onprogress = lambda(this, function(ev) {
     if (typeof(this._onUpload) === 'function' && this._body !== null && this._body !== undefined && this._xhr.upload) {
       var lTotal = undefined;
 
@@ -91,12 +91,12 @@ export function Ajax(type, url, body, reqBody, headers, options) {
 
       this._onDownload(new HttpOnProgressEvent('DownloadProgress', ev.loaded, lTotal, lResponseText));
     }
-  }, this);
+  });
 
   this.toPromise = once(
-    lambda(function(onFulfilled, onRejected, onFinally) {
+    lambda(this, function(onFulfilled, onRejected, onFinally) {
       this._promise = promiseFactory(
-        lambda(function(resolve, reject) {
+        lambda(this, function(resolve, reject) {
           if (this._state !== AjaxStatesEnum.Opened) {
             return;
           }
@@ -118,11 +118,11 @@ export function Ajax(type, url, body, reqBody, headers, options) {
 
           this._headers.detectContentTypeHeader(this._body);
 
-          this._headers.iterate(lambda(function(key, value) {
+          this._headers.iterate(lambda(this, function(key, value) {
             this._xhr.setRequestHeader(key, value);
-          }, this));
+          }));
 
-          this._xhr.onload = lambda(function(ev) {
+          this._xhr.onload = lambda(this, function(ev) {
             this._state = AjaxStatesEnum.Fulfilled;
 
             var __status = this._xhr.status || 0;
@@ -149,9 +149,9 @@ export function Ajax(type, url, body, reqBody, headers, options) {
               )));
             }
 
-          }, this);
+          });
 
-          var __onError__ = lambda(function(ev) {
+          var __onError__ = lambda(this, function(ev) {
             this._state = AjaxStatesEnum.Rejected;
 
             var __status = this._xhr.status || 0;
@@ -159,7 +159,7 @@ export function Ajax(type, url, body, reqBody, headers, options) {
             reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
               ev, this._xhr, __status, (getResponseUrl(this._xhr) || this._url)
             )));
-          }, this);
+          });
 
           this._xhr.ontimeout = __onError__;
           this._xhr.onabort = __onError__;
@@ -168,16 +168,16 @@ export function Ajax(type, url, body, reqBody, headers, options) {
           this._xhr.send(serializeRequestBody(this._body));
 
           this._body = null;
-        }, this)
+        })
       )
       .then(onFulfilled, onRejected)
       .finally(onFinally);
 
       return this._promise;
-    }, this),
-    lambda(function() {
+    }),
+    lambda(this, function() {
       return this._promise;
-    }, this)
+    })
   );
 
   this.subscribe = function(onFulfilled, onRejected) {

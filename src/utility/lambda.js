@@ -1,4 +1,4 @@
-export function lambda(func, root) {
+export function lambda(root, func) {
   if (typeof func !== 'function' || typeof root !== 'object') {
     return function() { }
   }

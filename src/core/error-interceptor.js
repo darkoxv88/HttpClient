@@ -1,8 +1,9 @@
 import { tryCatch } from "../utility/try-catch.js";
+import { noop } from "../utility/noop.js";
 
 export function ErrorInterceptor(callback) {
   if (typeof(callback) !== 'function') {
-    callback = function() { };
+    callback = noop;
   }
 
   this._callback = tryCatch(callback, function(err) { });
@@ -16,10 +17,10 @@ ErrorInterceptor.prototype = {
   },
 }
 
-ErrorInterceptor.instance = new ErrorInterceptor(function() { });
+ErrorInterceptor.instance = new ErrorInterceptor(noop);
 
 ErrorInterceptor.setInterceptor = function(interceptor) {
-  ErrorInterceptor.instance = new ErrorInterceptor(function() { });
+  ErrorInterceptor.instance = new ErrorInterceptor(noop);
 }
 
 ErrorInterceptor.intercept = function(value) {

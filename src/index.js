@@ -33,7 +33,7 @@ exports:
 
 backup:
 
-  window.___webpack_export_dp_HttpClient___.definition
+  window.___webpack_export_dp___.HttpClient
 
 **/
 
@@ -42,7 +42,7 @@ var libName = 'HttpClient';
 try
 {
   if (getRoot()[libName] && isProduction()) {
-    throw new Error('window["' + libName + '"] is already in use! Switching to: ' + 'window["___webpack_export_' + libName + '___"].definition');
+    throw new Error('window["' + libName + '"] is already in use! Switching to: ' + 'window["___webpack_export_dp___"].' + libName);
   }
 
   getRoot()[libName] = HTTP;
@@ -51,9 +51,9 @@ catch(err)
 {
   console.error(err);
 
-	if (typeof(getRoot()['___webpack_export_dp_' + libName + '___']) !== 'object' || !(getRoot()['___webpack_export_dp_' + libName + '___'])) {
-		getRoot()['___webpack_export_dp_' + libName + '___'] = ({ });
+	if (typeof(getRoot()['___webpack_export_dp___']) !== 'object') {
+		getRoot()['___webpack_export_dp___'] = ({ });
 	}
 
-	getRoot()['___webpack_export_dp_' + libName + '___'].definition = HTTP;
+	getRoot()['___webpack_export_dp___'][libName] = HTTP;
 }

@@ -29,12 +29,12 @@ exports:
 
 backup:
 
-  window.___webpack_export_dp_HttpClient___.definition
+  window.___webpack_export_dp___.HttpClient
 
 **/
 
-(function() {
-"use strict";
+/******/ (function() { // webpackBootstrap
+/******/ 	"use strict";
 var __webpack_exports__ = {};
 
 ;// CONCATENATED MODULE: ./src/refs/root.js
@@ -133,7 +133,7 @@ var HttpStatusCodeEnum = new HttpStatusCode();
 Object.freeze(HttpStatusCodeEnum);
 
 ;// CONCATENATED MODULE: ./src/utility/lambda.js
-function lambda(func, root) {
+function lambda(root, func) {
   if (typeof func !== 'function' || typeof root !== 'object') {
     return function() { }
   }
@@ -314,9 +314,9 @@ AjaxParams.prototype = {
 
     try
     {
-      this.keys().forEach(lambda(function(key) {
+      this.keys().forEach(this, lambda(function(key) {
         out.set(key, this._map.get(key));
-      }, this));
+      }));
     }
     catch (err)
     { 
@@ -347,13 +347,13 @@ AjaxParams.prototype = {
   },
 
   toString: function() {
-    return this.keys().map(lambda(function(key) {
+    return this.keys().map(lambda(this, function(key) {
       
       return this._map.get(key).map(function(value) { 
         return safeUriEncode(key) + '=' + safeUriEncode(value); 
       }).join('&');
 
-    }, this))
+    }))
     .filter(function(param) { 
       return (param !== '');
     })
@@ -421,11 +421,11 @@ AjaxHeaders.prototype = {
   iterate: function(callback) {
     try
     {
-      this.keys().forEach(lambda(function(key) {
+      this.keys().forEach(lambda(this, function(key) {
         this._headers.get(key).forEach(function(value) {
           callback(key, value);
         });
-      }, this));
+      }));
     }
     catch (err)
     { 
@@ -458,9 +458,9 @@ AjaxHeaders.prototype = {
 
     try
     {
-      this.keys().forEach(lambda(function(key) {
+      this.keys().forEach(lambda(this, function(key) {
         out.set(key, this._headers.get(key));
-      }, this));
+      }));
     }
     catch (err) 
     { 
@@ -667,10 +667,17 @@ function safeJsonStringify(value) {
   }
 }
 
+;// CONCATENATED MODULE: ./src/utility/noop.js
+function noop() {
+
+}
+
 ;// CONCATENATED MODULE: ./src/utility/try-catch.js
+
+
 function tryCatch(func, onError) {
   if (typeof func !== 'function') {
-    return function() { }
+    return noop;
   }
 
   return function() {
@@ -707,20 +714,22 @@ var localPromise = function(executor) {
   this._onFinally = tryCatch(null);
   this._state = 'PENDING';
 
-  this._executor(
-    lambda(function(value) {
-      this._state = 'FULFILLED';
-      this._value = value;
-      this._onFulfilled(this._value);
-      this._onFinally(this._value);
-    }, this),
-    lambda(function(value) {
-      this._state = 'REJECTED';
-      this._value = value;
-      this._onRejected(this._value);
-      this._onFinally(this._value);
-    }, this)
-  );
+  setTimeout(lambda(this, function() {
+    this._executor(
+      lambda(this, function(value) {
+        this._state = 'FULFILLED';
+        this._value = value;
+        this._onFulfilled(this._value);
+        this._onFinally(this._value);
+      }),
+      lambda(this, function(value) {
+        this._state = 'REJECTED';
+        this._value = value;
+        this._onRejected(this._value);
+        this._onFinally(this._value);
+      })
+    );
+  }), 1);
 }
 
 localPromise.prototype = {
@@ -863,19 +872,20 @@ ResponseHeaders.prototype = {
 
 function baseHttpResponse(chieldRoot, xhr, status) {
   chieldRoot._headers = new ResponseHeaders(xhr);
-  defineObjProp(chieldRoot, 'headers', function() { return this._headers }, function() { });
+  defineObjProp(chieldRoot, 'headers', function() { return this._headers }, noop);
 
   chieldRoot._status = status;
-  defineObjProp(chieldRoot, 'status', function() { return this._status }, function() { });
+  defineObjProp(chieldRoot, 'status', function() { return this._status }, noop);
 
   chieldRoot._ok = (chieldRoot.status >= 200 && chieldRoot.status < 300);
-  defineObjProp(chieldRoot, 'ok', function() { return this._ok }, function() { });
+  defineObjProp(chieldRoot, 'ok', function() { return this._ok }, noop);
 
   chieldRoot._statusText = xhr.statusText || 'Unknown Error';
-  defineObjProp(chieldRoot, 'statusText', function() { return this._statusText }, function() { });
+  defineObjProp(chieldRoot, 'statusText', function() { return this._statusText }, noop);
 }
 
 ;// CONCATENATED MODULE: ./src/events/http/http-error-response-event.js
+
 
 
 
@@ -884,13 +894,13 @@ function HttpErrorResponseEvent(err, xhr, status, url) {
   baseHttpResponse(this, xhr, status);
 
   this._timeStamp = err.timeStamp;
-  defineObjProp(this, 'timeStamp', function() { return this._timeStamp }, function() { });
+  defineObjProp(this, 'timeStamp', function() { return this._timeStamp }, noop);
 
   this._url = url;
-  defineObjProp(this, 'url', function() { return this._url }, function() { });
+  defineObjProp(this, 'url', function() { return this._url }, noop);
 
   this._name = 'HttpErrorResponse';
-  defineObjProp(this, 'name', function() { return this._name }, function() { });
+  defineObjProp(this, 'name', function() { return this._name }, noop);
 }
 
 HttpErrorResponseEvent.prototype = { }
@@ -917,19 +927,20 @@ HttpOnProgressEvent.prototype = { }
 
 
 
+
 var XSSI_prefixRegEx = /^\)\]\}',?\n/;
 
 function HttpResponseEvent(ev, xhr, status, url) {
   baseHttpResponse(this, xhr, status);
 
   this._timeStamp = ev.timeStamp;
-  defineObjProp(this, 'timeStamp', function() { return this._timeStamp }, function() { });
+  defineObjProp(this, 'timeStamp', function() { return this._timeStamp }, noop);
 
   this._url = url;
-  defineObjProp(this, 'url', function() { return this._url }, function() { });
+  defineObjProp(this, 'url', function() { return this._url }, noop);
 
   this._name = 'HttpResponse';
-  defineObjProp(this, 'name', function() { return this._name }, function() { });
+  defineObjProp(this, 'name', function() { return this._name }, noop);
 
   this._body = (typeof(xhr.response) === 'undefined') ? xhr.responseText : xhr.response;
 
@@ -991,9 +1002,10 @@ function HttpResponseEvent(ev, xhr, status, url) {
 ;// CONCATENATED MODULE: ./src/core/error-interceptor.js
 
 
+
 function ErrorInterceptor(callback) {
   if (typeof(callback) !== 'function') {
-    callback = function() { };
+    callback = noop;
   }
 
   this._callback = tryCatch(callback, function(err) { });
@@ -1007,10 +1019,10 @@ ErrorInterceptor.prototype = {
   },
 }
 
-ErrorInterceptor.instance = new ErrorInterceptor(function() { });
+ErrorInterceptor.instance = new ErrorInterceptor(noop);
 
 ErrorInterceptor.setInterceptor = function(interceptor) {
-  ErrorInterceptor.instance = new ErrorInterceptor(function() { });
+  ErrorInterceptor.instance = new ErrorInterceptor(noop);
 }
 
 ErrorInterceptor.intercept = function(value) {
@@ -1103,7 +1115,7 @@ function Ajax(type, url, body, reqBody, headers, options) {
 
   this._onUpload = null;
   this._onDownload = null;
-  this._xhr.onprogress = lambda(function(ev) {
+  this._xhr.onprogress = lambda(this, function(ev) {
     if (typeof(this._onUpload) === 'function' && this._body !== null && this._body !== undefined && this._xhr.upload) {
       var lTotal = undefined;
 
@@ -1128,12 +1140,12 @@ function Ajax(type, url, body, reqBody, headers, options) {
 
       this._onDownload(new HttpOnProgressEvent('DownloadProgress', ev.loaded, lTotal, lResponseText));
     }
-  }, this);
+  });
 
   this.toPromise = once(
-    lambda(function(onFulfilled, onRejected, onFinally) {
+    lambda(this, function(onFulfilled, onRejected, onFinally) {
       this._promise = promiseFactory(
-        lambda(function(resolve, reject) {
+        lambda(this, function(resolve, reject) {
           if (this._state !== AjaxStatesEnum.Opened) {
             return;
           }
@@ -1155,11 +1167,11 @@ function Ajax(type, url, body, reqBody, headers, options) {
 
           this._headers.detectContentTypeHeader(this._body);
 
-          this._headers.iterate(lambda(function(key, value) {
+          this._headers.iterate(lambda(this, function(key, value) {
             this._xhr.setRequestHeader(key, value);
-          }, this));
+          }));
 
-          this._xhr.onload = lambda(function(ev) {
+          this._xhr.onload = lambda(this, function(ev) {
             this._state = AjaxStatesEnum.Fulfilled;
 
             var __status = this._xhr.status || 0;
@@ -1186,9 +1198,9 @@ function Ajax(type, url, body, reqBody, headers, options) {
               )));
             }
 
-          }, this);
+          });
 
-          var __onError__ = lambda(function(ev) {
+          var __onError__ = lambda(this, function(ev) {
             this._state = AjaxStatesEnum.Rejected;
 
             var __status = this._xhr.status || 0;
@@ -1196,7 +1208,7 @@ function Ajax(type, url, body, reqBody, headers, options) {
             reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
               ev, this._xhr, __status, (getResponseUrl(this._xhr) || this._url)
             )));
-          }, this);
+          });
 
           this._xhr.ontimeout = __onError__;
           this._xhr.onabort = __onError__;
@@ -1205,16 +1217,16 @@ function Ajax(type, url, body, reqBody, headers, options) {
           this._xhr.send(serializeRequestBody(this._body));
 
           this._body = null;
-        }, this)
+        })
       )
       .then(onFulfilled, onRejected)
       .finally(onFinally);
 
       return this._promise;
-    }, this),
-    lambda(function() {
+    }),
+    lambda(this, function() {
       return this._promise;
-    }, this)
+    })
   );
 
   this.subscribe = function(onFulfilled, onRejected) {
@@ -1381,9 +1393,9 @@ function JSONP(url, options, callbackParamName, callbackName) {
   this._url = url;
 
   this.toPromise = once(
-    lambda(function(onFulfilled, onRejected, onFinally) {
+    lambda(this, function(onFulfilled, onRejected, onFinally) {
       this.__promise__ = promiseFactory(
-        lambda(function(resolve, reject) {
+        lambda(this, function(resolve, reject) {
 
           this.params.deleteByKey(callbackParamName);
           this.params.append(callbackParamName, getCallbackName(this._index));
@@ -1392,7 +1404,7 @@ function JSONP(url, options, callbackParamName, callbackName) {
           this._script.type = 'text/javascript';
           this._script.async = true;
 
-          var __constFinalize__ = lambda(function() {
+          var __constFinalize__ = lambda(this, function() {
             detachCallback(this._index);
 
             if (this._script) {
@@ -1400,9 +1412,9 @@ function JSONP(url, options, callbackParamName, callbackName) {
             }
 
             removeIndex(this._index);
-          }, this);
+          });
 
-          attachCallback(this._index, lambda(function(data) {
+          attachCallback(this._index, lambda(this, function(data) {
             if (this._timer) {
               clearTimeout(this._timer);
             }
@@ -1410,9 +1422,9 @@ function JSONP(url, options, callbackParamName, callbackName) {
             __constFinalize__();
 
             resolve(data);
-          }, this));
+          }));
 
-          this._script.onerror = lambda(function(ev) {
+          this._script.onerror = lambda(this, function(ev) {
             if (this._timer) {
               clearTimeout(this._timer);
             }
@@ -1420,26 +1432,26 @@ function JSONP(url, options, callbackParamName, callbackName) {
             __constFinalize__();
 
             reject(ev);
-          }, this);
+          });
 
           this._target.append(this._script);
 
-          this._timer = setTimeout(lambda(function() { 
+          this._timer = setTimeout(lambda(this, function() { 
             __constFinalize__();
 
             reject(new Error('JSONP request canceled.'));
-          }, this), (AjaxOptions.defineTimeout(options.timeout, 5) * 1000));
+          }), (AjaxOptions.defineTimeout(options.timeout, 5) * 1000));
 
-        }, this)
+        })
       )
       .then(onFulfilled, onRejected)
       .finally(onFinally);
 
       return this.__promise__;
-    }, this),
-    lambda(function() {
+    }),
+    lambda(this, function() {
       return this.__promise__;
-    }, this)
+    })
   );
 
   this.subscribe = function(onFulfilled, onRejected) {
@@ -1536,13 +1548,12 @@ HTTP.HttpStatusCode = HttpStatusCodeEnum;
 
 
 
-
 var libName = 'HttpClient';
 
 try
 {
   if (getRoot()[libName] && isProduction()) {
-    throw new Error('window["' + libName + '"] is already in use! Switching to: ' + 'window["___webpack_export_' + libName + '___"].definition');
+    throw new Error('window["' + libName + '"] is already in use! Switching to: ' + 'window["___webpack_export_dp___"].' + libName);
   }
 
   getRoot()[libName] = HTTP;
@@ -1551,11 +1562,12 @@ catch(err)
 {
   console.error(err);
 
-	if (typeof(getRoot()['___webpack_export_dp_' + libName + '___']) !== 'object' || !(getRoot()['___webpack_export_dp_' + libName + '___'])) {
-		getRoot()['___webpack_export_dp_' + libName + '___'] = ({ });
+	if (typeof(getRoot()['___webpack_export_dp___']) !== 'object') {
+		getRoot()['___webpack_export_dp___'] = ({ });
 	}
 
-	getRoot()['___webpack_export_dp_' + libName + '___'].definition = HTTP;
+	getRoot()['___webpack_export_dp___'][libName] = HTTP;
 }
 
-})();
+/******/ })()
+;

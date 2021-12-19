@@ -1,6 +1,8 @@
+import { noop } from "./noop";
+
 export function tryCatch(func, onError) {
   if (typeof func !== 'function') {
-    return function() { }
+    return noop;
   }
 
   return function() {
