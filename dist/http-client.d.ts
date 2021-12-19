@@ -158,8 +158,17 @@ declare class Ajax {
   public abort(): void;
   public setHeader(key: string, value: string): void;
   public appendParam(key: string, value: string): void;
-  public toPromise(onFulfilled?: (ev: HttpResponseEvent) => void, onRejected?: (ev: HttpErrorResponseEvent) => void, onFinally?: () => void): Promise<any>;
-  public subscribe(onFulfilled: (ev: HttpResponseEvent) => void, onRejected?: (ev: HttpErrorResponseEvent) => void): void;
+
+  public toPromise(
+    onFulfilled?: (ev: HttpResponseEvent) => void, 
+    onRejected?: (ev: HttpErrorResponseEvent) => void, 
+    onFinally?: () => void
+  ): Promise<HttpResponseEvent>;
+
+  public subscribe(
+    onFulfilled: (ev: HttpResponseEvent) => void, 
+    onRejected?: (ev: HttpErrorResponseEvent) => void
+  ): void;
 
 }
 
@@ -251,7 +260,7 @@ export declare class HttpClient {
 
   static options(url: string, body: any, headers?: AjaxHeaders, options?: AjaxOptions): Ajax;
 
-  static createRequestHeaders(headers: AjaxHeaders): AjaxHeaders;
+  static createRequestHeaders(headers?: AjaxHeaders): AjaxHeaders;
 
   static createRequestOptions(): AjaxOptions;
 
