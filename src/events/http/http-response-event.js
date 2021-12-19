@@ -21,7 +21,7 @@ export function HttpResponseEvent(ev, xhr, status, url) {
 
   switch (xhr.responseType) {
     case 'arraybuffer': {
-      if (this._body !== null && !(body instanceof ArrayBuffer)) {
+      if (!(this._body) || !(body instanceof ArrayBuffer)) {
         console.warn('Response type "arraybuffer" expects the respons to be ArrayBuffer.');
       }
 
@@ -29,7 +29,7 @@ export function HttpResponseEvent(ev, xhr, status, url) {
     }
 
     case 'blob': {
-      if (this._body !== null && !(this._body instanceof Blob)) {
+      if (!(this._body) || !(this._body instanceof Blob)) {
         console.warn('Response type "blob" expects the respons to be Blob.');
       }
 
@@ -37,7 +37,7 @@ export function HttpResponseEvent(ev, xhr, status, url) {
     }
 
     case 'text': {
-      if (this._body !== null && typeof(this._body) !== 'string') {
+      if (!(this._body) || typeof(this._body) !== 'string') {
         console.warn('Response type "text" expects the respons to be string.');
       }
 
@@ -45,7 +45,7 @@ export function HttpResponseEvent(ev, xhr, status, url) {
     }
 
     case 'json': {
-      if (this._body !== null && typeof(this._body) !== 'string') {
+      if (!(this._body) || typeof(this._body) !== 'string') {
         console.warn('Response type "json" expects the respons to be string.');
 
         break;
