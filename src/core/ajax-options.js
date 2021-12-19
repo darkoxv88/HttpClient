@@ -8,7 +8,7 @@ AjaxOptions.prototype = {
   params: null
 }
 
-AjaxOptions.defineTimeout = function (value, min) {
+AjaxOptions.defineTimeout = function(value, min) {
   if (typeof(value) !== 'number') {
     return 60;
   }
