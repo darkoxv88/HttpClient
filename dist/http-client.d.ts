@@ -254,7 +254,7 @@ export declare class HttpClient {
 
   static setErrorInterceptor(interceptor: (error: HttpErrorResponseEvent) => void): void;
 
-  static jsonp(url: string, options: AjaxOptions, callbackParamName: string, callbackName?: string): JSONP;
+  static jsonp(url: string, options: AjaxOptions, callbackParamName?: string, callbackName?: string): JSONP;
 
   static get(url: string, headers?: AjaxHeaders, options?: AjaxOptions): Ajax;
 

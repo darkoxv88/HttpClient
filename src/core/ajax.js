@@ -46,21 +46,19 @@ export function Ajax(type, url, body, reqBody, headers, options) {
     options = new AjaxOptions();
   }
 
-  this._isAsync = options.async = !!(options.async);
-
   this.params = new AjaxParams(options.params);
+
+  this._url = url;
+  this._isAsync = options.async = !!(options.async);
+  this._xhr = xhrFactory();
 
   this._type = type;
   defineObjProp(this, 'type', function() { return this._type }, function() { });
-
-  this._url = url;
-
-  this._xhr = xhrFactory();
-
+  
   this._state = AjaxStatesEnum.Opened;
   defineObjProp(this, 'state', function() { return this._state }, function() { });
 
-  options.responseType = this._xhr.responseType = AjaxOptions.defineResponseType(options.responseType);
+  this._xhr.responseType = options.responseType = AjaxOptions.defineResponseType(options.responseType);
 
   this._onUpload = null;
   this._onDownload = null;
@@ -95,14 +93,6 @@ export function Ajax(type, url, body, reqBody, headers, options) {
     lambda(this, function(onFulfilled, onRejected, onFinally) {
       this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
-          if (this._state !== AjaxStatesEnum.Opened) {
-            return;
-          }
-
-          if (!this._isAsync) {
-            console.warn('Performing a synchronous request');
-          }
-
           this._xhr.open(
             this._type, 
             this._url + '?' + this.params.toString(), 

@@ -1082,21 +1082,19 @@ function Ajax(type, url, body, reqBody, headers, options) {
     options = new AjaxOptions();
   }
 
-  this._isAsync = options.async = !!(options.async);
-
   this.params = new AjaxParams(options.params);
+
+  this._url = url;
+  this._isAsync = options.async = !!(options.async);
+  this._xhr = xhrFactory();
 
   this._type = type;
   defineObjProp(this, 'type', function() { return this._type }, function() { });
-
-  this._url = url;
-
-  this._xhr = xhrFactory();
-
+  
   this._state = AjaxStatesEnum.Opened;
   defineObjProp(this, 'state', function() { return this._state }, function() { });
 
-  options.responseType = this._xhr.responseType = AjaxOptions.defineResponseType(options.responseType);
+  this._xhr.responseType = options.responseType = AjaxOptions.defineResponseType(options.responseType);
 
   this._onUpload = null;
   this._onDownload = null;
@@ -1131,14 +1129,6 @@ function Ajax(type, url, body, reqBody, headers, options) {
     lambda(this, function(onFulfilled, onRejected, onFinally) {
       this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
-          if (this._state !== AjaxStatesEnum.Opened) {
-            return;
-          }
-
-          if (!this._isAsync) {
-            console.warn('Performing a synchronous request');
-          }
-
           this._xhr.open(
             this._type, 
             this._url + '?' + this.params.toString(), 
@@ -1379,9 +1369,8 @@ function JSONP(url, options, callbackParamName, callbackName) {
 
   this.toPromise = once(
     lambda(this, function(onFulfilled, onRejected, onFinally) {
-      this.__promise__ = promiseFactory(
+      this.__promise = promiseFactory(
         lambda(this, function(resolve, reject) {
-
           this.params.deleteByKey(callbackParamName);
           this.params.append(callbackParamName, getCallbackName(this._index));
 
@@ -1426,16 +1415,15 @@ function JSONP(url, options, callbackParamName, callbackName) {
 
             reject(new Error('JSONP request canceled.'));
           }), (AjaxOptions.defineTimeout(options.timeout, 5) * 1000));
-
         })
       )
       .then(onFulfilled, onRejected)
       .finally(onFinally);
 
-      return this.__promise__;
+      return this.__promise;
     }),
     lambda(this, function() {
-      return this.__promise__;
+      return this.__promise;
     })
   );
 
@@ -1452,7 +1440,7 @@ JSONP.prototype = {
   _target: document.head,
   _script: document.createElement('script'),
   _timer: null,
-  __promise__: null,
+  __promise: null,
 
   toPromise: null,
   sbscribe: null,

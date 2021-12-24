@@ -60,9 +60,8 @@ export function JSONP(url, options, callbackParamName, callbackName) {
 
   this.toPromise = once(
     lambda(this, function(onFulfilled, onRejected, onFinally) {
-      this.__promise__ = promiseFactory(
+      this.__promise = promiseFactory(
         lambda(this, function(resolve, reject) {
-
           this.params.deleteByKey(callbackParamName);
           this.params.append(callbackParamName, getCallbackName(this._index));
 
@@ -107,16 +106,15 @@ export function JSONP(url, options, callbackParamName, callbackName) {
 
             reject(new Error('JSONP request canceled.'));
           }), (AjaxOptions.defineTimeout(options.timeout, 5) * 1000));
-
         })
       )
       .then(onFulfilled, onRejected)
       .finally(onFinally);
 
-      return this.__promise__;
+      return this.__promise;
     }),
     lambda(this, function() {
-      return this.__promise__;
+      return this.__promise;
     })
   );
 
@@ -133,7 +131,7 @@ JSONP.prototype = {
   _target: document.head,
   _script: document.createElement('script'),
   _timer: null,
-  __promise__: null,
+  __promise: null,
 
   toPromise: null,
   sbscribe: null,
