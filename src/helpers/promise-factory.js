@@ -7,24 +7,28 @@ function catchedError(err) {
   console.error(err);
 }
 
+var const_PENDING = 0;
+var const_FULFILLED = 1;
+var const_REJECTED = 2;
+
 var localPromise = function(executor) {
   this._executor = tryCatch(executor, catchedError);
   this._value = undefined;
   this._onFulfilled = tryCatch(null);
   this._onRejected = tryCatch(null);
   this._onFinally = tryCatch(null);
-  this._state = 'PENDING';
+  this._state = const_PENDING;
 
   setTimeout(lambda(this, function() {
     this._executor(
       lambda(this, function(value) {
-        this._state = 'FULFILLED';
+        this._state = const_FULFILLED;
         this._value = value;
         this._onFulfilled(this._value);
         this._onFinally(this._value);
       }),
       lambda(this, function(value) {
-        this._state = 'REJECTED';
+        this._state = const_REJECTED;
         this._value = value;
         this._onRejected(this._value);
         this._onFinally(this._value);
@@ -38,11 +42,11 @@ localPromise.prototype = {
     this._onFulfilled = tryCatch(onFulfilled, catchedError);
     this._onRejected = tryCatch(onRejected, catchedError);
 
-    if (this._state === 'FULFILLED') {
+    if (this._state === const_FULFILLED) {
       this._onFulfilled(this._value);
     }
 
-    if (this._state === 'REJECTED') {
+    if (this._state === const_REJECTED) {
       this._onRejected(this._value);
     }
 
@@ -51,7 +55,7 @@ localPromise.prototype = {
   catch: function(onRejected) {
     this._onRejected = tryCatch(onRejected, catchedError);
 
-    if (this._state === 'REJECTED') {
+    if (this._state === const_REJECTED) {
       this._onRejected(this._value);
     }
 
@@ -60,7 +64,7 @@ localPromise.prototype = {
   finally: function(onFinally) {
     this._onFinally = tryCatch(onFinally, catchedError);
 
-    if (this._state !== 'PENDING') {
+    if (this._state !== const_PENDING) {
       this._onFinally();
     }
 

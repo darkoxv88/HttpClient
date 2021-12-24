@@ -543,7 +543,7 @@ function AjaxOptions() { }
 AjaxOptions.prototype = {
   async: true,
   timeout: 60,
-  responseType: 'json',
+  responseType: '',
   withCredentials: false,
   params: null
 }
@@ -704,24 +704,28 @@ function catchedError(err) {
   console.error(err);
 }
 
+var const_PENDING = 0;
+var const_FULFILLED = 1;
+var const_REJECTED = 2;
+
 var localPromise = function(executor) {
   this._executor = tryCatch(executor, catchedError);
   this._value = undefined;
   this._onFulfilled = tryCatch(null);
   this._onRejected = tryCatch(null);
   this._onFinally = tryCatch(null);
-  this._state = 'PENDING';
+  this._state = const_PENDING;
 
   setTimeout(lambda(this, function() {
     this._executor(
       lambda(this, function(value) {
-        this._state = 'FULFILLED';
+        this._state = const_FULFILLED;
         this._value = value;
         this._onFulfilled(this._value);
         this._onFinally(this._value);
       }),
       lambda(this, function(value) {
-        this._state = 'REJECTED';
+        this._state = const_REJECTED;
         this._value = value;
         this._onRejected(this._value);
         this._onFinally(this._value);
@@ -735,11 +739,11 @@ localPromise.prototype = {
     this._onFulfilled = tryCatch(onFulfilled, catchedError);
     this._onRejected = tryCatch(onRejected, catchedError);
 
-    if (this._state === 'FULFILLED') {
+    if (this._state === const_FULFILLED) {
       this._onFulfilled(this._value);
     }
 
-    if (this._state === 'REJECTED') {
+    if (this._state === const_REJECTED) {
       this._onRejected(this._value);
     }
 
@@ -748,7 +752,7 @@ localPromise.prototype = {
   catch: function(onRejected) {
     this._onRejected = tryCatch(onRejected, catchedError);
 
-    if (this._state === 'REJECTED') {
+    if (this._state === const_REJECTED) {
       this._onRejected(this._value);
     }
 
@@ -757,7 +761,7 @@ localPromise.prototype = {
   finally: function(onFinally) {
     this._onFinally = tryCatch(onFinally, catchedError);
 
-    if (this._state !== 'PENDING') {
+    if (this._state !== const_PENDING) {
       this._onFinally();
     }
 
@@ -1029,23 +1033,7 @@ ErrorInterceptor.intercept = function(value) {
   return value;
 }
 
-;// CONCATENATED MODULE: ./src/core/settings.js
-var allowNoneAsync = false;
-
-function getAllowNoneAsyncCalls() {
-  return allowNoneAsync;
-}
-
-function setAllowNoneAsyncCalls(value) {
-  allowNoneAsync = !!(value);
-
-  if (allowNoneAsync) {
-    console.warn('Synchronous calls have been allowed');
-  }
-}
-
 ;// CONCATENATED MODULE: ./src/core/ajax.js
-
 
 
 
@@ -1094,7 +1082,7 @@ function Ajax(type, url, body, reqBody, headers, options) {
     options = new AjaxOptions();
   }
 
-  options.async = !!(options.async);
+  this._isAsync = options.async = !!(options.async);
 
   this.params = new AjaxParams(options.params);
 
@@ -1102,7 +1090,6 @@ function Ajax(type, url, body, reqBody, headers, options) {
   defineObjProp(this, 'type', function() { return this._type }, function() { });
 
   this._url = url;
-  this._isAsync = getAllowNoneAsyncCalls() ? options.async : true
 
   this._xhr = xhrFactory();
 
@@ -1321,7 +1308,7 @@ Ajax.options = function(url, body, headers, options) {
 
 ;// CONCATENATED MODULE: ./src/utility/random-generator.js
 function randomStringIdGenerator() {
-  return 'xxxxyxxxyxxx'.replace(/[xy]/g, function(char) {
+  return ('xxxxyxxxyxxx').replace(/[xy]/g, function(char) {
     var rand = Math.random() * 16 | 0; 
     var out = (char == 'x') ? rand : (rand & 0x3 | 0x8);
 
@@ -1481,17 +1468,12 @@ JSONP.prototype = {
 
 
 
-
 function HTTP() { }
 
 HTTP.prototype = { }
 
 HTTP.setErrorInterceptor = function(interceptor) {
   Ajax.setErrorInterceptor(interceptor);
-}
-
-HTTP.allowNoneAsyncCalls = function(value) {
-  setAllowNoneAsyncCalls(value);
 }
 
 HTTP.get = function(url, headers, options) {
@@ -1541,6 +1523,7 @@ HTTP.createRequestParams = function(params) {
 HTTP.HttpStatusCode = HttpStatusCodeEnum;
 
 ;// CONCATENATED MODULE: ./src/index.js
+
 
 
 

@@ -18,7 +18,6 @@ import { AjaxHeaders } from "./ajax-headers.js";
 import { AjaxOptions } from "./ajax-options.js";
 import { AjaxParams } from "./ajax-params";
 import { ErrorInterceptor } from "./error-interceptor.js";
-import { getAllowNoneAsyncCalls } from "./settings";
 
 function serializeRequestBody(body) {
   if (body === null || body === undefined) {
@@ -47,7 +46,7 @@ export function Ajax(type, url, body, reqBody, headers, options) {
     options = new AjaxOptions();
   }
 
-  options.async = !!(options.async);
+  this._isAsync = options.async = !!(options.async);
 
   this.params = new AjaxParams(options.params);
 
@@ -55,7 +54,6 @@ export function Ajax(type, url, body, reqBody, headers, options) {
   defineObjProp(this, 'type', function() { return this._type }, function() { });
 
   this._url = url;
-  this._isAsync = getAllowNoneAsyncCalls() ? options.async : true
 
   this._xhr = xhrFactory();
 

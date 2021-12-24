@@ -3,7 +3,7 @@ export function AjaxOptions() { }
 AjaxOptions.prototype = {
   async: true,
   timeout: 60,
-  responseType: 'json',
+  responseType: '',
   withCredentials: false,
   params: null
 }

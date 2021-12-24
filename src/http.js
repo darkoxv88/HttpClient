@@ -5,7 +5,6 @@ import { AjaxOptions } from "./core/ajax-options";
 import { AjaxParams } from "./core/ajax-params";
 import { Ajax } from "./core/ajax";
 import { JSONP } from "./core/jsonp";
-import { setAllowNoneAsyncCalls } from "./core/settings";
 
 export function HTTP() { }
 
@@ -13,10 +12,6 @@ HTTP.prototype = { }
 
 HTTP.setErrorInterceptor = function(interceptor) {
   Ajax.setErrorInterceptor(interceptor);
-}
-
-HTTP.allowNoneAsyncCalls = function(value) {
-  setAllowNoneAsyncCalls(value);
 }
 
 HTTP.get = function(url, headers, options) {
