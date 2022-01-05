@@ -200,6 +200,7 @@ declare class AjaxParams {
   public append(key: string, value: string): void;
   public deleteByKey(key: string): void;
   public toString(): string;
+  public getQueryString(): string;
 
 }
 

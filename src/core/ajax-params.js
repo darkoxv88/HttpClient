@@ -172,4 +172,10 @@ AjaxParams.prototype = {
     })
     .join('&');
   },
+
+  getQueryString: function() {
+    var out = this.toString();
+
+    return out ? ('?' + out) : '';
+  }
 }

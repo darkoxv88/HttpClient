@@ -34,7 +34,8 @@ backup:
 **/
 
 /******/ (function() { // webpackBootstrap
-"use strict";
+/******/ 	"use strict";
+var __webpack_exports__ = {};
 
 ;// CONCATENATED MODULE: ./src/refs/root.js
 var root = typeof window !== 'undefined' ? window : typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : ({ });
@@ -57,8 +58,6 @@ function enumValue(ref, key, value) {
 };
 
 ;// CONCATENATED MODULE: ./src/enums/http-status-code-enum.js
-
-
 function HttpStatusCode() {
   enumValue(this, 'Continue', 100);
   enumValue(this, 'SwitchingProtocols', 101);
@@ -184,11 +183,6 @@ function safeUriDecode(value) {
 }
 
 ;// CONCATENATED MODULE: ./src/core/ajax-params.js
-
-
-
-
-
 function isParamValid(value) {
   if (Array.isArray(value) || typeof(value) === 'string' || typeof(value) === 'number' || typeof(value) === 'boolean') {
     return true;
@@ -358,16 +352,15 @@ AjaxParams.prototype = {
     })
     .join('&');
   },
+
+  getQueryString: function() {
+    var out = this.toString();
+
+    return out ? ('?' + out) : '';
+  }
 }
 
 ;// CONCATENATED MODULE: ./src/core/ajax-headers.js
-
-
-
-
-
-
-
 function AjaxHeaders(headers) {
   if (typeof(headers) !== 'object' || !headers) {
     headers = ({ });
@@ -669,8 +662,6 @@ function safeJsonStringify(value) {
 function noop() { }
 
 ;// CONCATENATED MODULE: ./src/utility/try-catch.js
-
-
 function tryCatch(func, onError) {
   if (typeof func !== 'function') {
     return noop;
@@ -693,11 +684,6 @@ function tryCatch(func, onError) {
 }
 
 ;// CONCATENATED MODULE: ./src/helpers/promise-factory.js
-
-
-
-
-
 function catchedError(err) {
   console.error(err);
 }
@@ -801,8 +787,6 @@ function getResponseUrl(xhr) {
 }
 
 ;// CONCATENATED MODULE: ./src/enums/ajax-states-enum.js
-
-
 function AjaxStates() {
   enumValue(this, 'Unknown', 0);
   enumValue(this, 'Opened', 1);
@@ -819,10 +803,6 @@ var AjaxStatesEnum = new AjaxStates();
 Object.freeze(AjaxStatesEnum);
 
 ;// CONCATENATED MODULE: ./src/events/base-http-response.js
-
-
-
-
 function ResponseHeaders(xhr) {
   this._headers = null;
 
@@ -885,11 +865,6 @@ function baseHttpResponse(chieldRoot, xhr, status) {
 }
 
 ;// CONCATENATED MODULE: ./src/events/http/http-error-response-event.js
-
-
-
-
-
 function HttpErrorResponseEvent(err, xhr, status, url) {
   baseHttpResponse(this, xhr, status);
 
@@ -923,11 +898,6 @@ function HttpOnProgressEvent(type, processed, total, partialText) {
 HttpOnProgressEvent.prototype = { }
 
 ;// CONCATENATED MODULE: ./src/events/http/http-response-event.js
-
-
-
-
-
 var XSSI_prefixRegEx = /^\)\]\}',?\n/;
 
 function HttpResponseEvent(ev, xhr, status, url) {
@@ -1000,9 +970,6 @@ function HttpResponseEvent(ev, xhr, status, url) {
 }
 
 ;// CONCATENATED MODULE: ./src/core/error-interceptor.js
-
-
-
 function ErrorInterceptor(callback) {
   if (typeof(callback) !== 'function') {
     callback = noop;
@@ -1032,27 +999,6 @@ ErrorInterceptor.intercept = function(value) {
 }
 
 ;// CONCATENATED MODULE: ./src/core/ajax.js
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function serializeRequestBody(body) {
   if (body === null || body === undefined) {
     return null;
@@ -1126,7 +1072,7 @@ function Ajax(type, url, body, reqBody, headers, options) {
     lambda(this, function(onFulfilled, onRejected, onFinally) {
       this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
-          this._xhr.open(this._type, this._url + '?' + this.params.toString(), true);
+          this._xhr.open(this._type, this._url + this.params.getQueryString(), true);
 
           this._state = AjaxStatesEnum.Pending;
 
@@ -1300,17 +1246,6 @@ function randomStringIdGenerator() {
 }
 
 ;// CONCATENATED MODULE: ./src/core/jsonp.js
-
-
-
-
-
-
-
-
-
-
-
 var indexInUse = ({ });
 
 function generateIndex() { 
@@ -1441,14 +1376,6 @@ JSONP.prototype = {
 }
 
 ;// CONCATENATED MODULE: ./src/http.js
-
-
-
-
-
-
-
-
 function HTTP() { }
 
 HTTP.prototype = { }
@@ -1504,12 +1431,6 @@ HTTP.createRequestParams = function(params) {
 HTTP.HttpStatusCode = HttpStatusCodeEnum;
 
 ;// CONCATENATED MODULE: ./src/index.js
-
-
-
-
-
-
 var libName = 'HttpClient';
 
 try

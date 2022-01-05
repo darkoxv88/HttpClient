@@ -92,7 +92,7 @@ export function Ajax(type, url, body, reqBody, headers, options) {
     lambda(this, function(onFulfilled, onRejected, onFinally) {
       this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
-          this._xhr.open(this._type, this._url + '?' + this.params.toString(), true);
+          this._xhr.open(this._type, this._url + this.params.getQueryString(), true);
 
           this._state = AjaxStatesEnum.Pending;
 
