@@ -218,7 +218,6 @@ declare class JSONP {
   constructor(url: string, options?: AjaxOptions, callbackParamName?: string, callbackName?: string);
 
   public toPromise(onFulfilled: (data: any) => void, onRejected: (err: Event | Error) => void, onFinally: () => void): Promise<any>;
-  public subscribe(onFulfilled: (data: any) => void, onRejected: (err: Event | Error) => void): void;
 
 }
 
@@ -236,17 +235,11 @@ declare class Ajax {
   public abort(): void;
   public setHeader(key: string, value: string): void;
   public appendParam(key: string, value: string): void;
-
   public toPromise(
     onFulfilled?: (ev: HttpResponseEvent) => void, 
     onRejected?: (err: HttpErrorResponseEvent) => void, 
     onFinally?: () => void
   ): Promise<HttpResponseEvent>;
-
-  public subscribe(
-    onFulfilled: (ev: HttpResponseEvent) => void, 
-    onRejected?: (err: HttpErrorResponseEvent) => void
-  ): void;
 
 }
 

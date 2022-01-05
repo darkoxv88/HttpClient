@@ -1142,10 +1142,6 @@ function Ajax(type, url, body, reqBody, headers, options) {
       return this._promise;
     })
   );
-
-  this.subscribe = function(onFulfilled, onRejected) {
-    this.toPromise(onFulfilled, onRejected);
-  };
 }
 
 Ajax.prototype = {
@@ -1199,7 +1195,6 @@ Ajax.prototype = {
   },
 
   toPromise: null,
-  subscribe: null,
 
 }
 
@@ -1354,10 +1349,6 @@ function JSONP(url, options, callbackParamName, callbackName) {
       return this.__promise;
     })
   );
-
-  this.subscribe = function(onFulfilled, onRejected) {
-    this.toPromise(onFulfilled, onRejected);
-  };
 }
 
 JSONP.prototype = {
@@ -1371,7 +1362,6 @@ JSONP.prototype = {
   __promise: null,
 
   toPromise: null,
-  sbscribe: null,
   
 }
 

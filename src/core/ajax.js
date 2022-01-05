@@ -162,10 +162,6 @@ export function Ajax(type, url, body, reqBody, headers, options) {
       return this._promise;
     })
   );
-
-  this.subscribe = function(onFulfilled, onRejected) {
-    this.toPromise(onFulfilled, onRejected);
-  };
 }
 
 Ajax.prototype = {
@@ -219,7 +215,6 @@ Ajax.prototype = {
   },
 
   toPromise: null,
-  subscribe: null,
 
 }
 

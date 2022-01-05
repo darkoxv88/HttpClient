@@ -117,10 +117,6 @@ export function JSONP(url, options, callbackParamName, callbackName) {
       return this.__promise;
     })
   );
-
-  this.subscribe = function(onFulfilled, onRejected) {
-    this.toPromise(onFulfilled, onRejected);
-  };
 }
 
 JSONP.prototype = {
@@ -134,6 +130,5 @@ JSONP.prototype = {
   __promise: null,
 
   toPromise: null,
-  sbscribe: null,
   
 }
