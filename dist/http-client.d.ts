@@ -204,7 +204,6 @@ declare class AjaxParams {
 }
 
 declare class AjaxOptions {
-  public async?: boolean;
   public timeout?: number;
   public responseType?: '' | 'text' | 'json' | 'blob' | 'arraybuffer' | 'document' | 'ms-stream';
   public withCredentials?: boolean;

@@ -1,7 +1,6 @@
 export function AjaxOptions() { }
 
 AjaxOptions.prototype = {
-  async: true,
   timeout: 60,
   responseType: '',
   withCredentials: false,

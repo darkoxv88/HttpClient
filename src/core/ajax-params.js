@@ -111,7 +111,7 @@ AjaxParams.prototype = {
     }
 
     var res = this._map.get(key);
-    return !!res ? res[0] : null;
+    return res ? res[0] : null;
   },
 
   getAll: function(key) {

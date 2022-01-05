@@ -37,7 +37,7 @@ ResponseHeaders.prototype = {
       return null;
     }
 
-    return !!(this._headers[key]);
+    return this._headers[key] ? true : false;
   },
 
   get: function(key) {

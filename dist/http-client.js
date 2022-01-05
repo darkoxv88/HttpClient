@@ -34,8 +34,7 @@ backup:
 **/
 
 /******/ (function() { // webpackBootstrap
-/******/ 	"use strict";
-var __webpack_exports__ = {};
+"use strict";
 
 ;// CONCATENATED MODULE: ./src/refs/root.js
 var root = typeof window !== 'undefined' ? window : typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : ({ });
@@ -145,19 +144,19 @@ function lambda(root, func) {
 
 ;// CONCATENATED MODULE: ./src/helpers/xhr-body-type-checks.js
 function isArrayBuffer(value) {
-  return !!(value) && (value instanceof ArrayBuffer);
+  return (value ? true : false) && (value instanceof ArrayBuffer);
 }
 
 function isBlob(value) {
-  return !!(value) && (value instanceof Blob);
+  return (value ? true : false) && (value instanceof Blob);
 }
 
 function isFormData(value) {
-  return !!(value) && (value instanceof FormData);
+  return (value ? true : false) && (value instanceof FormData);
 }
 
 function isUrlSearchParams(value) {
-  return !!(value) && (value instanceof URLSearchParams);
+  return (value ? true : false) && (value instanceof URLSearchParams);
 }
 
 ;// CONCATENATED MODULE: ./src/utility/safe-uri.js
@@ -298,7 +297,7 @@ AjaxParams.prototype = {
     }
 
     var res = this._map.get(key);
-    return !!res ? res[0] : null;
+    return res ? res[0] : null;
   },
 
   getAll: function(key) {
@@ -541,7 +540,6 @@ AjaxHeaders.prototype = {
 function AjaxOptions() { }
 
 AjaxOptions.prototype = {
-  async: true,
   timeout: 60,
   responseType: '',
   withCredentials: false,
@@ -860,7 +858,7 @@ ResponseHeaders.prototype = {
       return null;
     }
 
-    return !!(this._headers[key]);
+    return this._headers[key] ? true : false;
   },
 
   get: function(key) {
@@ -1085,7 +1083,6 @@ function Ajax(type, url, body, reqBody, headers, options) {
   this.params = new AjaxParams(options.params);
 
   this._url = url;
-  this._isAsync = options.async = !!(options.async);
   this._xhr = xhrFactory();
 
   this._type = type;
@@ -1129,16 +1126,12 @@ function Ajax(type, url, body, reqBody, headers, options) {
     lambda(this, function(onFulfilled, onRejected, onFinally) {
       this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
-          this._xhr.open(
-            this._type, 
-            this._url + '?' + this.params.toString(), 
-            this._isAsync
-          );
+          this._xhr.open(this._type, this._url + '?' + this.params.toString(), true);
 
           this._state = AjaxStatesEnum.Pending;
 
           this._xhr.timeout = (AjaxOptions.defineTimeout(options.timeout) * 1000);
-          this._xhr.withCredentials = !!(options.withCredentials);
+          this._xhr.withCredentials = (options.withCredentials ? true : false);
 
           this._headers.detectContentTypeHeader(this._body);
 

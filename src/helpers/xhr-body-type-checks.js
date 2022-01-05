@@ -1,15 +1,15 @@
 export function isArrayBuffer(value) {
-  return !!(value) && (value instanceof ArrayBuffer);
+  return (value ? true : false) && (value instanceof ArrayBuffer);
 }
 
 export function isBlob(value) {
-  return !!(value) && (value instanceof Blob);
+  return (value ? true : false) && (value instanceof Blob);
 }
 
 export function isFormData(value) {
-  return !!(value) && (value instanceof FormData);
+  return (value ? true : false) && (value instanceof FormData);
 }
 
 export function isUrlSearchParams(value) {
-  return !!(value) && (value instanceof URLSearchParams);
+  return (value ? true : false) && (value instanceof URLSearchParams);
 }

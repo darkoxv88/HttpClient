@@ -49,7 +49,6 @@ export function Ajax(type, url, body, reqBody, headers, options) {
   this.params = new AjaxParams(options.params);
 
   this._url = url;
-  this._isAsync = options.async = !!(options.async);
   this._xhr = xhrFactory();
 
   this._type = type;
@@ -93,16 +92,12 @@ export function Ajax(type, url, body, reqBody, headers, options) {
     lambda(this, function(onFulfilled, onRejected, onFinally) {
       this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
-          this._xhr.open(
-            this._type, 
-            this._url + '?' + this.params.toString(), 
-            this._isAsync
-          );
+          this._xhr.open(this._type, this._url + '?' + this.params.toString(), true);
 
           this._state = AjaxStatesEnum.Pending;
 
           this._xhr.timeout = (AjaxOptions.defineTimeout(options.timeout) * 1000);
-          this._xhr.withCredentials = !!(options.withCredentials);
+          this._xhr.withCredentials = (options.withCredentials ? true : false);
 
           this._headers.detectContentTypeHeader(this._body);
 
