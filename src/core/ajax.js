@@ -5,7 +5,6 @@ import { safeJsonStringify } from "./../utility/safe-json.js";
 
 import { promiseFactory } from "./../helpers/promise-factory";
 import { isArrayBuffer, isBlob, isFormData, isUrlSearchParams } from "./../helpers/xhr-body-type-checks";
-import { xhrFactory } from "./../helpers/xhr-factory";
 import { getResponseUrl } from "./../helpers/xhr-get-response-url";
 
 import { AjaxStatesEnum } from "../enums/ajax-states-enum.js";
@@ -40,22 +39,21 @@ function serializeRequestBody(body) {
 export function Ajax(type, url, body, reqBody, headers, options) {
   reqBody ? (this._body = body) : (this._body = null);
 
-  this._headers = new AjaxHeaders(headers);
-
   if (typeof(options) !== 'object' || !options) {
     options = new AjaxOptions();
   }
 
-  this.params = new AjaxParams(options.params);
-
   this._url = url;
-  this._xhr = xhrFactory();
 
   this._type = type;
   defineObjProp(this, 'type', function() { return this._type }, function() { });
   
   this._state = AjaxStatesEnum.Opened;
   defineObjProp(this, 'state', function() { return this._state }, function() { });
+
+  this._headers = new AjaxHeaders(headers);
+  this.params = new AjaxParams(options.params);
+  this._xhr = new XMLHttpRequest();
 
   this._xhr.responseType = options.responseType = AjaxOptions.defineResponseType(options.responseType);
 

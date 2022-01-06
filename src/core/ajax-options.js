@@ -24,11 +24,7 @@ AjaxOptions.defineTimeout = function(value, min) {
 }
 
 AjaxOptions.defineResponseType = function(type) {
-  if (typeof(type) !== 'string') {
-    return 'text';
-  }
-
-  if (type === '') {
+  if (typeof(type) !== 'string' || !type) {
     return '';
   }
 
@@ -55,8 +51,12 @@ AjaxOptions.defineResponseType = function(type) {
       return type;
     }
 
+    case 'text': {
+      return type;
+    }
+
     default: {
-      return 'text';
+      return '';
     }
   }
 }

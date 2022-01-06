@@ -35,7 +35,6 @@ backup:
 
 /******/ (function() { // webpackBootstrap
 /******/ 	"use strict";
-var __webpack_exports__ = {};
 
 ;// CONCATENATED MODULE: ./src/refs/root.js
 var root = typeof window !== 'undefined' ? window : typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : ({ });
@@ -556,11 +555,7 @@ AjaxOptions.defineTimeout = function(value, min) {
 }
 
 AjaxOptions.defineResponseType = function(type) {
-  if (typeof(type) !== 'string') {
-    return 'text';
-  }
-
-  if (type === '') {
+  if (typeof(type) !== 'string' || !type) {
     return '';
   }
 
@@ -587,8 +582,12 @@ AjaxOptions.defineResponseType = function(type) {
       return type;
     }
 
+    case 'text': {
+      return type;
+    }
+
     default: {
-      return 'text';
+      return '';
     }
   }
 }
@@ -759,11 +758,6 @@ if (typeof(getRoot()['Promise']) === 'function') {
 
 function promiseFactory(executor) {
   return new localPromise(executor);
-}
-
-;// CONCATENATED MODULE: ./src/helpers/xhr-factory.js
-function xhrFactory() {
-  return new XMLHttpRequest();
 }
 
 ;// CONCATENATED MODULE: ./src/helpers/xhr-get-response-url.js
@@ -1020,22 +1014,21 @@ function serializeRequestBody(body) {
 function Ajax(type, url, body, reqBody, headers, options) {
   reqBody ? (this._body = body) : (this._body = null);
 
-  this._headers = new AjaxHeaders(headers);
-
   if (typeof(options) !== 'object' || !options) {
     options = new AjaxOptions();
   }
 
-  this.params = new AjaxParams(options.params);
-
   this._url = url;
-  this._xhr = xhrFactory();
 
   this._type = type;
   defineObjProp(this, 'type', function() { return this._type }, function() { });
   
   this._state = AjaxStatesEnum.Opened;
   defineObjProp(this, 'state', function() { return this._state }, function() { });
+
+  this._headers = new AjaxHeaders(headers);
+  this.params = new AjaxParams(options.params);
+  this._xhr = new XMLHttpRequest();
 
   this._xhr.responseType = options.responseType = AjaxOptions.defineResponseType(options.responseType);
 
