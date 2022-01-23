@@ -1,15 +1,16 @@
 import { getRoot } from "../refs/root";
-
 import { lambda } from "./../utility/lambda";
 import { once } from "../utility/once.js";
 import { randomStringIdGenerator } from "../utility/random-generator";
-
 import { promiseFactory } from "./../helpers/promise-factory";
-
 import { AjaxOptions } from "./ajax-options";
 import { AjaxParams } from "./ajax-params";
 
 var indexInUse = ({ });
+
+function createTarget() {
+  return (document.body ? document.body : document.head);
+}
 
 function generateIndex() { 
   var index = randomStringIdGenerator();
@@ -124,7 +125,7 @@ JSONP.prototype = {
   params: null,
   _index: generateIndex(),
   _url: '',
-  _target: document.head,
+  _target: createTarget(),
   _script: document.createElement('script'),
   _timer: null,
   __promise: null,

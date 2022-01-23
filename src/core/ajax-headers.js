@@ -1,8 +1,6 @@
 import { isProduction } from "../environment";
-
 import { lambda } from "../utility/lambda";
 import { isArrayBuffer, isBlob, isFormData } from "../helpers/xhr-body-type-checks";
-
 import { AjaxParams } from "./ajax-params";
 
 export function AjaxHeaders(headers) {

@@ -1,9 +1,7 @@
 import { defineObjProp } from "./../../utility/define-obj-prop.js";
 import { noop } from "./../../utility/noop";
-
+import { removeXSSI } from "../../helpers/remove-xssi.js";
 import { baseHttpResponse } from "../base-http-response.js";
-
-var XSSI_prefixRegEx = /^\)\]\}',?\n/;
 
 export function HttpResponseEvent(ev, xhr, status, url) {
   baseHttpResponse(this, xhr, status);
@@ -51,7 +49,7 @@ export function HttpResponseEvent(ev, xhr, status, url) {
         break;
       }
 
-      this._body = this._body.replace(XSSI_prefixRegEx, '');
+      this._body = removeXSSI(this._body);
 
       try
       {

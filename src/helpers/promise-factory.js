@@ -1,5 +1,4 @@
 import { getRoot } from "./../refs/root";
-
 import { lambda } from "./../utility/lambda";
 import { tryCatch } from "./../utility/try-catch";
 

@@ -2,17 +2,13 @@ import { defineObjProp } from "./../utility/define-obj-prop.js";
 import { lambda } from "./../utility/lambda";
 import { once } from "../utility/once.js";
 import { safeJsonStringify } from "./../utility/safe-json.js";
-
 import { promiseFactory } from "./../helpers/promise-factory";
 import { isArrayBuffer, isBlob, isFormData, isUrlSearchParams } from "./../helpers/xhr-body-type-checks";
 import { getResponseUrl } from "./../helpers/xhr-get-response-url";
-
 import { AjaxStatesEnum } from "../enums/ajax-states-enum.js";
-
 import { HttpErrorResponseEvent } from "./../events/http/http-error-response-event.js";
 import { HttpOnProgressEvent } from "../events/http/http-on-progress-event.js";
 import { HttpResponseEvent } from "../events/http/http-response-event.js";
-
 import { AjaxHeaders } from "./ajax-headers.js";
 import { AjaxOptions } from "./ajax-options.js";
 import { AjaxParams } from "./ajax-params";

@@ -854,7 +854,7 @@ function baseHttpResponse(chieldRoot, xhr, status) {
   chieldRoot._ok = (chieldRoot.status >= 200 && chieldRoot.status < 300);
   defineObjProp(chieldRoot, 'ok', function() { return this._ok }, noop);
 
-  chieldRoot._statusText = xhr.statusText || 'Unknown Error';
+  chieldRoot._statusText = xhr.statusText || (chieldRoot._ok ? 'Unknown Status' : 'Unknown Error');
   defineObjProp(chieldRoot, 'statusText', function() { return this._statusText }, noop);
 }
 
@@ -891,8 +891,14 @@ function HttpOnProgressEvent(type, processed, total, partialText) {
 
 HttpOnProgressEvent.prototype = { }
 
-;// CONCATENATED MODULE: ./src/events/http/http-response-event.js
+;// CONCATENATED MODULE: ./src/helpers/remove-xssi.js
 var XSSI_prefixRegEx = /^\)\]\}',?\n/;
+
+function removeXSSI(str) {
+  return str.replace(XSSI_prefixRegEx, '');
+}
+
+;// CONCATENATED MODULE: ./src/events/http/http-response-event.js
 
 function HttpResponseEvent(ev, xhr, status, url) {
   baseHttpResponse(this, xhr, status);
@@ -940,7 +946,7 @@ function HttpResponseEvent(ev, xhr, status, url) {
         break;
       }
 
-      this._body = this._body.replace(XSSI_prefixRegEx, '');
+      this._body = removeXSSI(this._body);
 
       try
       {
@@ -1236,6 +1242,10 @@ function randomStringIdGenerator() {
 ;// CONCATENATED MODULE: ./src/core/jsonp.js
 var indexInUse = ({ });
 
+function createTarget() {
+  return (document.body ? document.body : document.head);
+}
+
 function generateIndex() { 
   var index = randomStringIdGenerator();
 
@@ -1349,7 +1359,7 @@ JSONP.prototype = {
   params: null,
   _index: generateIndex(),
   _url: '',
-  _target: document.head,
+  _target: createTarget(),
   _script: document.createElement('script'),
   _timer: null,
   __promise: null,
@@ -1435,5 +1445,4 @@ catch(err)
 	getRoot()['___webpack_export_dp___'][libName] = HTTP;
 }
 
-/******/ })()
-;
+/******/ })();

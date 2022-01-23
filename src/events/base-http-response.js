@@ -59,6 +59,6 @@ export function baseHttpResponse(chieldRoot, xhr, status) {
   chieldRoot._ok = (chieldRoot.status >= 200 && chieldRoot.status < 300);
   defineObjProp(chieldRoot, 'ok', function() { return this._ok }, noop);
 
-  chieldRoot._statusText = xhr.statusText || 'Unknown Error';
+  chieldRoot._statusText = xhr.statusText || (chieldRoot._ok ? 'Unknown Status' : 'Unknown Error');
   defineObjProp(chieldRoot, 'statusText', function() { return this._statusText }, noop);
 }

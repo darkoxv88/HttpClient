@@ -1,5 +1,4 @@
 import { isProduction } from "../environment";
-
 import { lambda } from "./../utility/lambda";
 import { safeUriEncode, safeUriDecode } from "./../utility/safe-uri";
 

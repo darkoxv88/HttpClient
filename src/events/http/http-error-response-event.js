@@ -1,6 +1,5 @@
 import { defineObjProp } from "./../../utility/define-obj-prop.js";
 import { noop } from "./../../utility/noop";
-
 import { baseHttpResponse } from "../base-http-response.js";
 
 export function HttpErrorResponseEvent(err, xhr, status, url) {
