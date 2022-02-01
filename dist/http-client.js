@@ -33,8 +33,8 @@ backup:
 
 **/
 
-/******/ (function() { // webpackBootstrap
-/******/ 	"use strict";
+(function() {
+"use strict";
 
 ;// CONCATENATED MODULE: ./src/refs/root.js
 var root = typeof window !== 'undefined' ? window : typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : ({ });
@@ -535,23 +535,32 @@ AjaxOptions.prototype = {
   timeout: 60,
   responseType: '',
   withCredentials: false,
-  params: null
+  params: null,
+  delay: 0,
 }
 
-AjaxOptions.defineTimeout = function(value, min) {
+AjaxOptions.defineDelay = function(value) {
   if (typeof(value) !== 'number') {
-    return 60;
+    return 0;
   }
 
   if (value < 0) {
-    return 60;
+    return 0;
   }
 
-  if (value < min) {
-    return min;
+  return value * 1000;
+}
+
+AjaxOptions.defineTimeout = function(value) {
+  if (typeof(value) !== 'number') {
+    return 60000;
   }
 
-  return value;
+  if (value < 0) {
+    return 60000;
+  }
+
+  return value * 1000;
 }
 
 AjaxOptions.defineResponseType = function(type) {
@@ -899,7 +908,6 @@ function removeXSSI(str) {
 }
 
 ;// CONCATENATED MODULE: ./src/events/http/http-response-event.js
-
 function HttpResponseEvent(ev, xhr, status, url) {
   baseHttpResponse(this, xhr, status);
 
@@ -1075,7 +1083,7 @@ function Ajax(type, url, body, reqBody, headers, options) {
 
           this._state = AjaxStatesEnum.Pending;
 
-          this._xhr.timeout = (AjaxOptions.defineTimeout(options.timeout) * 1000);
+          this._xhr.timeout = (AjaxOptions.defineTimeout(options.timeout));
           this._xhr.withCredentials = (options.withCredentials ? true : false);
 
           this._headers.detectContentTypeHeader(this._body);
@@ -1127,9 +1135,14 @@ function Ajax(type, url, body, reqBody, headers, options) {
           this._xhr.onabort = __onError__;
           this._xhr.onerror = __onError__;
 
-          this._xhr.send(serializeRequestBody(this._body));
+          setTimeout(
+            lambda(this, function() {
+              this._xhr.send(serializeRequestBody(this._body));
+            }),
+            AjaxOptions.defineDelay(options.delay)
+          );
 
-          this._body = null;
+          return;
         })
       )
       .then(onFulfilled, onRejected)
@@ -1334,13 +1347,23 @@ function JSONP(url, options, callbackParamName, callbackName) {
             reject(ev);
           });
 
-          this._target.append(this._script);
+          setTimeout(
+            lambda(this, function() {
+              this._target.append(this._script);
 
-          this._timer = setTimeout(lambda(this, function() { 
-            __constFinalize__();
+              this._timer = setTimeout(
+                lambda(this, function() { 
+                  __constFinalize__();
+    
+                  reject(new Error('JSONP request canceled.'));
+                }), 
+                AjaxOptions.defineTimeout(options.timeout)
+              );
+            }),
+            AjaxOptions.defineDelay(options.delay)
+          );
 
-            reject(new Error('JSONP request canceled.'));
-          }), (AjaxOptions.defineTimeout(options.timeout, 5) * 1000));
+          return;
         })
       )
       .then(onFulfilled, onRejected)
@@ -1445,4 +1468,4 @@ catch(err)
 	getRoot()['___webpack_export_dp___'][libName] = HTTP;
 }
 
-/******/ })();
+})();

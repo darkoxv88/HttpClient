@@ -100,13 +100,23 @@ export function JSONP(url, options, callbackParamName, callbackName) {
             reject(ev);
           });
 
-          this._target.append(this._script);
+          setTimeout(
+            lambda(this, function() {
+              this._target.append(this._script);
 
-          this._timer = setTimeout(lambda(this, function() { 
-            __constFinalize__();
+              this._timer = setTimeout(
+                lambda(this, function() { 
+                  __constFinalize__();
+    
+                  reject(new Error('JSONP request canceled.'));
+                }), 
+                AjaxOptions.defineTimeout(options.timeout)
+              );
+            }),
+            AjaxOptions.defineDelay(options.delay)
+          );
 
-            reject(new Error('JSONP request canceled.'));
-          }), (AjaxOptions.defineTimeout(options.timeout, 5) * 1000));
+          return;
         })
       )
       .then(onFulfilled, onRejected)

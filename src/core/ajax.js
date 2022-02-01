@@ -90,7 +90,7 @@ export function Ajax(type, url, body, reqBody, headers, options) {
 
           this._state = AjaxStatesEnum.Pending;
 
-          this._xhr.timeout = (AjaxOptions.defineTimeout(options.timeout) * 1000);
+          this._xhr.timeout = (AjaxOptions.defineTimeout(options.timeout));
           this._xhr.withCredentials = (options.withCredentials ? true : false);
 
           this._headers.detectContentTypeHeader(this._body);
@@ -142,9 +142,14 @@ export function Ajax(type, url, body, reqBody, headers, options) {
           this._xhr.onabort = __onError__;
           this._xhr.onerror = __onError__;
 
-          this._xhr.send(serializeRequestBody(this._body));
+          setTimeout(
+            lambda(this, function() {
+              this._xhr.send(serializeRequestBody(this._body));
+            }),
+            AjaxOptions.defineDelay(options.delay)
+          );
 
-          this._body = null;
+          return;
         })
       )
       .then(onFulfilled, onRejected)

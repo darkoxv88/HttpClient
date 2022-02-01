@@ -165,7 +165,7 @@ declare class HttpResponseEvent extends BaseHttpResponse {
   public get name(): 'HttpResponse';
 
   private _body: any;
-  private get body(): any;
+  public get body(): any;
 
 }
 
@@ -209,6 +209,7 @@ declare class AjaxOptions {
   public responseType?: '' | 'text' | 'json' | 'blob' | 'arraybuffer' | 'document' | 'ms-stream';
   public withCredentials?: boolean;
   public params?: AjaxParams;
+  public delay?: number;
 }
 
 declare class JSONP {

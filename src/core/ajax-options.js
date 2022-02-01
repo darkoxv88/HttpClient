@@ -4,23 +4,32 @@ AjaxOptions.prototype = {
   timeout: 60,
   responseType: '',
   withCredentials: false,
-  params: null
+  params: null,
+  delay: 0,
 }
 
-AjaxOptions.defineTimeout = function(value, min) {
+AjaxOptions.defineDelay = function(value) {
   if (typeof(value) !== 'number') {
-    return 60;
+    return 0;
   }
 
   if (value < 0) {
-    return 60;
+    return 0;
   }
 
-  if (value < min) {
-    return min;
+  return value * 1000;
+}
+
+AjaxOptions.defineTimeout = function(value) {
+  if (typeof(value) !== 'number') {
+    return 60000;
   }
 
-  return value;
+  if (value < 0) {
+    return 60000;
+  }
+
+  return value * 1000;
 }
 
 AjaxOptions.defineResponseType = function(type) {
