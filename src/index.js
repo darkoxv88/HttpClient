@@ -31,10 +31,6 @@ exports:
 
   window.HttpClient;
 
-backup:
-
-  window.___webpack_export_dp___.HttpClient;
-
 **/
 
 var libName = 'HttpClient';
@@ -42,7 +38,7 @@ var libName = 'HttpClient';
 try
 {
   if (getRoot()[libName] && isProduction()) {
-    throw new Error('window["' + libName + '"] is already in use! Switching to: ' + 'window["___webpack_export_dp___"].' + libName);
+    throw new Error('window["' + libName + '"] is already in use!');
   }
 
   getRoot()[libName] = HTTP;
@@ -50,10 +46,4 @@ try
 catch(err)
 {
   console.error(err);
-
-	if (typeof(getRoot()['___webpack_export_dp___']) !== 'object') {
-		getRoot()['___webpack_export_dp___'] = ({ });
-	}
-
-	getRoot()['___webpack_export_dp___'][libName] = HTTP;
 }

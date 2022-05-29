@@ -27,10 +27,6 @@ exports:
 
   window.HttpClient;
 
-backup:
-
-  window.___webpack_export_dp___.HttpClient;
-
 **/
 
 declare enum HttpStatusCodeEnum { 
