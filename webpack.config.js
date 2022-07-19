@@ -43,12 +43,9 @@ module.exports = {
   output: {
     filename: 'http-client.min.js',
     path: path.resolve(__dirname, 'dist'),
-    // library: '',
-    // libraryTarget: 'window',
-    // libraryExport: 'default' 
   },
   optimization: {
-    minimize: true
+    minimize: false
   },
   plugins: [
     new HtmlWebpackPlugin({

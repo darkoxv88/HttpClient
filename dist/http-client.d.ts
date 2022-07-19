@@ -266,6 +266,8 @@ export declare class HttpClient {
 
   static createRequestParams(params?: AjaxParams): AjaxParams;
 
+  static waiter(thisArg: Object, generator: Function): void;
+
   static HttpStatusCode: HttpStatusCodeEnum;
 
 }

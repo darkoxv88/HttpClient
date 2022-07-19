@@ -75,6 +75,10 @@ if (typeof(getRoot()['Promise']) === 'function') {
   localPromise = getRoot()['Promise'];
 }
 
+export function getPromiseConstructor() {
+  return localPromise;
+}
+
 export function promiseFactory(executor) {
   return new localPromise(executor);
 }
