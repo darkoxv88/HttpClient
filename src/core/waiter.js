@@ -1,21 +1,5 @@
-import { getPromiseConstructor } from "./promise-factory";
-
-function exe(fn) {
-  return fn.apply(this, [ ]);
-}
-
-var _isES6 = exe(function() { 
-  try
-  {
-    eval('function* f(x = true) {yield x;} function n() {} function e(p = n) {p();} class A {get a(){return this._a;};constructor() {this._a=true}} class B extends A { constructor(){super();if(this.a)this.b();}b() {e((k = 5) => {this._b = f().next().value;});}}; new B();');
-  
-    return true;
-  }
-  catch(err)
-  {
-    return false;
-  }
-});
+import { isES6 } from "../utility/is-es6";
+import { getPromiseConstructor } from "../helpers/promise-factory";
 
 var lWaiter = function (thisArg, _arguments, P, generator) {
   function adopt(value) { 
@@ -55,18 +39,18 @@ var lWaiter = function (thisArg, _arguments, P, generator) {
   });
 }
 
-export function isES6() {
-  return _isES6;
-}
-
 export function waiter(thisArg, generator) {
   try
   {
-    thisArg = (typeof(thisArg) === 'object') ? thisArg : null;
+    if (isES6() === false) {
+      return;
+    }
 
     if (generator.constructor.name !== 'GeneratorFunction') {
       return;
     }
+
+    thisArg = (typeof(thisArg) === 'object') ? thisArg : null;
     
     lWaiter(thisArg, undefined, getPromiseConstructor(), generator);
   }

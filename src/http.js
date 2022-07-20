@@ -1,8 +1,6 @@
 import { HttpStatusCodeEnum } from "./enums/http-status-code-enum";
 
-import { noop } from "./utility/noop";
-
-import { isES6, waiter } from "./helpers/waiter";
+import { waiter } from "./core/waiter";
 import { AjaxHeaders } from "./core/ajax-headers";
 import { AjaxOptions } from "./core/ajax-options";
 import { AjaxParams } from "./core/ajax-params";
@@ -61,6 +59,6 @@ HTTP.createRequestParams = function(params) {
   return new AjaxParams(params)
 }
 
-HTTP.waiter = isES6() ? waiter : noop;
+HTTP.waiter = waiter;
 
 HTTP.HttpStatusCode = HttpStatusCodeEnum;
