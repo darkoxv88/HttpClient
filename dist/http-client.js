@@ -29,21 +29,14 @@ exports:
 
 **/
 
-/******/ (function() { // webpackBootstrap
-/******/ 	"use strict";
+(function() { 
+"use strict";
 
 ;// CONCATENATED MODULE: ./src/refs/root.js
 var root = typeof window !== 'undefined' ? window : typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : ({ });
 
 function getRoot() {
   return root;
-}
-
-;// CONCATENATED MODULE: ./src/environment.js
-var production = true;
-
-function isProduction() {
-  return production;
 }
 
 ;// CONCATENATED MODULE: ./src/utility/enum-value.js
@@ -125,24 +118,11 @@ var HttpStatusCodeEnum = new HttpStatusCode();
 
 Object.freeze(HttpStatusCodeEnum);
 
-;// CONCATENATED MODULE: ./src/utility/is-es6.js
-var _isES6 = false;
+;// CONCATENATED MODULE: ./src/environment.js
+var production = true;
 
-try
-{
-  getRoot().eval(
-    'function* f(x = true) {yield x;} function n() {} function e(p = n) {p();} class A {get a(){return this._a;};constructor() {this._a=true}} class B extends A { constructor(){super();if(this.a)this.b();}b() {e((k = 5) => {this._b = f().next().value;});}}; new B();'
-  );
-
-  _isES6 = true;
-}
-catch(err)
-{
-  _isES6 = false;
-}
-
-function isES6() {
-  return _isES6;
+function isProduction() {
+  return production;
 }
 
 ;// CONCATENATED MODULE: ./src/utility/lambda.js
@@ -153,173 +133,6 @@ function lambda(root, func) {
 
   return function() {
     return func.apply(root, arguments);
-  }
-}
-
-;// CONCATENATED MODULE: ./src/utility/noop.js
-function noop() { }
-
-;// CONCATENATED MODULE: ./src/utility/try-catch.js
-function tryCatch(func, onError) {
-  if (typeof func !== 'function') {
-    return noop;
-  }
-
-  return function() {
-    try 
-    {
-      return func.apply(this, arguments);
-    } 
-    catch (e) 
-    {
-      if (typeof onError === 'function') {
-        return onError(e);
-      };
-
-      return null;
-    }
-  }
-}
-
-;// CONCATENATED MODULE: ./src/helpers/promise-factory.js
-function catchedError(err) {
-  console.error(err);
-}
-
-var const_PENDING = 0;
-var const_FULFILLED = 1;
-var const_REJECTED = 2;
-
-var localPromise = function(executor) {
-  this._executor = tryCatch(executor, catchedError);
-  this._value = undefined;
-  this._onFulfilled = tryCatch(null);
-  this._onRejected = tryCatch(null);
-  this._onFinally = tryCatch(null);
-  this._state = const_PENDING;
-
-  setTimeout(lambda(this, function() {
-    this._executor(
-      lambda(this, function(value) {
-        this._state = const_FULFILLED;
-        this._value = value;
-        this._onFulfilled(this._value);
-        this._onFinally(this._value);
-      }),
-      lambda(this, function(value) {
-        this._state = const_REJECTED;
-        this._value = value;
-        this._onRejected(this._value);
-        this._onFinally(this._value);
-      })
-    );
-  }), 1);
-}
-
-localPromise.prototype = {
-  then: function(onFulfilled, onRejected) {
-    this._onFulfilled = tryCatch(onFulfilled, catchedError);
-    this._onRejected = tryCatch(onRejected, catchedError);
-
-    if (this._state === const_FULFILLED) {
-      this._onFulfilled(this._value);
-    }
-
-    if (this._state === const_REJECTED) {
-      this._onRejected(this._value);
-    }
-
-    return this;
-  },
-  catch: function(onRejected) {
-    this._onRejected = tryCatch(onRejected, catchedError);
-
-    if (this._state === const_REJECTED) {
-      this._onRejected(this._value);
-    }
-
-    return this;
-  },
-  finally: function(onFinally) {
-    this._onFinally = tryCatch(onFinally, catchedError);
-
-    if (this._state !== const_PENDING) {
-      this._onFinally();
-    }
-
-    return this;
-  },
-}
-
-if (typeof(getRoot()['Promise']) === 'function') {
-  localPromise = getRoot()['Promise'];
-}
-
-function getPromiseConstructor() {
-  return localPromise;
-}
-
-function promiseFactory(executor) {
-  return new localPromise(executor);
-}
-
-;// CONCATENATED MODULE: ./src/core/waiter.js
-var lWaiter = function (thisArg, _arguments, P, generator) {
-  function adopt(value) { 
-    return value instanceof P ? value : new P(function(resolve) { 
-      resolve(value); 
-    }); 
-  }
-
-  return new P(function(resolve, reject) {
-    function fulfilled(value) { 
-      try 
-      { 
-        step(generator.next(value)); 
-      } 
-      catch (e) 
-      { 
-        reject(e); 
-      } 
-    }
-
-    function rejected(value) { 
-      try 
-      { 
-        step(generator["throw"](value)); 
-      } 
-      catch (e) 
-      { 
-        reject(e); 
-      } 
-    }
-
-    function step(result) { 
-      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); 
-    }
-
-    step((generator = generator.apply(thisArg, _arguments || [])).next());
-  });
-}
-
-function waiter(thisArg, generator) {
-  try
-  {
-    if (isES6() === false) {
-      return;
-    }
-
-    if (generator.constructor.name !== 'GeneratorFunction') {
-      return;
-    }
-
-    thisArg = (typeof(thisArg) === 'object') ? thisArg : null;
-    
-    lWaiter(thisArg, undefined, getPromiseConstructor(), generator);
-  }
-  catch(err)
-  {
-    return;
   }
 }
 
@@ -847,6 +660,109 @@ function safeJsonStringify(value) {
   {
     return '';
   }
+}
+
+;// CONCATENATED MODULE: ./src/utility/noop.js
+function noop() { }
+
+;// CONCATENATED MODULE: ./src/utility/try-catch.js
+function tryCatch(func, onError) {
+  if (typeof func !== 'function') {
+    return noop;
+  }
+
+  return function() {
+    try 
+    {
+      return func.apply(this, arguments);
+    } 
+    catch (e) 
+    {
+      if (typeof onError === 'function') {
+        return onError(e);
+      };
+
+      return null;
+    }
+  }
+}
+
+;// CONCATENATED MODULE: ./src/helpers/promise-factory.js
+function catchedError(err) {
+  console.error(err);
+}
+
+var const_PENDING = 0;
+var const_FULFILLED = 1;
+var const_REJECTED = 2;
+
+var localPromise = function(executor) {
+  this._executor = tryCatch(executor, catchedError);
+  this._value = undefined;
+  this._onFulfilled = tryCatch(null);
+  this._onRejected = tryCatch(null);
+  this._onFinally = tryCatch(null);
+  this._state = const_PENDING;
+
+  setTimeout(lambda(this, function() {
+    this._executor(
+      lambda(this, function(value) {
+        this._state = const_FULFILLED;
+        this._value = value;
+        this._onFulfilled(this._value);
+        this._onFinally(this._value);
+      }),
+      lambda(this, function(value) {
+        this._state = const_REJECTED;
+        this._value = value;
+        this._onRejected(this._value);
+        this._onFinally(this._value);
+      })
+    );
+  }), 1);
+}
+
+localPromise.prototype = {
+  then: function(onFulfilled, onRejected) {
+    this._onFulfilled = tryCatch(onFulfilled, catchedError);
+    this._onRejected = tryCatch(onRejected, catchedError);
+
+    if (this._state === const_FULFILLED) {
+      this._onFulfilled(this._value);
+    }
+
+    if (this._state === const_REJECTED) {
+      this._onRejected(this._value);
+    }
+
+    return this;
+  },
+  catch: function(onRejected) {
+    this._onRejected = tryCatch(onRejected, catchedError);
+
+    if (this._state === const_REJECTED) {
+      this._onRejected(this._value);
+    }
+
+    return this;
+  },
+  finally: function(onFinally) {
+    this._onFinally = tryCatch(onFinally, catchedError);
+
+    if (this._state !== const_PENDING) {
+      this._onFinally();
+    }
+
+    return this;
+  },
+}
+
+if (typeof(getRoot()['Promise']) === 'function') {
+  localPromise = getRoot()['Promise'];
+}
+
+function promiseFactory(executor) {
+  return new localPromise(executor);
 }
 
 ;// CONCATENATED MODULE: ./src/helpers/xhr-get-response-url.js
@@ -1524,8 +1440,6 @@ HTTP.createRequestParams = function(params) {
   return new AjaxParams(params)
 }
 
-HTTP.waiter = waiter;
-
 HTTP.HttpStatusCode = HttpStatusCodeEnum;
 
 ;// CONCATENATED MODULE: ./src/index.js
@@ -1533,7 +1447,7 @@ var libName = 'HttpClient';
 
 try
 {
-  if (getRoot()[libName] && isProduction()) {
+  if (getRoot()[libName]) {
     throw new Error('window["' + libName + '"] is already in use!');
   }
 
@@ -1544,4 +1458,4 @@ catch(err)
   console.error(err);
 }
 
-/******/ })();
+})();

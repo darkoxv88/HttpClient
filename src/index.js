@@ -1,5 +1,4 @@
 import { getRoot } from "./refs/root";
-import { isProduction } from "./environment";
 import { HTTP } from "./http";
 
 /**
@@ -37,7 +36,7 @@ var libName = 'HttpClient';
 
 try
 {
-  if (getRoot()[libName] && isProduction()) {
+  if (getRoot()[libName]) {
     throw new Error('window["' + libName + '"] is already in use!');
   }
 

@@ -10,7 +10,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
   },
   optimization: {
-    minimize: false
+    minimize: true
   },
   plugins: [
     new HtmlWebpackPlugin({
