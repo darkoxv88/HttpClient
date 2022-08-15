@@ -59,9 +59,9 @@ export function JSONP(url, options, callbackParamName, callbackName) {
 
   this._url = url;
 
-  this.toPromise = once(
+  this.asPromise = once(
     lambda(this, function(onFulfilled, onRejected, onFinally) {
-      this.__promise = promiseFactory(
+      this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
           this.params.deleteByKey(callbackParamName);
           this.params.append(callbackParamName, getCallbackName(this._index));
@@ -122,10 +122,10 @@ export function JSONP(url, options, callbackParamName, callbackName) {
       .then(onFulfilled, onRejected)
       .finally(onFinally);
 
-      return this.__promise;
+      return this._promise;
     }),
     lambda(this, function() {
-      return this.__promise;
+      return this._promise;
     })
   );
 }
@@ -138,8 +138,11 @@ JSONP.prototype = {
   _target: createTarget(),
   _script: document.createElement('script'),
   _timer: null,
-  __promise: null,
+  _promise: null,
 
-  toPromise: null,
+  asPromise: null,
+  fetch: function() { 
+    return this.asPromise();
+  },
   
 }

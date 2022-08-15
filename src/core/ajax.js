@@ -32,13 +32,14 @@ function serializeRequestBody(body) {
   }
 }
 
-export function Ajax(type, url, body, reqBody, headers, options) {
-  reqBody ? (this._body = body) : (this._body = null);
+export function Ajax(type, url, body, headers, options) {
+  this._body = body;
 
   if (typeof(options) !== 'object' || !options) {
     options = new AjaxOptions();
   }
-
+  
+  this._options = options;
   this._url = url;
 
   this._type = type;
@@ -48,10 +49,10 @@ export function Ajax(type, url, body, reqBody, headers, options) {
   defineObjProp(this, 'state', function() { return this._state }, function() { });
 
   this._headers = new AjaxHeaders(headers);
-  this.params = new AjaxParams(options.params);
+  this.params = new AjaxParams(this._options.params);
   this._xhr = new XMLHttpRequest();
 
-  this._xhr.responseType = options.responseType = AjaxOptions.defineResponseType(options.responseType);
+  this._xhr.responseType = this._options.responseType = AjaxOptions.defineResponseType(this._options.responseType);
 
   this._onUpload = null;
   this._onDownload = null;
@@ -74,7 +75,7 @@ export function Ajax(type, url, body, reqBody, headers, options) {
         lTotal = ev.total;
       }
 
-      if (options.responseType === 'text' && !!(this._xhr.responseText)) {
+      if (this._options.responseType === 'text' && !!(this._xhr.responseText)) {
         lResponseText = this._xhr.responseText;
       }
 
@@ -82,16 +83,14 @@ export function Ajax(type, url, body, reqBody, headers, options) {
     }
   });
 
-  this.toPromise = once(
+  this.asPromise = once(
     lambda(this, function(onFulfilled, onRejected, onFinally) {
       this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
           this._xhr.open(this._type, this._url + this.params.getQueryString(), true);
 
-          this._state = AjaxStatesEnum.Pending;
-
-          this._xhr.timeout = (AjaxOptions.defineTimeout(options.timeout));
-          this._xhr.withCredentials = (options.withCredentials ? true : false);
+          this._xhr.timeout = (AjaxOptions.defineTimeout(this._options.timeout));
+          this._xhr.withCredentials = (this._options.withCredentials ? true : false);
 
           this._headers.detectContentTypeHeader(this._body);
 
@@ -141,15 +140,6 @@ export function Ajax(type, url, body, reqBody, headers, options) {
           this._xhr.ontimeout = __onError__;
           this._xhr.onabort = __onError__;
           this._xhr.onerror = __onError__;
-
-          setTimeout(
-            lambda(this, function() {
-              this._xhr.send(serializeRequestBody(this._body));
-            }),
-            AjaxOptions.defineDelay(options.delay)
-          );
-
-          return;
         })
       )
       .then(onFulfilled, onRejected)
@@ -166,6 +156,7 @@ export function Ajax(type, url, body, reqBody, headers, options) {
 Ajax.prototype = {
 
   params: null,
+  _options: null,
   _body: null,
   _headers: null,
   _type: null,
@@ -213,7 +204,26 @@ Ajax.prototype = {
     this.params.append(key, value);
   },
 
-  toPromise: null,
+  asPromise: null,
+
+  fetch: function() {
+    { this.asPromise() }
+
+    if (this._state !== AjaxStatesEnum.Opened) {
+      return this.asPromise();
+    }
+
+    this._state = AjaxStatesEnum.Pending;
+
+    setTimeout(
+      lambda(this, function() {
+        this._xhr.send(serializeRequestBody(this._body));
+      }),
+      AjaxOptions.defineDelay(this._options.delay)
+    );
+
+    return this.asPromise();
+  }
 
 }
 
@@ -222,29 +232,29 @@ Ajax.setErrorInterceptor = function(interceptor) {
 }
 
 Ajax.get = function(url, headers, options) {
-  return new Ajax('GET', url, null, false, headers, options);
+  return new Ajax('GET', url, null, headers, options);
 }
 
 Ajax.delete = function(url, headers, options) {
-  return new Ajax('DELETE', url, null, false, headers, options);
+  return new Ajax('DELETE', url, null, headers, options);
 }
 
 Ajax.head = function(url, headers, options) {
-  return new Ajax('HEAD', url, null, false, headers, options);
+  return new Ajax('HEAD', url, null, headers, options);
 }
 
 Ajax.post = function(url, body, headers, options) {
-  return new Ajax('POST', url, body, true, headers, options);
+  return new Ajax('POST', url, body, headers, options);
 }
 
 Ajax.put = function(url, body, headers, options) {
-  return new Ajax('PUT', url, body, true, headers, options);
+  return new Ajax('PUT', url, body, headers, options);
 }
 
 Ajax.patch = function(url, body, headers, options) {
-  return new Ajax('PATCH', url, body, true, headers, options);
+  return new Ajax('PATCH', url, body, headers, options);
 }
 
 Ajax.options = function(url, body, headers, options) {
-  return new Ajax('OPTIONS', url, body, true, headers, options);
+  return new Ajax('OPTIONS', url, body, headers, options);
 }

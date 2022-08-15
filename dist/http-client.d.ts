@@ -214,7 +214,8 @@ declare class JSONP {
 
   constructor(url: string, options?: AjaxOptions, callbackParamName?: string, callbackName?: string);
 
-  public toPromise(onFulfilled: (data: any) => void, onRejected: (err: Event | Error) => void, onFinally: () => void): Promise<any>;
+  public asPromise(onFulfilled: (data: any) => void, onRejected: (err: Event | Error) => void, onFinally: () => void): Promise<any>;
+  public fetch(): Promise<any>;
 
 }
 
@@ -225,18 +226,19 @@ declare class Ajax {
   public get type(): string;
   public get state(): number;
 
-  constructor(type: string, url: string, body: any, reqBody: boolean, headers?: AjaxHeaders, options?: AjaxOptions);
+  constructor(type: string, url: string, body: any, headers?: AjaxHeaders, options?: AjaxOptions);
 
   public onUpload(callback: null | ((ev: HttpOnProgressEvent) => void)): void;
   public onDownload(callback: null | ((ev: HttpOnProgressEvent) => void)): void;
   public abort(): void;
   public setHeader(key: string, value: string): void;
   public appendParam(key: string, value: string): void;
-  public toPromise(
+  public asPromise(
     onFulfilled?: (ev: HttpResponseEvent) => void, 
     onRejected?: (err: HttpErrorResponseEvent) => void, 
     onFinally?: () => void
   ): Promise<HttpResponseEvent>;
+  public fetch(): Promise<HttpResponseEvent>;
 
 }
 
