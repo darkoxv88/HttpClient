@@ -43,11 +43,13 @@ function detachCallback(index) {
 }
 
 export function JSONP(url, options, callbackParamName, callbackName) {
+  this._url = url;
+
   if (typeof(options) !== 'object' || !options) {
     options = new AjaxOptions();
   }
 
-  if (typeof(callbackName) !== 'string' || !(callbackName)) {
+  if (typeof(callbackParamName) !== 'string' || !(callbackParamName)) {
     callbackParamName = 'callback';
   }
 
@@ -57,10 +59,8 @@ export function JSONP(url, options, callbackParamName, callbackName) {
 
   this.params = new AjaxParams(options.params);
 
-  this._url = url;
-
   this.asPromise = once(
-    lambda(this, function(onFulfilled, onRejected, onFinally) {
+    lambda(this, function() {
       this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
           this.params.deleteByKey(callbackParamName);
@@ -118,9 +118,7 @@ export function JSONP(url, options, callbackParamName, callbackName) {
 
           return;
         })
-      )
-      .then(onFulfilled, onRejected)
-      .finally(onFinally);
+      );
 
       return this._promise;
     }),

@@ -57,8 +57,7 @@ export function HttpResponseEvent(ev, xhr, status, url) {
       }
       catch (err)
       {
-        console.error('Could not parse the given response.');
-        console.error(err);
+        console.error('Could not parse the given response => ', err);
       }
 
       break;

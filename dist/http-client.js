@@ -29,7 +29,7 @@ exports:
 
 **/
 
-(function()  {
+(function () {
 "use strict";
 
 ;// CONCATENATED MODULE: ./src/refs/root.js
@@ -636,21 +636,6 @@ function once(onFirstCall, onMultipleCalls) {
 }
 
 ;// CONCATENATED MODULE: ./src/utility/safe-json.js
-function safeJsonParse(value) {
-  try
-  {
-    if (typeof(value) !== 'string') {
-      return null;
-    }
-    
-    return JSON.parse(value);
-  }
-  catch (err)
-  {
-    return null;
-  }
-}
-
 function safeJsonStringify(value) {
   try
   {    
@@ -658,6 +643,8 @@ function safeJsonStringify(value) {
   }
   catch (err)
   {
+    console.error(err);
+    
     return '';
   }
 }
@@ -692,6 +679,10 @@ function catchedError(err) {
   console.error(err);
 }
 
+function asAsync(proc) {
+  setTimeout(proc, 1);
+}
+
 var const_PENDING = 0;
 var const_FULFILLED = 1;
 var const_REJECTED = 2;
@@ -704,22 +695,24 @@ var localPromise = function(executor) {
   this._onFinally = tryCatch(null);
   this._state = const_PENDING;
 
-  setTimeout(lambda(this, function() {
-    this._executor(
-      lambda(this, function(value) {
-        this._state = const_FULFILLED;
-        this._value = value;
-        this._onFulfilled(this._value);
-        this._onFinally(this._value);
-      }),
-      lambda(this, function(value) {
-        this._state = const_REJECTED;
-        this._value = value;
-        this._onRejected(this._value);
-        this._onFinally(this._value);
-      })
-    );
-  }), 1);
+  asAsync(
+    lambda(this, function() {
+      this._executor(
+        lambda(this, function(value) {
+          this._state = const_FULFILLED;
+          this._value = value;
+          this._onFulfilled(this._value);
+          this._onFinally(this._value);
+        }),
+        lambda(this, function(value) {
+          this._state = const_REJECTED;
+          this._value = value;
+          this._onRejected(this._value);
+          this._onFinally(this._value);
+        })
+      );
+    })
+  );
 }
 
 localPromise.prototype = {
@@ -786,6 +779,8 @@ function getResponseUrl(xhr) {
 }
 
 ;// CONCATENATED MODULE: ./src/enums/ajax-states-enum.js
+
+
 function AjaxStates() {
   enumValue(this, 'Unknown', 0);
   enumValue(this, 'Opened', 1);
@@ -958,8 +953,7 @@ function HttpResponseEvent(ev, xhr, status, url) {
       }
       catch (err)
       {
-        console.error('Could not parse the given response.');
-        console.error(err);
+        console.error('Could not parse the given response => ', err);
       }
 
       break;
@@ -974,19 +968,28 @@ function HttpResponseEvent(ev, xhr, status, url) {
 }
 
 ;// CONCATENATED MODULE: ./src/core/error-interceptor.js
+
+
 function ErrorInterceptor(callback) {
   if (typeof(callback) !== 'function') {
     callback = noop;
   }
 
-  this._callback = tryCatch(callback, noop);
+  this._callback = callback;
 }
 
 ErrorInterceptor.prototype = { 
   _callback: null,
 
   proc: function(value) {
-    this._callback(value);
+    try
+    {
+      this._callback(value);
+    }
+    catch(err)
+    {
+      console.error(err);
+    }
   },
 }
 
@@ -1022,6 +1025,13 @@ function serializeRequestBody(body) {
 }
 
 function Ajax(type, url, body, headers, options) {
+  this._state = AjaxStatesEnum.Opened;
+  defineObjProp(this, 'state', function() { return this._state }, function() { });
+
+  this._type = type;
+  defineObjProp(this, 'type', function() { return this._type }, function() { });
+
+  this._url = url;
   this._body = body;
 
   if (typeof(options) !== 'object' || !options) {
@@ -1029,13 +1039,6 @@ function Ajax(type, url, body, headers, options) {
   }
   
   this._options = options;
-  this._url = url;
-
-  this._type = type;
-  defineObjProp(this, 'type', function() { return this._type }, function() { });
-  
-  this._state = AjaxStatesEnum.Opened;
-  defineObjProp(this, 'state', function() { return this._state }, function() { });
 
   this._headers = new AjaxHeaders(headers);
   this.params = new AjaxParams(this._options.params);
@@ -1073,7 +1076,7 @@ function Ajax(type, url, body, headers, options) {
   });
 
   this.asPromise = once(
-    lambda(this, function(onFulfilled, onRejected, onFinally) {
+    lambda(this, function() {
       this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
           this._xhr.open(this._type, this._url + this.params.getQueryString(), true);
@@ -1130,9 +1133,7 @@ function Ajax(type, url, body, headers, options) {
           this._xhr.onabort = __onError__;
           this._xhr.onerror = __onError__;
         })
-      )
-      .then(onFulfilled, onRejected)
-      .finally(onFinally);
+      );
 
       return this._promise;
     }),
@@ -1196,10 +1197,10 @@ Ajax.prototype = {
   asPromise: null,
 
   fetch: function() {
-    { this.asPromise() }
+    let out = this.asPromise();
 
     if (this._state !== AjaxStatesEnum.Opened) {
-      return this.asPromise();
+      return out;
     }
 
     this._state = AjaxStatesEnum.Pending;
@@ -1211,7 +1212,7 @@ Ajax.prototype = {
       AjaxOptions.defineDelay(this._options.delay)
     );
 
-    return this.asPromise();
+    return out;
   }
 
 }
@@ -1296,11 +1297,13 @@ function detachCallback(index) {
 }
 
 function JSONP(url, options, callbackParamName, callbackName) {
+  this._url = url;
+
   if (typeof(options) !== 'object' || !options) {
     options = new AjaxOptions();
   }
 
-  if (typeof(callbackName) !== 'string' || !(callbackName)) {
+  if (typeof(callbackParamName) !== 'string' || !(callbackParamName)) {
     callbackParamName = 'callback';
   }
 
@@ -1310,10 +1313,8 @@ function JSONP(url, options, callbackParamName, callbackName) {
 
   this.params = new AjaxParams(options.params);
 
-  this._url = url;
-
   this.asPromise = once(
-    lambda(this, function(onFulfilled, onRejected, onFinally) {
+    lambda(this, function() {
       this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
           this.params.deleteByKey(callbackParamName);
@@ -1371,9 +1372,7 @@ function JSONP(url, options, callbackParamName, callbackName) {
 
           return;
         })
-      )
-      .then(onFulfilled, onRejected)
-      .finally(onFinally);
+      );
 
       return this._promise;
     }),

@@ -6,6 +6,10 @@ function catchedError(err) {
   console.error(err);
 }
 
+function asAsync(proc) {
+  setTimeout(proc, 1);
+}
+
 var const_PENDING = 0;
 var const_FULFILLED = 1;
 var const_REJECTED = 2;
@@ -18,22 +22,24 @@ var localPromise = function(executor) {
   this._onFinally = tryCatch(null);
   this._state = const_PENDING;
 
-  setTimeout(lambda(this, function() {
-    this._executor(
-      lambda(this, function(value) {
-        this._state = const_FULFILLED;
-        this._value = value;
-        this._onFulfilled(this._value);
-        this._onFinally(this._value);
-      }),
-      lambda(this, function(value) {
-        this._state = const_REJECTED;
-        this._value = value;
-        this._onRejected(this._value);
-        this._onFinally(this._value);
-      })
-    );
-  }), 1);
+  asAsync(
+    lambda(this, function() {
+      this._executor(
+        lambda(this, function(value) {
+          this._state = const_FULFILLED;
+          this._value = value;
+          this._onFulfilled(this._value);
+          this._onFinally(this._value);
+        }),
+        lambda(this, function(value) {
+          this._state = const_REJECTED;
+          this._value = value;
+          this._onRejected(this._value);
+          this._onFinally(this._value);
+        })
+      );
+    })
+  );
 }
 
 localPromise.prototype = {

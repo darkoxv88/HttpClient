@@ -33,6 +33,13 @@ function serializeRequestBody(body) {
 }
 
 export function Ajax(type, url, body, headers, options) {
+  this._state = AjaxStatesEnum.Opened;
+  defineObjProp(this, 'state', function() { return this._state }, function() { });
+
+  this._type = type;
+  defineObjProp(this, 'type', function() { return this._type }, function() { });
+
+  this._url = url;
   this._body = body;
 
   if (typeof(options) !== 'object' || !options) {
@@ -40,13 +47,6 @@ export function Ajax(type, url, body, headers, options) {
   }
   
   this._options = options;
-  this._url = url;
-
-  this._type = type;
-  defineObjProp(this, 'type', function() { return this._type }, function() { });
-  
-  this._state = AjaxStatesEnum.Opened;
-  defineObjProp(this, 'state', function() { return this._state }, function() { });
 
   this._headers = new AjaxHeaders(headers);
   this.params = new AjaxParams(this._options.params);
@@ -84,7 +84,7 @@ export function Ajax(type, url, body, headers, options) {
   });
 
   this.asPromise = once(
-    lambda(this, function(onFulfilled, onRejected, onFinally) {
+    lambda(this, function() {
       this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
           this._xhr.open(this._type, this._url + this.params.getQueryString(), true);
@@ -141,9 +141,7 @@ export function Ajax(type, url, body, headers, options) {
           this._xhr.onabort = __onError__;
           this._xhr.onerror = __onError__;
         })
-      )
-      .then(onFulfilled, onRejected)
-      .finally(onFinally);
+      );
 
       return this._promise;
     }),
@@ -207,10 +205,10 @@ Ajax.prototype = {
   asPromise: null,
 
   fetch: function() {
-    { this.asPromise() }
+    let out = this.asPromise();
 
     if (this._state !== AjaxStatesEnum.Opened) {
-      return this.asPromise();
+      return out;
     }
 
     this._state = AjaxStatesEnum.Pending;
@@ -222,7 +220,7 @@ Ajax.prototype = {
       AjaxOptions.defineDelay(this._options.delay)
     );
 
-    return this.asPromise();
+    return out;
   }
 
 }

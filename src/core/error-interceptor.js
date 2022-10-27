@@ -1,4 +1,3 @@
-import { tryCatch } from "../utility/try-catch.js";
 import { noop } from "../utility/noop.js";
 
 export function ErrorInterceptor(callback) {
@@ -6,14 +5,21 @@ export function ErrorInterceptor(callback) {
     callback = noop;
   }
 
-  this._callback = tryCatch(callback, noop);
+  this._callback = callback;
 }
 
 ErrorInterceptor.prototype = { 
   _callback: null,
 
   proc: function(value) {
-    this._callback(value);
+    try
+    {
+      this._callback(value);
+    }
+    catch(err)
+    {
+      console.error(err);
+    }
   },
 }
 

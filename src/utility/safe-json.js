@@ -1,18 +1,3 @@
-export function safeJsonParse(value) {
-  try
-  {
-    if (typeof(value) !== 'string') {
-      return null;
-    }
-    
-    return JSON.parse(value);
-  }
-  catch (err)
-  {
-    return null;
-  }
-}
-
 export function safeJsonStringify(value) {
   try
   {    
@@ -20,6 +5,8 @@ export function safeJsonStringify(value) {
   }
   catch (err)
   {
+    console.error(err);
+    
     return '';
   }
 }
