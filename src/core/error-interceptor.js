@@ -26,7 +26,7 @@ ErrorInterceptor.prototype = {
 ErrorInterceptor.instance = new ErrorInterceptor(noop);
 
 ErrorInterceptor.setInterceptor = function(interceptor) {
-  ErrorInterceptor.instance = new ErrorInterceptor(noop);
+  ErrorInterceptor.instance = new ErrorInterceptor(interceptor);
 }
 
 ErrorInterceptor.intercept = function(value) {

@@ -64,7 +64,7 @@ export function Ajax(type, url, body, headers, options) {
         lTotal = ev.total;
       }
 
-      this._onUpload(new HttpOnProgressEvent('DownloadProgress', ev.loaded, lTotal, ''));
+      this._onUpload(new HttpOnProgressEvent('UploadProgress', ev.loaded, lTotal, ''));
     }
 
     if (typeof(this._onDownload) === 'function') {

@@ -29,7 +29,7 @@ exports:
 
 **/
 
-(function () {
+(function() {
 "use strict";
 
 ;// CONCATENATED MODULE: ./src/refs/root.js
@@ -779,8 +779,6 @@ function getResponseUrl(xhr) {
 }
 
 ;// CONCATENATED MODULE: ./src/enums/ajax-states-enum.js
-
-
 function AjaxStates() {
   enumValue(this, 'Unknown', 0);
   enumValue(this, 'Opened', 1);
@@ -996,7 +994,7 @@ ErrorInterceptor.prototype = {
 ErrorInterceptor.instance = new ErrorInterceptor(noop);
 
 ErrorInterceptor.setInterceptor = function(interceptor) {
-  ErrorInterceptor.instance = new ErrorInterceptor(noop);
+  ErrorInterceptor.instance = new ErrorInterceptor(interceptor);
 }
 
 ErrorInterceptor.intercept = function(value) {
@@ -1056,7 +1054,7 @@ function Ajax(type, url, body, headers, options) {
         lTotal = ev.total;
       }
 
-      this._onUpload(new HttpOnProgressEvent('DownloadProgress', ev.loaded, lTotal, ''));
+      this._onUpload(new HttpOnProgressEvent('UploadProgress', ev.loaded, lTotal, ''));
     }
 
     if (typeof(this._onDownload) === 'function') {
