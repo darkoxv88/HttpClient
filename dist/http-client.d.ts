@@ -146,6 +146,9 @@ declare class HttpErrorResponseEvent extends BaseHttpResponse {
 
   private _name: 'HttpErrorResponse';
   public get name(): 'HttpErrorResponse';
+
+  private _error: any;
+  public get error(): any;
   
 }
 

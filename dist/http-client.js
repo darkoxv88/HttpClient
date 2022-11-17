@@ -794,6 +794,72 @@ var AjaxStatesEnum = new AjaxStates();
 
 Object.freeze(AjaxStatesEnum);
 
+;// CONCATENATED MODULE: ./src/helpers/remove-xssi.js
+var XSSI_prefixRegEx = /^\)\]\}',?\n/;
+
+function removeXSSI(str) {
+  return str.replace(XSSI_prefixRegEx, '');
+}
+
+;// CONCATENATED MODULE: ./src/helpers/handle-resp-body.js
+
+
+function handleRespBody(body, respType) {
+  switch (respType) {
+    case 'arraybuffer': {
+      if (!(body) || !(body instanceof ArrayBuffer)) {
+        console.warn('Response type "arraybuffer" expects the respons to be ArrayBuffer.');
+      }
+
+      break;
+    }
+
+    case 'blob': {
+      if (!(body) || !(body instanceof Blob)) {
+        console.warn('Response type "blob" expects the respons to be Blob.');
+      }
+
+      break;
+    }
+
+    case 'text': {
+      if (!(body) || typeof(body) !== 'string') {
+        console.warn('Response type "text" expects the respons to be string.');
+      }
+
+      break;
+    }
+
+    case 'json': {
+      if (!(body) || typeof(body) !== 'string') {
+        console.warn('Response type "json" expects the respons to be string.');
+
+        break;
+      }
+
+      body = removeXSSI(body);
+
+      let ogBody = body;
+
+      try
+      {
+        body = JSON.parse(body);
+      }
+      catch (err)
+      {
+        console.error('Could not parse the given response => ', err);
+
+        body = ogBody;
+      }
+
+      break;
+    }
+
+  }
+
+  return body;
+}
+
 ;// CONCATENATED MODULE: ./src/events/base-http-response.js
 function ResponseHeaders(xhr) {
   this._headers = null;
@@ -868,6 +934,11 @@ function HttpErrorResponseEvent(err, xhr, status, url) {
 
   this._name = 'HttpErrorResponse';
   defineObjProp(this, 'name', function() { return this._name }, noop);
+
+  this._error = (typeof(xhr.response) === 'undefined') ? xhr.responseText : xhr.response;
+  this._error = handleRespBody(this._error, xhr.responseType);
+  this._error = this._error ? this._error : err;
+  defineObjProp(this, 'error', function() { return this._error }, noop);
 }
 
 HttpErrorResponseEvent.prototype = { }
@@ -889,14 +960,12 @@ function HttpOnProgressEvent(type, processed, total, partialText) {
 
 HttpOnProgressEvent.prototype = { }
 
-;// CONCATENATED MODULE: ./src/helpers/remove-xssi.js
-var XSSI_prefixRegEx = /^\)\]\}',?\n/;
-
-function removeXSSI(str) {
-  return str.replace(XSSI_prefixRegEx, '');
-}
-
 ;// CONCATENATED MODULE: ./src/events/http/http-response-event.js
+
+
+
+
+
 function HttpResponseEvent(ev, xhr, status, url) {
   baseHttpResponse(this, xhr, status);
 
@@ -910,58 +979,7 @@ function HttpResponseEvent(ev, xhr, status, url) {
   defineObjProp(this, 'name', function() { return this._name }, noop);
 
   this._body = (typeof(xhr.response) === 'undefined') ? xhr.responseText : xhr.response;
-
-  switch (xhr.responseType) {
-    case 'arraybuffer': {
-      if (!(this._body) || !(body instanceof ArrayBuffer)) {
-        console.warn('Response type "arraybuffer" expects the respons to be ArrayBuffer.');
-      }
-
-      break;
-    }
-
-    case 'blob': {
-      if (!(this._body) || !(this._body instanceof Blob)) {
-        console.warn('Response type "blob" expects the respons to be Blob.');
-      }
-
-      break;
-    }
-
-    case 'text': {
-      if (!(this._body) || typeof(this._body) !== 'string') {
-        console.warn('Response type "text" expects the respons to be string.');
-      }
-
-      break;
-    }
-
-    case 'json': {
-      if (!(this._body) || typeof(this._body) !== 'string') {
-        console.warn('Response type "json" expects the respons to be string.');
-
-        break;
-      }
-
-      this._body = removeXSSI(this._body);
-
-      try
-      {
-        this._body = JSON.parse(this._body);
-      }
-      catch (err)
-      {
-        console.error('Could not parse the given response => ', err);
-      }
-
-      break;
-    }
-
-    default: {
-      break;
-    }
-  }
-
+  this._body = handleRespBody(this._body, xhr.responseType);
   defineObjProp(this, 'body', function() { return this._body }, noop);
 }
 
