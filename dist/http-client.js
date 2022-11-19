@@ -490,8 +490,8 @@ AjaxHeaders.prototype = {
       return;
     }
 
-    if (isBlob(this.body)) {
-      var check = this.body.type || null;
+    if (isBlob(body)) {
+      var check = body.type || null;
 
       if (check) {
         this.setHeader('Content-Type', check);
@@ -510,7 +510,7 @@ AjaxHeaders.prototype = {
       return;
     }
     
-    if (this.body instanceof AjaxParams) {
+    if (body instanceof AjaxParams) {
       this.setHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
 
       return;
@@ -832,8 +832,6 @@ function handleRespBody(body, respType) {
 
     case 'json': {
       if (!(body) || typeof(body) !== 'string') {
-        console.warn('Response type "json" expects the respons to be string.');
-
         break;
       }
 

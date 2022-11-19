@@ -28,8 +28,6 @@ export function handleRespBody(body, respType) {
 
     case 'json': {
       if (!(body) || typeof(body) !== 'string') {
-        console.warn('Response type "json" expects the respons to be string.');
-
         break;
       }
 

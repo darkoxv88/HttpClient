@@ -137,8 +137,8 @@ AjaxHeaders.prototype = {
       return;
     }
 
-    if (isBlob(this.body)) {
-      var check = this.body.type || null;
+    if (isBlob(body)) {
+      var check = body.type || null;
 
       if (check) {
         this.setHeader('Content-Type', check);
@@ -157,7 +157,7 @@ AjaxHeaders.prototype = {
       return;
     }
     
-    if (this.body instanceof AjaxParams) {
+    if (body instanceof AjaxParams) {
       this.setHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
 
       return;
