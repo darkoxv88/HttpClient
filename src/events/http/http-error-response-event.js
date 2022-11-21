@@ -3,7 +3,7 @@ import { noop } from "./../../utility/noop";
 import { handleRespBody } from "../../helpers/handle-resp-body.js";
 import { baseHttpResponse } from "../base-http-response.js";
 
-export function HttpErrorResponseEvent(err, xhr, status, url) {
+export function HttpErrorResponseEvent(err, xhr, responseTxpe, status, url) {
   baseHttpResponse(this, xhr, status);
 
   this._timeStamp = err.timeStamp;
@@ -16,7 +16,7 @@ export function HttpErrorResponseEvent(err, xhr, status, url) {
   defineObjProp(this, 'name', function() { return this._name }, noop);
 
   this._error = (typeof(xhr.response) === 'undefined') ? xhr.responseText : xhr.response;
-  this._error = handleRespBody(this._error, xhr.responseType);
+  this._error = handleRespBody(this._error, responseTxpe);
   this._error = this._error ? this._error : err;
   defineObjProp(this, 'error', function() { return this._error }, noop);
 }

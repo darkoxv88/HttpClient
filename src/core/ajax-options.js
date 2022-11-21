@@ -69,3 +69,15 @@ AjaxOptions.defineResponseType = function(type) {
     }
   }
 }
+
+AjaxOptions.overrideResponseType = function(type) {
+  switch (type) {
+    case 'json': {
+      return 'text';
+    }
+
+    default: {
+      return type;
+    }
+  }
+}

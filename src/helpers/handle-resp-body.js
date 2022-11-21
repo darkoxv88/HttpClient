@@ -28,22 +28,22 @@ export function handleRespBody(body, respType) {
 
     case 'json': {
       if (!(body) || typeof(body) !== 'string') {
+        body = null;
+
         break;
       }
 
-      body = removeXSSI(body);
-
-      let ogBody = body;
-
       try
       {
+        body = removeXSSI(body);
+
         body = JSON.parse(body);
       }
       catch (err)
       {
         console.error('Could not parse the given response => ', err);
 
-        body = ogBody;
+        body = null;
       }
 
       break;

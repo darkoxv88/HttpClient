@@ -52,10 +52,12 @@ export function Ajax(type, url, body, headers, options) {
   this.params = new AjaxParams(this._options.params);
   this._xhr = new XMLHttpRequest();
 
-  this._xhr.responseType = this._options.responseType = AjaxOptions.defineResponseType(this._options.responseType);
+  this._options.responseType = AjaxOptions.defineResponseType(this._options.responseType);
+  this._xhr.responseType = AjaxOptions.overrideResponseType(this._options.responseType);
 
   this._onUpload = null;
   this._onDownload = null;
+  
   this._xhr.onprogress = lambda(this, function(ev) {
     if (typeof(this._onUpload) === 'function' && this._body !== null && this._body !== undefined && this._xhr.upload) {
       var lTotal = undefined;
@@ -111,7 +113,7 @@ export function Ajax(type, url, body, headers, options) {
             {
               try
               {
-                resolve(new HttpResponseEvent(ev, this._xhr, __status, (getResponseUrl(this._xhr) || this._url)));
+                resolve(new HttpResponseEvent(ev, this._xhr, this._options.responseType, __status, (getResponseUrl(this._xhr) || this._url)));
               }
               catch(err)
               {
@@ -121,7 +123,7 @@ export function Ajax(type, url, body, headers, options) {
             else 
             {
               reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
-                ev, this._xhr, __status, (getResponseUrl(this._xhr) || this._url)
+                ev, this._xhr, this._options.responseType, __status, (getResponseUrl(this._xhr) || this._url)
               )));
             }
 
@@ -133,7 +135,7 @@ export function Ajax(type, url, body, headers, options) {
             var __status = this._xhr.status || 0;
 
             reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
-              ev, this._xhr, __status, (getResponseUrl(this._xhr) || this._url)
+              ev, this._xhr, this._options.responseType, __status, (getResponseUrl(this._xhr) || this._url)
             )));
           });
 

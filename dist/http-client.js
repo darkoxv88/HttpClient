@@ -597,6 +597,18 @@ AjaxOptions.defineResponseType = function(type) {
   }
 }
 
+AjaxOptions.overrideResponseType = function(type) {
+  switch (type) {
+    case 'json': {
+      return 'text';
+    }
+
+    default: {
+      return type;
+    }
+  }
+}
+
 ;// CONCATENATED MODULE: ./src/utility/define-obj-prop.js.js
 function defineObjProp(ref, key, getter, setter) {
   var def = ({
@@ -832,22 +844,22 @@ function handleRespBody(body, respType) {
 
     case 'json': {
       if (!(body) || typeof(body) !== 'string') {
+        body = null;
+
         break;
       }
 
-      body = removeXSSI(body);
-
-      let ogBody = body;
-
       try
       {
+        body = removeXSSI(body);
+
         body = JSON.parse(body);
       }
       catch (err)
       {
         console.error('Could not parse the given response => ', err);
 
-        body = ogBody;
+        body = null;
       }
 
       break;
@@ -921,7 +933,7 @@ function baseHttpResponse(chieldRoot, xhr, status) {
 }
 
 ;// CONCATENATED MODULE: ./src/events/http/http-error-response-event.js
-function HttpErrorResponseEvent(err, xhr, status, url) {
+function HttpErrorResponseEvent(err, xhr, responseTxpe, status, url) {
   baseHttpResponse(this, xhr, status);
 
   this._timeStamp = err.timeStamp;
@@ -934,7 +946,7 @@ function HttpErrorResponseEvent(err, xhr, status, url) {
   defineObjProp(this, 'name', function() { return this._name }, noop);
 
   this._error = (typeof(xhr.response) === 'undefined') ? xhr.responseText : xhr.response;
-  this._error = handleRespBody(this._error, xhr.responseType);
+  this._error = handleRespBody(this._error, responseTxpe);
   this._error = this._error ? this._error : err;
   defineObjProp(this, 'error', function() { return this._error }, noop);
 }
@@ -959,12 +971,7 @@ function HttpOnProgressEvent(type, processed, total, partialText) {
 HttpOnProgressEvent.prototype = { }
 
 ;// CONCATENATED MODULE: ./src/events/http/http-response-event.js
-
-
-
-
-
-function HttpResponseEvent(ev, xhr, status, url) {
+function HttpResponseEvent(ev, xhr, responseTxpe, status, url) {
   baseHttpResponse(this, xhr, status);
 
   this._timeStamp = ev.timeStamp;
@@ -977,7 +984,7 @@ function HttpResponseEvent(ev, xhr, status, url) {
   defineObjProp(this, 'name', function() { return this._name }, noop);
 
   this._body = (typeof(xhr.response) === 'undefined') ? xhr.responseText : xhr.response;
-  this._body = handleRespBody(this._body, xhr.responseType);
+  this._body = handleRespBody(this._body, responseTxpe);
   defineObjProp(this, 'body', function() { return this._body }, noop);
 }
 
@@ -1058,10 +1065,12 @@ function Ajax(type, url, body, headers, options) {
   this.params = new AjaxParams(this._options.params);
   this._xhr = new XMLHttpRequest();
 
-  this._xhr.responseType = this._options.responseType = AjaxOptions.defineResponseType(this._options.responseType);
+  this._options.responseType = AjaxOptions.defineResponseType(this._options.responseType);
+  this._xhr.responseType = AjaxOptions.overrideResponseType(this._options.responseType);
 
   this._onUpload = null;
   this._onDownload = null;
+  
   this._xhr.onprogress = lambda(this, function(ev) {
     if (typeof(this._onUpload) === 'function' && this._body !== null && this._body !== undefined && this._xhr.upload) {
       var lTotal = undefined;
@@ -1117,7 +1126,7 @@ function Ajax(type, url, body, headers, options) {
             {
               try
               {
-                resolve(new HttpResponseEvent(ev, this._xhr, __status, (getResponseUrl(this._xhr) || this._url)));
+                resolve(new HttpResponseEvent(ev, this._xhr, this._options.responseType, __status, (getResponseUrl(this._xhr) || this._url)));
               }
               catch(err)
               {
@@ -1127,7 +1136,7 @@ function Ajax(type, url, body, headers, options) {
             else 
             {
               reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
-                ev, this._xhr, __status, (getResponseUrl(this._xhr) || this._url)
+                ev, this._xhr, this._options.responseType, __status, (getResponseUrl(this._xhr) || this._url)
               )));
             }
 
@@ -1139,7 +1148,7 @@ function Ajax(type, url, body, headers, options) {
             var __status = this._xhr.status || 0;
 
             reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
-              ev, this._xhr, __status, (getResponseUrl(this._xhr) || this._url)
+              ev, this._xhr, this._options.responseType, __status, (getResponseUrl(this._xhr) || this._url)
             )));
           });
 
