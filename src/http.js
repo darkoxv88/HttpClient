@@ -46,9 +46,13 @@ HTTP.jsonp = function(url, options, callbackParamName, callbackName) {
   return new JSONP(url, options, callbackParamName, callbackName);
 }
 
+HTTP.AjaxHeaders = AjaxHeaders;
+
 HTTP.createRequestHeaders = function(headers) {
   return new AjaxHeaders(headers);
 }
+
+HTTP.AjaxOptions = AjaxOptions;
 
 HTTP.createRequestOptions = function() {
   return new AjaxOptions();

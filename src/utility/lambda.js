@@ -1,5 +1,9 @@
 export function lambda(root, func) {
-  if (typeof func !== 'function' || typeof root !== 'object') {
+  if (typeof root !== 'object' || !root) {
+    root = ({ });
+  }
+
+  if (typeof func !== 'function') {
     return function() { }
   }
 

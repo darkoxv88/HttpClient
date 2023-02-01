@@ -39,7 +39,7 @@ export function Ajax(type, url, body, headers, options) {
   this._type = type;
   defineObjProp(this, 'type', function() { return this._type }, function() { });
 
-  this._url = url;
+  this._url = (typeof(url) !== 'string' || !url) ? '' : url;
   this._body = body;
 
   if (typeof(options) !== 'object' || !options) {
@@ -142,6 +142,15 @@ export function Ajax(type, url, body, headers, options) {
           this._xhr.ontimeout = __onError__;
           this._xhr.onabort = __onError__;
           this._xhr.onerror = __onError__;
+
+          this._state = AjaxStatesEnum.Pending;
+
+          setTimeout(
+            lambda(this, function() {
+              this._xhr.send(serializeRequestBody(this._body));
+            }),
+            AjaxOptions.defineDelay(this._options.delay)
+          );
         })
       );
 
@@ -207,22 +216,7 @@ Ajax.prototype = {
   asPromise: null,
 
   fetch: function() {
-    let out = this.asPromise();
-
-    if (this._state !== AjaxStatesEnum.Opened) {
-      return out;
-    }
-
-    this._state = AjaxStatesEnum.Pending;
-
-    setTimeout(
-      lambda(this, function() {
-        this._xhr.send(serializeRequestBody(this._body));
-      }),
-      AjaxOptions.defineDelay(this._options.delay)
-    );
-
-    return out;
+    return this.asPromise();
   }
 
 }

@@ -10,67 +10,105 @@ function asAsync(proc) {
   setTimeout(proc, 1);
 }
 
+var PromiseEventEmitter = function() {
+  this.listeners = [];
+}
+
+PromiseEventEmitter.prototype = {
+  addListener: function(fn) {
+    this.listeners.push(tryCatch(fn, catchedError));
+  },
+
+  emit: function(value) {
+    while (this.listeners.length > 0) {
+      var listener = this.listeners.shift();
+
+      listener(value);
+    }
+  }
+}
+
 var const_PENDING = 0;
 var const_FULFILLED = 1;
 var const_REJECTED = 2;
 
-var localPromise = function(executor) {
-  this._executor = tryCatch(executor, catchedError);
-  this._value = undefined;
-  this._onFulfilled = tryCatch(null);
-  this._onRejected = tryCatch(null);
-  this._onFinally = tryCatch(null);
-  this._state = const_PENDING;
+var state = Symbol("promiseState");
+var value = Symbol("promiseValue");
+var error = Symbol("promiseError");
+var onFulfilledEmitter = Symbol("promiseOnFulfilled");
+var onRejectedEmitter = Symbol("promiseOnRejected");
+var onFinallyEmitter = Symbol("promiseOnFinally");
+
+var LocalPromise = function(executor) {
+  this[state] = const_PENDING;
+  this[value] = undefined;
+  this[error] = undefined;
+  this[onFulfilledEmitter] = new PromiseEventEmitter();
+  this[onRejectedEmitter] = new PromiseEventEmitter();
+  this[onFinallyEmitter] = new PromiseEventEmitter();
+
+  var resolve = lambda(this, function(value) {
+    if (this[state] !== const_PENDING) {
+      return;
+    }
+
+    this[state] = const_FULFILLED;
+    this[value] = value;
+    this[onFulfilledEmitter].emit(this[value]);
+    this[onFinallyEmitter].emit(undefined);
+  });
+
+  var reject = lambda(this, function(err) {
+    if (this[state] !== const_PENDING) {
+      return;
+    }
+
+    this[state] = const_REJECTED;
+    this[error] = err;
+    this[onRejectedEmitter].emit(this[error]);
+    this[onFinallyEmitter].emit(undefined);
+  });
+
+  var executor = tryCatch(executor, reject);
 
   asAsync(
     lambda(this, function() {
-      this._executor(
-        lambda(this, function(value) {
-          this._state = const_FULFILLED;
-          this._value = value;
-          this._onFulfilled(this._value);
-          this._onFinally(this._value);
-        }),
-        lambda(this, function(value) {
-          this._state = const_REJECTED;
-          this._value = value;
-          this._onRejected(this._value);
-          this._onFinally(this._value);
-        })
-      );
+      executor(resolve, reject);
     })
   );
 }
 
-localPromise.prototype = {
+LocalPromise.prototype = {
   then: function(onFulfilled, onRejected) {
-    this._onFulfilled = tryCatch(onFulfilled, catchedError);
-    this._onRejected = tryCatch(onRejected, catchedError);
+    this[onFulfilledEmitter].addListener(onFulfilled);
+    this[onRejectedEmitter].addListener(onRejected);
 
-    if (this._state === const_FULFILLED) {
-      this._onFulfilled(this._value);
+    if (this[state] === const_FULFILLED) {
+      this[onFulfilledEmitter].emit(this[value]);
     }
 
-    if (this._state === const_REJECTED) {
-      this._onRejected(this._value);
+    if (this[state] === const_REJECTED) {
+      this[onRejectedEmitter].emit(this[error]);
     }
 
     return this;
   },
+
   catch: function(onRejected) {
-    this._onRejected = tryCatch(onRejected, catchedError);
+    this[onRejectedEmitter].addListener(onRejected);
 
-    if (this._state === const_REJECTED) {
-      this._onRejected(this._value);
+    if (this[state] === const_REJECTED) {
+      this[onRejectedEmitter].emit(this[error]);
     }
 
     return this;
   },
-  finally: function(onFinally) {
-    this._onFinally = tryCatch(onFinally, catchedError);
 
-    if (this._state !== const_PENDING) {
-      this._onFinally();
+  finally: function(onFinally) {
+    this[onFinallyEmitter].addListener(onFinally);
+
+    if (this[state] !== const_PENDING) {
+      this[onFinallyEmitter].emit(undefined);
     }
 
     return this;
@@ -78,9 +116,9 @@ localPromise.prototype = {
 }
 
 if (typeof(getRoot()['Promise']) === 'function') {
-  localPromise = getRoot()['Promise'];
+  LocalPromise = getRoot()['Promise'];
 }
 
 export function promiseFactory(executor) {
-  return new localPromise(executor);
+  return new LocalPromise(executor);
 }

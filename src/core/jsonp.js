@@ -43,7 +43,7 @@ function detachCallback(index) {
 }
 
 export function JSONP(url, options, callbackParamName, callbackName) {
-  this._url = url;
+  this._url = (typeof(url) !== 'string' || !url) ? '' : url;
 
   if (typeof(options) !== 'object' || !options) {
     options = new AjaxOptions();

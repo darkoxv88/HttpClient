@@ -261,7 +261,11 @@ export declare class HttpClient {
 
   static options(url: string, body: any, headers?: AjaxHeaders, options?: AjaxOptions): Ajax;
 
+  static AjaxHeaders: typeof AjaxHeaders;
+
   static createRequestHeaders(headers?: AjaxHeaders): AjaxHeaders;
+
+  static AjaxOptions: typeof AjaxOptions;
 
   static createRequestOptions(): AjaxOptions;
 

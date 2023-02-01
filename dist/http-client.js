@@ -127,7 +127,11 @@ function isProduction() {
 
 ;// CONCATENATED MODULE: ./src/utility/lambda.js
 function lambda(root, func) {
-  if (typeof func !== 'function' || typeof root !== 'object') {
+  if (typeof root !== 'object' || !root) {
+    root = ({ });
+  }
+
+  if (typeof func !== 'function') {
     return function() { }
   }
 
@@ -695,67 +699,105 @@ function asAsync(proc) {
   setTimeout(proc, 1);
 }
 
+var PromiseEventEmitter = function() {
+  this.listeners = [];
+}
+
+PromiseEventEmitter.prototype = {
+  addListener: function(fn) {
+    this.listeners.push(tryCatch(fn, catchedError));
+  },
+
+  emit: function(value) {
+    while (this.listeners.length > 0) {
+      var listener = this.listeners.shift();
+
+      listener(value);
+    }
+  }
+}
+
 var const_PENDING = 0;
 var const_FULFILLED = 1;
 var const_REJECTED = 2;
 
-var localPromise = function(executor) {
-  this._executor = tryCatch(executor, catchedError);
-  this._value = undefined;
-  this._onFulfilled = tryCatch(null);
-  this._onRejected = tryCatch(null);
-  this._onFinally = tryCatch(null);
-  this._state = const_PENDING;
+var state = Symbol("promiseState");
+var value = Symbol("promiseValue");
+var error = Symbol("promiseError");
+var onFulfilledEmitter = Symbol("promiseOnFulfilled");
+var onRejectedEmitter = Symbol("promiseOnRejected");
+var onFinallyEmitter = Symbol("promiseOnFinally");
+
+var LocalPromise = function(executor) {
+  this[state] = const_PENDING;
+  this[value] = undefined;
+  this[error] = undefined;
+  this[onFulfilledEmitter] = new PromiseEventEmitter();
+  this[onRejectedEmitter] = new PromiseEventEmitter();
+  this[onFinallyEmitter] = new PromiseEventEmitter();
+
+  var resolve = lambda(this, function(value) {
+    if (this[state] !== const_PENDING) {
+      return;
+    }
+
+    this[state] = const_FULFILLED;
+    this[value] = value;
+    this[onFulfilledEmitter].emit(this[value]);
+    this[onFinallyEmitter].emit(undefined);
+  });
+
+  var reject = lambda(this, function(err) {
+    if (this[state] !== const_PENDING) {
+      return;
+    }
+
+    this[state] = const_REJECTED;
+    this[error] = err;
+    this[onRejectedEmitter].emit(this[error]);
+    this[onFinallyEmitter].emit(undefined);
+  });
+
+  var executor = tryCatch(executor, reject);
 
   asAsync(
     lambda(this, function() {
-      this._executor(
-        lambda(this, function(value) {
-          this._state = const_FULFILLED;
-          this._value = value;
-          this._onFulfilled(this._value);
-          this._onFinally(this._value);
-        }),
-        lambda(this, function(value) {
-          this._state = const_REJECTED;
-          this._value = value;
-          this._onRejected(this._value);
-          this._onFinally(this._value);
-        })
-      );
+      executor(resolve, reject);
     })
   );
 }
 
-localPromise.prototype = {
+LocalPromise.prototype = {
   then: function(onFulfilled, onRejected) {
-    this._onFulfilled = tryCatch(onFulfilled, catchedError);
-    this._onRejected = tryCatch(onRejected, catchedError);
+    this[onFulfilledEmitter].addListener(onFulfilled);
+    this[onRejectedEmitter].addListener(onRejected);
 
-    if (this._state === const_FULFILLED) {
-      this._onFulfilled(this._value);
+    if (this[state] === const_FULFILLED) {
+      this[onFulfilledEmitter].emit(this[value]);
     }
 
-    if (this._state === const_REJECTED) {
-      this._onRejected(this._value);
+    if (this[state] === const_REJECTED) {
+      this[onRejectedEmitter].emit(this[error]);
     }
 
     return this;
   },
+
   catch: function(onRejected) {
-    this._onRejected = tryCatch(onRejected, catchedError);
+    this[onRejectedEmitter].addListener(onRejected);
 
-    if (this._state === const_REJECTED) {
-      this._onRejected(this._value);
+    if (this[state] === const_REJECTED) {
+      this[onRejectedEmitter].emit(this[error]);
     }
 
     return this;
   },
-  finally: function(onFinally) {
-    this._onFinally = tryCatch(onFinally, catchedError);
 
-    if (this._state !== const_PENDING) {
-      this._onFinally();
+  finally: function(onFinally) {
+    this[onFinallyEmitter].addListener(onFinally);
+
+    if (this[state] !== const_PENDING) {
+      this[onFinallyEmitter].emit(undefined);
     }
 
     return this;
@@ -763,11 +805,11 @@ localPromise.prototype = {
 }
 
 if (typeof(getRoot()['Promise']) === 'function') {
-  localPromise = getRoot()['Promise'];
+  LocalPromise = getRoot()['Promise'];
 }
 
 function promiseFactory(executor) {
-  return new localPromise(executor);
+  return new LocalPromise(executor);
 }
 
 ;// CONCATENATED MODULE: ./src/helpers/xhr-get-response-url.js
@@ -1052,7 +1094,7 @@ function Ajax(type, url, body, headers, options) {
   this._type = type;
   defineObjProp(this, 'type', function() { return this._type }, function() { });
 
-  this._url = url;
+  this._url = (typeof(url) !== 'string' || !url) ? '' : url;
   this._body = body;
 
   if (typeof(options) !== 'object' || !options) {
@@ -1155,6 +1197,15 @@ function Ajax(type, url, body, headers, options) {
           this._xhr.ontimeout = __onError__;
           this._xhr.onabort = __onError__;
           this._xhr.onerror = __onError__;
+
+          this._state = AjaxStatesEnum.Pending;
+
+          setTimeout(
+            lambda(this, function() {
+              this._xhr.send(serializeRequestBody(this._body));
+            }),
+            AjaxOptions.defineDelay(this._options.delay)
+          );
         })
       );
 
@@ -1220,22 +1271,7 @@ Ajax.prototype = {
   asPromise: null,
 
   fetch: function() {
-    let out = this.asPromise();
-
-    if (this._state !== AjaxStatesEnum.Opened) {
-      return out;
-    }
-
-    this._state = AjaxStatesEnum.Pending;
-
-    setTimeout(
-      lambda(this, function() {
-        this._xhr.send(serializeRequestBody(this._body));
-      }),
-      AjaxOptions.defineDelay(this._options.delay)
-    );
-
-    return out;
+    return this.asPromise();
   }
 
 }
@@ -1320,7 +1356,7 @@ function detachCallback(index) {
 }
 
 function JSONP(url, options, callbackParamName, callbackName) {
-  this._url = url;
+  this._url = (typeof(url) !== 'string' || !url) ? '' : url;
 
   if (typeof(options) !== 'object' || !options) {
     options = new AjaxOptions();
@@ -1463,9 +1499,13 @@ HTTP.jsonp = function(url, options, callbackParamName, callbackName) {
   return new JSONP(url, options, callbackParamName, callbackName);
 }
 
+HTTP.AjaxHeaders = AjaxHeaders;
+
 HTTP.createRequestHeaders = function(headers) {
   return new AjaxHeaders(headers);
 }
+
+HTTP.AjaxOptions = AjaxOptions;
 
 HTTP.createRequestOptions = function() {
   return new AjaxOptions();
