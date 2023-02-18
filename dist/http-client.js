@@ -1042,8 +1042,6 @@ function ErrorInterceptor(callback) {
 }
 
 ErrorInterceptor.prototype = { 
-  _callback: null,
-
   proc: function(value) {
     try
     {
@@ -1268,8 +1266,6 @@ Ajax.prototype = {
     this.params.append(key, value);
   },
 
-  asPromise: null,
-
   fetch: function() {
     return this.asPromise();
   }
@@ -1278,34 +1274,6 @@ Ajax.prototype = {
 
 Ajax.setErrorInterceptor = function(interceptor) {
   ErrorInterceptor.setInterceptor(interceptor);
-}
-
-Ajax.get = function(url, headers, options) {
-  return new Ajax('GET', url, null, headers, options);
-}
-
-Ajax.delete = function(url, headers, options) {
-  return new Ajax('DELETE', url, null, headers, options);
-}
-
-Ajax.head = function(url, headers, options) {
-  return new Ajax('HEAD', url, null, headers, options);
-}
-
-Ajax.post = function(url, body, headers, options) {
-  return new Ajax('POST', url, body, headers, options);
-}
-
-Ajax.put = function(url, body, headers, options) {
-  return new Ajax('PUT', url, body, headers, options);
-}
-
-Ajax.patch = function(url, body, headers, options) {
-  return new Ajax('PATCH', url, body, headers, options);
-}
-
-Ajax.options = function(url, body, headers, options) {
-  return new Ajax('OPTIONS', url, body, headers, options);
 }
 
 ;// CONCATENATED MODULE: ./src/utility/random-generator.js
@@ -1356,7 +1324,9 @@ function detachCallback(index) {
 }
 
 function JSONP(url, options, callbackParamName, callbackName) {
+  this._index = generateIndex();
   this._url = (typeof(url) !== 'string' || !url) ? '' : url;
+  this._script = document.createElement('script');
 
   if (typeof(options) !== 'object' || !options) {
     options = new AjaxOptions();
@@ -1415,7 +1385,8 @@ function JSONP(url, options, callbackParamName, callbackName) {
 
           setTimeout(
             lambda(this, function() {
-              this._target.append(this._script);
+              var target = createTarget();
+              target.append(this._script);
 
               this._timer = setTimeout(
                 lambda(this, function() { 
@@ -1444,14 +1415,12 @@ function JSONP(url, options, callbackParamName, callbackName) {
 JSONP.prototype = {
 
   params: null,
-  _index: generateIndex(),
+  _index: '',
   _url: '',
-  _target: createTarget(),
-  _script: document.createElement('script'),
+  _script: null,
   _timer: null,
   _promise: null,
 
-  asPromise: null,
   fetch: function() { 
     return this.asPromise();
   },
@@ -1468,31 +1437,31 @@ HTTP.setErrorInterceptor = function(interceptor) {
 }
 
 HTTP.get = function(url, headers, options) {
-  return Ajax.get(url, headers, options);
+  return new Ajax('GET', url, null, headers, options);
 }
 
 HTTP.delete = function(url, headers, options) {
-  return Ajax["delete"](url, headers, options);
+  return new Ajax('DELETE', url, null, headers, options);
 }
 
 HTTP.head = function(url, headers, options) {
-  return Ajax.head(url, headers, options);
+  return new Ajax('HEAD', url, null, headers, options);
 }
 
 HTTP.post = function(url, body, headers, options) {
-  return Ajax.post(url, body, headers, options);
+  return new Ajax('POST', url, body, headers, options);
 }
 
 HTTP.put = function(url, body, headers, options) {
-  return Ajax.put(url, body, headers, options);
+  return new Ajax('PUT', url, body, headers, options);
 }
 
 HTTP.patch = function(url, body, headers, options) {
-  return Ajax.patch(url, body, headers, options);
+  return new Ajax('PATCH', url, body, headers, options);
 }
 
 HTTP.options = function(url, body, headers, options) {
-  return Ajax.options(url, body, headers, options);
+  return new Ajax('OPTIONS', url, body, headers, options);
 }
 
 HTTP.jsonp = function(url, options, callbackParamName, callbackName) {

@@ -9,8 +9,6 @@ export function ErrorInterceptor(callback) {
 }
 
 ErrorInterceptor.prototype = { 
-  _callback: null,
-
   proc: function(value) {
     try
     {

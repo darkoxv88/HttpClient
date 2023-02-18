@@ -217,7 +217,6 @@ declare class JSONP {
 
   constructor(url: string, options?: AjaxOptions, callbackParamName?: string, callbackName?: string);
 
-  public asPromise(): Promise<any>;
   public fetch(): Promise<any>;
 
 }
@@ -236,7 +235,6 @@ declare class Ajax {
   public abort(): void;
   public setHeader(key: string, value: string): void;
   public appendParam(key: string, value: string): void;
-  public asPromise(): Promise<HttpResponseEvent>;
   public fetch(): Promise<HttpResponseEvent>;
 
 }

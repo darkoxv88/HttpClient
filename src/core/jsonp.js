@@ -43,7 +43,9 @@ function detachCallback(index) {
 }
 
 export function JSONP(url, options, callbackParamName, callbackName) {
+  this._index = generateIndex();
   this._url = (typeof(url) !== 'string' || !url) ? '' : url;
+  this._script = document.createElement('script');
 
   if (typeof(options) !== 'object' || !options) {
     options = new AjaxOptions();
@@ -102,7 +104,8 @@ export function JSONP(url, options, callbackParamName, callbackName) {
 
           setTimeout(
             lambda(this, function() {
-              this._target.append(this._script);
+              var target = createTarget();
+              target.append(this._script);
 
               this._timer = setTimeout(
                 lambda(this, function() { 
@@ -131,14 +134,12 @@ export function JSONP(url, options, callbackParamName, callbackName) {
 JSONP.prototype = {
 
   params: null,
-  _index: generateIndex(),
+  _index: '',
   _url: '',
-  _target: createTarget(),
-  _script: document.createElement('script'),
+  _script: null,
   _timer: null,
   _promise: null,
 
-  asPromise: null,
   fetch: function() { 
     return this.asPromise();
   },

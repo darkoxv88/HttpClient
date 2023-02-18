@@ -213,8 +213,6 @@ Ajax.prototype = {
     this.params.append(key, value);
   },
 
-  asPromise: null,
-
   fetch: function() {
     return this.asPromise();
   }
@@ -223,32 +221,4 @@ Ajax.prototype = {
 
 Ajax.setErrorInterceptor = function(interceptor) {
   ErrorInterceptor.setInterceptor(interceptor);
-}
-
-Ajax.get = function(url, headers, options) {
-  return new Ajax('GET', url, null, headers, options);
-}
-
-Ajax.delete = function(url, headers, options) {
-  return new Ajax('DELETE', url, null, headers, options);
-}
-
-Ajax.head = function(url, headers, options) {
-  return new Ajax('HEAD', url, null, headers, options);
-}
-
-Ajax.post = function(url, body, headers, options) {
-  return new Ajax('POST', url, body, headers, options);
-}
-
-Ajax.put = function(url, body, headers, options) {
-  return new Ajax('PUT', url, body, headers, options);
-}
-
-Ajax.patch = function(url, body, headers, options) {
-  return new Ajax('PATCH', url, body, headers, options);
-}
-
-Ajax.options = function(url, body, headers, options) {
-  return new Ajax('OPTIONS', url, body, headers, options);
 }

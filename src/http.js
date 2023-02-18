@@ -15,31 +15,31 @@ HTTP.setErrorInterceptor = function(interceptor) {
 }
 
 HTTP.get = function(url, headers, options) {
-  return Ajax.get(url, headers, options);
+  return new Ajax('GET', url, null, headers, options);
 }
 
 HTTP.delete = function(url, headers, options) {
-  return Ajax.delete(url, headers, options);
+  return new Ajax('DELETE', url, null, headers, options);
 }
 
 HTTP.head = function(url, headers, options) {
-  return Ajax.head(url, headers, options);
+  return new Ajax('HEAD', url, null, headers, options);
 }
 
 HTTP.post = function(url, body, headers, options) {
-  return Ajax.post(url, body, headers, options);
+  return new Ajax('POST', url, body, headers, options);
 }
 
 HTTP.put = function(url, body, headers, options) {
-  return Ajax.put(url, body, headers, options);
+  return new Ajax('PUT', url, body, headers, options);
 }
 
 HTTP.patch = function(url, body, headers, options) {
-  return Ajax.patch(url, body, headers, options);
+  return new Ajax('PATCH', url, body, headers, options);
 }
 
 HTTP.options = function(url, body, headers, options) {
-  return Ajax.options(url, body, headers, options);
+  return new Ajax('OPTIONS', url, body, headers, options);
 }
 
 HTTP.jsonp = function(url, options, callbackParamName, callbackName) {
