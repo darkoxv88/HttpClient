@@ -1,3 +1,4 @@
+import { Callback } from "./../utility/callback";
 import { defineObjProp } from "./../utility/define-obj-prop.js";
 import { lambda } from "./../utility/lambda";
 import { once } from "../utility/once.js";
@@ -55,37 +56,35 @@ export function Ajax(type, url, body, headers, options) {
   this._options.responseType = AjaxOptions.defineResponseType(this._options.responseType);
   this._xhr.responseType = AjaxOptions.overrideResponseType(this._options.responseType);
 
-  this._onUpload = null;
-  this._onDownload = null;
+  this._onUpload = new Callback();
+  this._onDownload = new Callback();
   
   this._xhr.onprogress = lambda(this, function(ev) {
-    if (typeof(this._onUpload) === 'function' && this._body !== null && this._body !== undefined && this._xhr.upload) {
+    if (this._body !== null && this._body !== undefined && this._xhr.upload) {
       var lTotal = undefined;
 
       if (ev.lengthComputable) {
         lTotal = ev.total;
       }
 
-      this._onUpload(new HttpOnProgressEvent('UploadProgress', ev.loaded, lTotal, ''));
+      this._onUpload.emit(new HttpOnProgressEvent('UploadProgress', ev.loaded, lTotal, ''));
     }
 
-    if (typeof(this._onDownload) === 'function') {
-      var lTotal = undefined;
-      var lResponseText = '';
+    var lTotal = undefined;
+    var lResponseText = '';
 
-      if (ev.lengthComputable) {
-        lTotal = ev.total;
-      }
-
-      if (this._options.responseType === 'text' && !!(this._xhr.responseText)) {
-        lResponseText = this._xhr.responseText;
-      }
-
-      this._onDownload(new HttpOnProgressEvent('DownloadProgress', ev.loaded, lTotal, lResponseText));
+    if (ev.lengthComputable) {
+      lTotal = ev.total;
     }
+
+    if (this._options.responseType === 'text' && !!(this._xhr.responseText)) {
+      lResponseText = this._xhr.responseText;
+    }
+
+    this._onDownload.emit(new HttpOnProgressEvent('DownloadProgress', ev.loaded, lTotal, lResponseText));
   });
 
-  this.asPromise = once(
+  this.fetch = once(
     lambda(this, function() {
       this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
@@ -178,19 +177,24 @@ Ajax.prototype = {
   _onDownload: null,
 
   onUpload: function(onUpload) {
-    this._onUpload = onUpload;
+    this._onUpload = new Callback(onUpload);
 
     return this;
   },
   
   onDownload: function(onDownload) {
-    this._onDownload = onDownload;
+    this._onDownload = new Callback(onDownload);
 
     return this;
   },
 
   abort: function() {
+    if (this._state === AjaxStatesEnum.Rejected || this._state === AjaxStatesEnum.Fulfilled) {
+      return;
+    }
+
     this._state = AjaxStatesEnum.Aborted;
+
     this._xhr.onprogress = null;
     this._xhr.onload = null;
     this._xhr.onerror = null;
@@ -203,18 +207,18 @@ Ajax.prototype = {
 
   setHeader: function(key, value) {
     if (this._state !== AjaxStatesEnum.Opened) {
-      return;
+      return this;
     }
 
     this._headers.setHeader(key, value);
+
+    return this;
   },
 
   appendParam: function(key, value) {
     this.params.append(key, value);
-  },
 
-  fetch: function() {
-    return this.asPromise();
+    return this;
   }
 
 }

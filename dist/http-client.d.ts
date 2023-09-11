@@ -95,15 +95,6 @@ declare enum HttpStatusCodeEnum {
   NetworkAuthenticationRequired = 511,
 }
 
-declare enum AjaxStates { 
-  Unknown = 0,
-  Opened = 1,
-  Pending = 2,
-  Aborted = 3,
-  Rejected = 4,
-  Fulfilled = 5,
-}
-
 declare class ResponseHeaders {
 
   private _headers: { [key: string]: string };
@@ -228,14 +219,12 @@ declare class Ajax {
   public get type(): string;
   public get state(): number;
 
-  constructor(type: string, url: string, body: any, headers?: AjaxHeaders, options?: AjaxOptions);
-
-  public onUpload(callback: null | ((ev: HttpOnProgressEvent) => void)): void;
-  public onDownload(callback: null | ((ev: HttpOnProgressEvent) => void)): void;
-  public abort(): void;
-  public setHeader(key: string, value: string): void;
-  public appendParam(key: string, value: string): void;
+  public onUpload(callback: null | ((ev: HttpOnProgressEvent) => void)): this;
+  public onDownload(callback: null | ((ev: HttpOnProgressEvent) => void)): this;
+  public setHeader(key: string, value: string): this;
+  public appendParam(key: string, value: string): this;
   public fetch(): Promise<HttpResponseEvent>;
+  public abort(): void;
 
 }
 
@@ -243,7 +232,7 @@ export declare class HttpClient {
 
   static setErrorInterceptor(interceptor: (error: HttpErrorResponseEvent) => void): void;
 
-  static jsonp(url: string, options: AjaxOptions, callbackParamName?: string, callbackName?: string): JSONP;
+  static jsonp(url: string, options?: AjaxOptions, callbackParamName?: string, callbackName?: string): JSONP;
 
   static get(url: string, headers?: AjaxHeaders, options?: AjaxOptions): Ajax;
 
@@ -263,9 +252,9 @@ export declare class HttpClient {
 
   static createRequestHeaders(headers?: AjaxHeaders): AjaxHeaders;
 
-  static AjaxOptions: typeof AjaxOptions;
-
   static createRequestOptions(): AjaxOptions;
+
+  static AjaxParams: typeof AjaxParams;
 
   static createRequestParams(params?: AjaxParams): AjaxParams;
 

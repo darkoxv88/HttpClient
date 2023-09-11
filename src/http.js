@@ -1,7 +1,6 @@
 import { HttpStatusCodeEnum } from "./enums/http-status-code-enum";
 
 import { AjaxHeaders } from "./core/ajax-headers";
-import { AjaxOptions } from "./core/ajax-options";
 import { AjaxParams } from "./core/ajax-params";
 import { Ajax } from "./core/ajax";
 import { JSONP } from "./core/jsonp";
@@ -52,11 +51,11 @@ HTTP.createRequestHeaders = function(headers) {
   return new AjaxHeaders(headers);
 }
 
-HTTP.AjaxOptions = AjaxOptions;
-
 HTTP.createRequestOptions = function() {
   return new AjaxOptions();
 }
+
+HTTP.AjaxParams = AjaxParams;
 
 HTTP.createRequestParams = function(params) {
   return new AjaxParams(params)

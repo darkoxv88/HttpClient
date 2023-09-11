@@ -528,89 +528,31 @@ AjaxHeaders.prototype = {
   }
 }
 
-;// CONCATENATED MODULE: ./src/core/ajax-options.js
-function AjaxOptions() { }
+;// CONCATENATED MODULE: ./src/utility/noop.js
+function noop() { }
 
-AjaxOptions.prototype = {
-  timeout: 60,
-  responseType: '',
-  withCredentials: false,
-  params: null,
-  delay: 0,
+;// CONCATENATED MODULE: ./src/utility/callback.js
+function Callback(fn) {
+  if (typeof(fn) !== 'function') {
+    fn = noop;
+  }
+
+  this._fn = fn;
 }
 
-AjaxOptions.defineDelay = function(value) {
-  if (typeof(value) !== 'number') {
-    return 0;
-  }
+Callback.prototype = {
+  _fn: null,
 
-  if (value < 0) {
-    return 0;
-  }
-
-  return value * 1000;
-}
-
-AjaxOptions.defineTimeout = function(value) {
-  if (typeof(value) !== 'number') {
-    return 60000;
-  }
-
-  if (value < 0) {
-    return 60000;
-  }
-
-  return value * 1000;
-}
-
-AjaxOptions.defineResponseType = function(type) {
-  if (typeof(type) !== 'string' || !type) {
-    return '';
-  }
-
-  type = type.toLowerCase();
-
-  switch (type) {
-    case 'arraybuffer': {
-      return type;
+  emit: function(value) {
+    try
+    {
+      this._fn(value);
     }
-
-    case 'blob': {
-      return type;
+    catch(err)
+    {
+      console.error(err);
     }
-
-    case 'document': {
-      return type;
-    }
-
-    case 'json': {
-      return type;
-    }
-
-    case 'ms-stream': {
-      return type;
-    }
-
-    case 'text': {
-      return type;
-    }
-
-    default: {
-      return '';
-    }
-  }
-}
-
-AjaxOptions.overrideResponseType = function(type) {
-  switch (type) {
-    case 'json': {
-      return 'text';
-    }
-
-    default: {
-      return type;
-    }
-  }
+  },
 }
 
 ;// CONCATENATED MODULE: ./src/utility/define-obj-prop.js.js
@@ -665,9 +607,6 @@ function safeJsonStringify(value) {
   }
 }
 
-;// CONCATENATED MODULE: ./src/utility/noop.js
-function noop() { }
-
 ;// CONCATENATED MODULE: ./src/utility/try-catch.js
 function tryCatch(func, onError) {
   if (typeof func !== 'function') {
@@ -714,6 +653,10 @@ PromiseEventEmitter.prototype = {
 
       listener(value);
     }
+  },
+
+  clear: function() {
+    this.listeners = [];
   }
 }
 
@@ -739,7 +682,7 @@ var LocalPromise = function(executor) {
   var resolve = lambda(this, function(value) {
     if (this[state] !== const_PENDING) {
       return;
-    }
+    } 
 
     this[state] = const_FULFILLED;
     this[value] = value;
@@ -768,29 +711,24 @@ var LocalPromise = function(executor) {
 }
 
 LocalPromise.prototype = {
-  then: function(onFulfilled, onRejected) {
+  then: function(onFulfilled, onRejected, onFinally) {
     this[onFulfilledEmitter].addListener(onFulfilled);
-    this[onRejectedEmitter].addListener(onRejected);
 
     if (this[state] === const_FULFILLED) {
       this[onFulfilledEmitter].emit(this[value]);
     }
 
-    if (this[state] === const_REJECTED) {
-      this[onRejectedEmitter].emit(this[error]);
-    }
-
-    return this;
+    return this.catch(onRejected, onFinally);
   },
 
-  catch: function(onRejected) {
+  catch: function(onRejected, onFinally) {
     this[onRejectedEmitter].addListener(onRejected);
 
     if (this[state] === const_REJECTED) {
       this[onRejectedEmitter].emit(this[error]);
     }
 
-    return this;
+    return this.finally(onFinally);
   },
 
   finally: function(onFinally) {
@@ -1030,6 +968,91 @@ function HttpResponseEvent(ev, xhr, responseTxpe, status, url) {
   defineObjProp(this, 'body', function() { return this._body }, noop);
 }
 
+;// CONCATENATED MODULE: ./src/core/ajax-options.js
+function ajax_options_AjaxOptions() { }
+
+ajax_options_AjaxOptions.prototype = {
+  timeout: 60,
+  responseType: '',
+  withCredentials: false,
+  params: null,
+  delay: 0,
+}
+
+ajax_options_AjaxOptions.defineDelay = function(value) {
+  if (typeof(value) !== 'number') {
+    return 0;
+  }
+
+  if (value < 0) {
+    return 0;
+  }
+
+  return value * 1000;
+}
+
+ajax_options_AjaxOptions.defineTimeout = function(value) {
+  if (typeof(value) !== 'number') {
+    return 60000;
+  }
+
+  if (value < 0) {
+    return 60000;
+  }
+
+  return value * 1000;
+}
+
+ajax_options_AjaxOptions.defineResponseType = function(type) {
+  if (typeof(type) !== 'string' || !type) {
+    return '';
+  }
+
+  type = type.toLowerCase();
+
+  switch (type) {
+    case 'arraybuffer': {
+      return type;
+    }
+
+    case 'blob': {
+      return type;
+    }
+
+    case 'document': {
+      return type;
+    }
+
+    case 'json': {
+      return type;
+    }
+
+    case 'ms-stream': {
+      return type;
+    }
+
+    case 'text': {
+      return type;
+    }
+
+    default: {
+      return '';
+    }
+  }
+}
+
+ajax_options_AjaxOptions.overrideResponseType = function(type) {
+  switch (type) {
+    case 'json': {
+      return 'text';
+    }
+
+    default: {
+      return type;
+    }
+  }
+}
+
 ;// CONCATENATED MODULE: ./src/core/error-interceptor.js
 
 
@@ -1042,7 +1065,7 @@ function ErrorInterceptor(callback) {
 }
 
 ErrorInterceptor.prototype = { 
-  proc: function(value) {
+  emit: function(value) {
     try
     {
       this._callback(value);
@@ -1061,7 +1084,7 @@ ErrorInterceptor.setInterceptor = function(interceptor) {
 }
 
 ErrorInterceptor.intercept = function(value) {
-  ErrorInterceptor.instance.proc(value);
+  ErrorInterceptor.instance.emit(value);
 
   return value;
 }
@@ -1096,7 +1119,7 @@ function Ajax(type, url, body, headers, options) {
   this._body = body;
 
   if (typeof(options) !== 'object' || !options) {
-    options = new AjaxOptions();
+    options = new ajax_options_AjaxOptions();
   }
   
   this._options = options;
@@ -1105,46 +1128,44 @@ function Ajax(type, url, body, headers, options) {
   this.params = new AjaxParams(this._options.params);
   this._xhr = new XMLHttpRequest();
 
-  this._options.responseType = AjaxOptions.defineResponseType(this._options.responseType);
-  this._xhr.responseType = AjaxOptions.overrideResponseType(this._options.responseType);
+  this._options.responseType = ajax_options_AjaxOptions.defineResponseType(this._options.responseType);
+  this._xhr.responseType = ajax_options_AjaxOptions.overrideResponseType(this._options.responseType);
 
-  this._onUpload = null;
-  this._onDownload = null;
+  this._onUpload = new Callback();
+  this._onDownload = new Callback();
   
   this._xhr.onprogress = lambda(this, function(ev) {
-    if (typeof(this._onUpload) === 'function' && this._body !== null && this._body !== undefined && this._xhr.upload) {
+    if (this._body !== null && this._body !== undefined && this._xhr.upload) {
       var lTotal = undefined;
 
       if (ev.lengthComputable) {
         lTotal = ev.total;
       }
 
-      this._onUpload(new HttpOnProgressEvent('UploadProgress', ev.loaded, lTotal, ''));
+      this._onUpload.emit(new HttpOnProgressEvent('UploadProgress', ev.loaded, lTotal, ''));
     }
 
-    if (typeof(this._onDownload) === 'function') {
-      var lTotal = undefined;
-      var lResponseText = '';
+    var lTotal = undefined;
+    var lResponseText = '';
 
-      if (ev.lengthComputable) {
-        lTotal = ev.total;
-      }
-
-      if (this._options.responseType === 'text' && !!(this._xhr.responseText)) {
-        lResponseText = this._xhr.responseText;
-      }
-
-      this._onDownload(new HttpOnProgressEvent('DownloadProgress', ev.loaded, lTotal, lResponseText));
+    if (ev.lengthComputable) {
+      lTotal = ev.total;
     }
+
+    if (this._options.responseType === 'text' && !!(this._xhr.responseText)) {
+      lResponseText = this._xhr.responseText;
+    }
+
+    this._onDownload.emit(new HttpOnProgressEvent('DownloadProgress', ev.loaded, lTotal, lResponseText));
   });
 
-  this.asPromise = once(
+  this.fetch = once(
     lambda(this, function() {
       this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
           this._xhr.open(this._type, this._url + this.params.getQueryString(), true);
 
-          this._xhr.timeout = (AjaxOptions.defineTimeout(this._options.timeout));
+          this._xhr.timeout = (ajax_options_AjaxOptions.defineTimeout(this._options.timeout));
           this._xhr.withCredentials = (this._options.withCredentials ? true : false);
 
           this._headers.detectContentTypeHeader(this._body);
@@ -1202,7 +1223,7 @@ function Ajax(type, url, body, headers, options) {
             lambda(this, function() {
               this._xhr.send(serializeRequestBody(this._body));
             }),
-            AjaxOptions.defineDelay(this._options.delay)
+            ajax_options_AjaxOptions.defineDelay(this._options.delay)
           );
         })
       );
@@ -1231,19 +1252,24 @@ Ajax.prototype = {
   _onDownload: null,
 
   onUpload: function(onUpload) {
-    this._onUpload = onUpload;
+    this._onUpload = new Callback(onUpload);
 
     return this;
   },
   
   onDownload: function(onDownload) {
-    this._onDownload = onDownload;
+    this._onDownload = new Callback(onDownload);
 
     return this;
   },
 
   abort: function() {
+    if (this._state === AjaxStatesEnum.Rejected || this._state === AjaxStatesEnum.Fulfilled) {
+      return;
+    }
+
     this._state = AjaxStatesEnum.Aborted;
+
     this._xhr.onprogress = null;
     this._xhr.onload = null;
     this._xhr.onerror = null;
@@ -1256,18 +1282,18 @@ Ajax.prototype = {
 
   setHeader: function(key, value) {
     if (this._state !== AjaxStatesEnum.Opened) {
-      return;
+      return this;
     }
 
     this._headers.setHeader(key, value);
+
+    return this;
   },
 
   appendParam: function(key, value) {
     this.params.append(key, value);
-  },
 
-  fetch: function() {
-    return this.asPromise();
+    return this;
   }
 
 }
@@ -1329,7 +1355,7 @@ function JSONP(url, options, callbackParamName, callbackName) {
   this._script = document.createElement('script');
 
   if (typeof(options) !== 'object' || !options) {
-    options = new AjaxOptions();
+    options = new ajax_options_AjaxOptions();
   }
 
   if (typeof(callbackParamName) !== 'string' || !(callbackParamName)) {
@@ -1342,7 +1368,7 @@ function JSONP(url, options, callbackParamName, callbackName) {
 
   this.params = new AjaxParams(options.params);
 
-  this.asPromise = once(
+  this.fetch = once(
     lambda(this, function() {
       this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
@@ -1394,10 +1420,10 @@ function JSONP(url, options, callbackParamName, callbackName) {
     
                   reject(new Error('JSONP request canceled.'));
                 }), 
-                AjaxOptions.defineTimeout(options.timeout)
+                ajax_options_AjaxOptions.defineTimeout(options.timeout)
               );
             }),
-            AjaxOptions.defineDelay(options.delay)
+            ajax_options_AjaxOptions.defineDelay(options.delay)
           );
 
           return;
@@ -1420,10 +1446,6 @@ JSONP.prototype = {
   _script: null,
   _timer: null,
   _promise: null,
-
-  fetch: function() { 
-    return this.asPromise();
-  },
   
 }
 
@@ -1474,11 +1496,11 @@ HTTP.createRequestHeaders = function(headers) {
   return new AjaxHeaders(headers);
 }
 
-HTTP.AjaxOptions = AjaxOptions;
-
 HTTP.createRequestOptions = function() {
   return new AjaxOptions();
 }
+
+HTTP.AjaxParams = AjaxParams;
 
 HTTP.createRequestParams = function(params) {
   return new AjaxParams(params)

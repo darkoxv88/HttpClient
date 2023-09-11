@@ -9,7 +9,7 @@ export function ErrorInterceptor(callback) {
 }
 
 ErrorInterceptor.prototype = { 
-  proc: function(value) {
+  emit: function(value) {
     try
     {
       this._callback(value);
@@ -28,7 +28,7 @@ ErrorInterceptor.setInterceptor = function(interceptor) {
 }
 
 ErrorInterceptor.intercept = function(value) {
-  ErrorInterceptor.instance.proc(value);
+  ErrorInterceptor.instance.emit(value);
 
   return value;
 }

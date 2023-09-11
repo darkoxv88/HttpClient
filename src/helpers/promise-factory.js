@@ -25,6 +25,10 @@ PromiseEventEmitter.prototype = {
 
       listener(value);
     }
+  },
+
+  clear: function() {
+    this.listeners = [];
   }
 }
 
@@ -50,7 +54,7 @@ var LocalPromise = function(executor) {
   var resolve = lambda(this, function(value) {
     if (this[state] !== const_PENDING) {
       return;
-    }
+    } 
 
     this[state] = const_FULFILLED;
     this[value] = value;
@@ -79,29 +83,24 @@ var LocalPromise = function(executor) {
 }
 
 LocalPromise.prototype = {
-  then: function(onFulfilled, onRejected) {
+  then: function(onFulfilled, onRejected, onFinally) {
     this[onFulfilledEmitter].addListener(onFulfilled);
-    this[onRejectedEmitter].addListener(onRejected);
 
     if (this[state] === const_FULFILLED) {
       this[onFulfilledEmitter].emit(this[value]);
     }
 
-    if (this[state] === const_REJECTED) {
-      this[onRejectedEmitter].emit(this[error]);
-    }
-
-    return this;
+    return this.catch(onRejected, onFinally);
   },
 
-  catch: function(onRejected) {
+  catch: function(onRejected, onFinally) {
     this[onRejectedEmitter].addListener(onRejected);
 
     if (this[state] === const_REJECTED) {
       this[onRejectedEmitter].emit(this[error]);
     }
 
-    return this;
+    return this.finally(onFinally);
   },
 
   finally: function(onFinally) {

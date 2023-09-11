@@ -61,7 +61,7 @@ export function JSONP(url, options, callbackParamName, callbackName) {
 
   this.params = new AjaxParams(options.params);
 
-  this.asPromise = once(
+  this.fetch = once(
     lambda(this, function() {
       this._promise = promiseFactory(
         lambda(this, function(resolve, reject) {
@@ -139,9 +139,5 @@ JSONP.prototype = {
   _script: null,
   _timer: null,
   _promise: null,
-
-  fetch: function() { 
-    return this.asPromise();
-  },
   
 }
