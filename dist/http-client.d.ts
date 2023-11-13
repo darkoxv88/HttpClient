@@ -143,7 +143,7 @@ declare class HttpErrorResponseEvent extends BaseHttpResponse {
   
 }
 
-declare class HttpResponseEvent extends BaseHttpResponse {
+declare class HttpResponseEvent<T> extends BaseHttpResponse {
   
   private _timeStamp: number;
   public get timeStamp(): number;
@@ -154,8 +154,8 @@ declare class HttpResponseEvent extends BaseHttpResponse {
   private _name: 'HttpResponse';
   public get name(): 'HttpResponse';
 
-  private _body: any;
-  public get body(): any;
+  private _body: T;
+  public get body(): T;
 
 }
 
@@ -212,7 +212,7 @@ declare class JSONP {
 
 }
 
-declare class Ajax {
+declare class Ajax<T> {
 
   public params: AjaxParams;
 
@@ -223,7 +223,7 @@ declare class Ajax {
   public onDownload(callback: null | ((ev: HttpOnProgressEvent) => void)): this;
   public setHeader(key: string, value: string): this;
   public appendParam(key: string, value: string): this;
-  public fetch(): Promise<HttpResponseEvent>;
+  public fetch(): Promise<HttpResponseEvent<T>>;
   public abort(): void;
 
 }
@@ -234,19 +234,19 @@ export declare class HttpClient {
 
   static jsonp(url: string, options?: AjaxOptions, callbackParamName?: string, callbackName?: string): JSONP;
 
-  static get(url: string, headers?: AjaxHeaders, options?: AjaxOptions): Ajax;
+  static get<T = any>(url: string, headers?: AjaxHeaders, options?: AjaxOptions): Ajax<T>;
 
-  static delete(url: string, headers?: AjaxHeaders, options?: AjaxOptions): Ajax;
+  static delete<T = any>(url: string, headers?: AjaxHeaders, options?: AjaxOptions): Ajax<T>;
 
-  static head(url: string, headers?: AjaxHeaders, options?: AjaxOptions): Ajax;
+  static head<T = any>(url: string, headers?: AjaxHeaders, options?: AjaxOptions): Ajax<T>;
 
-  static post(url: string, body: any, headers?: AjaxHeaders, options?: AjaxOptions): Ajax;
+  static post<T = any>(url: string, body: any, headers?: AjaxHeaders, options?: AjaxOptions): Ajax<T>;
 
-  static put(url: string, body: any, headers?: AjaxHeaders, options?: AjaxOptions): Ajax;
+  static put<T = any>(url: string, body: any, headers?: AjaxHeaders, options?: AjaxOptions): Ajax<T>;
 
-  static patch(url: string, body: any, headers?: AjaxHeaders, options?: AjaxOptions): Ajax;
+  static patch<T = any>(url: string, body: any, headers?: AjaxHeaders, options?: AjaxOptions): Ajax<T>;
 
-  static options(url: string, body: any, headers?: AjaxHeaders, options?: AjaxOptions): Ajax;
+  static options<T = any>(url: string, body: any, headers?: AjaxHeaders, options?: AjaxOptions): Ajax<T>;
 
   static AjaxHeaders: typeof AjaxHeaders;
 

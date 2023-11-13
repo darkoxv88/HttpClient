@@ -29,8 +29,9 @@ exports:
 
 **/
 
-(function() {
-"use strict";
+/******/ (function() { // webpackBootstrap
+/******/ 	"use strict";
+var __webpack_exports__ = {};
 
 ;// CONCATENATED MODULE: ./src/refs/root.js
 var root = typeof window !== 'undefined' ? window : typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : ({ });
@@ -653,10 +654,6 @@ PromiseEventEmitter.prototype = {
 
       listener(value);
     }
-  },
-
-  clear: function() {
-    this.listeners = [];
   }
 }
 
@@ -737,8 +734,6 @@ LocalPromise.prototype = {
     if (this[state] !== const_PENDING) {
       this[onFinallyEmitter].emit(undefined);
     }
-
-    return this;
   },
 }
 
@@ -1524,4 +1519,4 @@ catch(err)
   console.error(err);
 }
 
-})();
+/******/ })();

@@ -25,10 +25,6 @@ PromiseEventEmitter.prototype = {
 
       listener(value);
     }
-  },
-
-  clear: function() {
-    this.listeners = [];
   }
 }
 
@@ -109,8 +105,6 @@ LocalPromise.prototype = {
     if (this[state] !== const_PENDING) {
       this[onFinallyEmitter].emit(undefined);
     }
-
-    return this;
   },
 }
 
