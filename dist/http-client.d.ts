@@ -29,8 +29,7 @@ exports:
 
 **/
 
-export declare namespace HttpClient {
-
+declare namespace HttpClient {
   export enum HttpStatusCodeEnum { 
     Continue = 100,
     SwitchingProtocols = 101,
@@ -97,74 +96,40 @@ export declare namespace HttpClient {
     NetworkAuthenticationRequired = 511,
   }
   
-  class ResponseHeaders {
-  
-    private _headers: { [key: string]: string };
-  
-    public has(key: string): boolean;
-    public get(key: string): string | undefined;
-  
+  export interface ResponseHeaders {
+    has(key: string): boolean;
+    get(key: string): string | undefined;
   }
   
-  class HttpOnProgressEvent {
-    public type: string;
-    public processed: number;
-    public total: number;
-    public partialText: string;
+  export interface HttpOnProgressEvent {
+    type: string;
+    processed: number;
+    total: number;
+    partialText: string;
   }
   
-  class BaseHttpResponse {
-  
-    private _headers: ResponseHeaders;
-    public get headers(): ResponseHeaders;
-  
-    private _status: number;
-    public get status(): number;
-    
-    private _ok: boolean;
-    public get ok(): boolean;
-  
-    private _statusText: string;
-    public get statusText(): string;
-  
+  export interface BaseHttpResponse {
+    get headers(): ResponseHeaders;
+    get status(): number;
+    get ok(): boolean;
+    get statusText(): string;
   }
   
-  class HttpErrorResponseEvent extends BaseHttpResponse {
-    
-    private _timeStamp: number;
-    public get timeStamp(): number;
-  
-    private _url: string;
-    public get url(): string;
-  
-    private _name: 'HttpErrorResponse';
-    public get name(): 'HttpErrorResponse';
-  
-    private _error: any;
-    public get error(): any;
-    
+  export interface HttpErrorResponseEvent extends BaseHttpResponse {
+    get timeStamp(): number;
+    get url(): string;
+    get name(): 'HttpErrorResponse';
+    get error(): any;
   }
   
-  class HttpResponseEvent<T> extends BaseHttpResponse {
-    
-    private _timeStamp: number;
-    public get timeStamp(): number;
-  
-    private _url: string;
-    public get url(): string;
-  
-    private _name: 'HttpResponse';
-    public get name(): 'HttpResponse';
-  
-    private _body: T;
-    public get body(): T;
-  
+  export interface HttpResponseEvent<T> extends BaseHttpResponse {
+    get timeStamp(): number;
+    get url(): string;
+    get name(): 'HttpResponse';
+    get body(): T;
   }
   
   export class AjaxHeaders {
-  
-    private _headers: Map<string, Array<string>>;
-  
     constructor(headers?: AjaxHeaders);
   
     public keys(): Array<string>;
@@ -175,13 +140,9 @@ export declare namespace HttpClient {
     public cloneHeadersMap(): Map<string, Array<string>>;
     public setHeader(key: string, value: string): void;
     public detectContentTypeHeader(body: any): void;
-  
   }
   
   export class AjaxParams {
-  
-    private _map: Map<string, Array<string>>;
-  
     constructor(params?: AjaxParams);
   
     public has(key: string): boolean;
@@ -193,41 +154,34 @@ export declare namespace HttpClient {
     public deleteByKey(key: string): void;
     public toString(): string;
     public getQueryString(): string;
-  
   }
   
-  class AjaxOptions {
-    public timeout?: number;
-    public responseType?: '' | 'text' | 'json' | 'blob' | 'arraybuffer' | 'document' | 'ms-stream';
-    public withCredentials?: boolean;
-    public params?: AjaxParams;
-    public delay?: number;
+  export interface AjaxOptions {
+    timeout?: number;
+    responseType?: '' | 'text' | 'json' | 'blob' | 'arraybuffer' | 'document' | 'ms-stream';
+    withCredentials?: boolean;
+    params?: AjaxParams;
+    delay?: number;
   }
   
-  class JSONP {
+  export interface JSONP {
+    params: AjaxParams;
   
-    public params: AjaxParams;
-  
-    constructor(url: string, options?: AjaxOptions, callbackParamName?: string, callbackName?: string);
-  
-    public fetch(): Promise<any>;
-  
+    fetch(): Promise<any>;
   }
   
-   class Ajax<T> {
+  export interface Ajax<T> {
+    params: AjaxParams;
   
-    public params: AjaxParams;
+    get type(): string;
+    get state(): number;
   
-    public get type(): string;
-    public get state(): number;
-  
-    public onUpload(callback: null | ((ev: HttpOnProgressEvent) => void)): this;
-    public onDownload(callback: null | ((ev: HttpOnProgressEvent) => void)): this;
-    public setHeader(key: string, value: string): this;
-    public appendParam(key: string, value: string): this;
-    public fetch(): Promise<HttpResponseEvent<T>>;
-    public abort(): void;
-  
+    onUpload(callback: null | ((ev: HttpOnProgressEvent) => void)): this;
+    onDownload(callback: null | ((ev: HttpOnProgressEvent) => void)): this;
+    setHeader(key: string, value: string): this;
+    appendParam(key: string, value: string): this;
+    fetch(): Promise<HttpResponseEvent<T>>;
+    abort(): void;
   }
 
   export function setErrorInterceptor(interceptor: (error: HttpErrorResponseEvent) => void): void;
@@ -254,5 +208,4 @@ export declare namespace HttpClient {
   export function createRequestOptions(): AjaxOptions;
 
   export function createRequestParams(params?: AjaxParams): AjaxParams;
-
 }
