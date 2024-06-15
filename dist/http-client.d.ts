@@ -139,7 +139,6 @@ declare namespace HttpClient {
     public getHeadersMap(): Map<string, Array<string>>;
     public cloneHeadersMap(): Map<string, Array<string>>;
     public setHeader(key: string, value: string): void;
-    public detectContentTypeHeader(body: any): void;
   }
   
   export class AjaxParams {
