@@ -18,5 +18,4 @@ export function safeUriDecode(value) {
   {
     return '';
   }
-
 }

@@ -9,8 +9,6 @@ export function Callback(fn) {
 }
 
 Callback.prototype = {
-  _fn: null,
-
   emit: function(value) {
     try
     {

@@ -8,6 +8,7 @@ module.exports = {
   output: {
     filename: 'http-client.min.js',
     path: path.resolve(__dirname, 'dist'),
+    hashFunction: "sha256",
   },
   optimization: {
     minimize: true

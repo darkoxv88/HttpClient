@@ -1,5 +1,3 @@
-import { isProduction } from "../environment";
-import { lambda } from "./../utility/lambda";
 import { safeUriEncode, safeUriDecode } from "./../utility/safe-uri";
 
 function isParamValid(value) {
@@ -122,18 +120,12 @@ AjaxParams.prototype = {
   },
 
   cloneParamsMap: function() {
+    var self = this;
     var out = new Map();
 
-    try
-    {
-      this.keys().forEach(this, lambda(function(key) {
-        out.set(key, this._map.get(key));
-      }));
-    }
-    catch (err)
-    { 
-      if (!isProduction()) console.error(err);
-    }
+    this.keys().forEach(function(key) {
+      out.set(key, self._map.get(key));
+    });
 
     return out;
   },
@@ -159,13 +151,15 @@ AjaxParams.prototype = {
   },
 
   toString: function() {
-    return this.keys().map(lambda(this, function(key) {
+    var self = this;
+
+    return this.keys().map(function(key) {
       
-      return this._map.get(key).map(function(value) { 
+      return self._map.get(key).map(function(value) { 
         return safeUriEncode(key) + '=' + safeUriEncode(value); 
       }).join('&');
 
-    }))
+    })
     .filter(function(param) { 
       return (param !== '');
     })

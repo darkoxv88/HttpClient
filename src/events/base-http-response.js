@@ -1,4 +1,3 @@
-import { isProduction } from "../environment";
 import { defineObjProp } from "./../utility/define-obj-prop.js";
 import { noop } from "./../utility/noop";
 
@@ -24,13 +23,12 @@ function ResponseHeaders(xhr) {
   }
   catch (err) 
   {
-    if (!(isProduction())) {
-      console.error(err);
-    }
+    console.error(err);
 
     this._headers = ({ });
   }
 }
+
 ResponseHeaders.prototype = { 
   has: function(key) {
     if (typeof(key) !== 'string') {

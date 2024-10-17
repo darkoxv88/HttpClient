@@ -1,5 +1,3 @@
-import { isProduction } from "../environment";
-import { lambda } from "../utility/lambda";
 import { isArrayBuffer, isBlob, isFormData } from "../helpers/xhr-body-type-checks";
 import { AjaxParams } from "./ajax-params";
 
@@ -53,18 +51,13 @@ AjaxHeaders.prototype = {
   },
 
   iterate: function(callback) {
-    try
-    {
-      this.keys().forEach(lambda(this, function(key) {
-        this._headers.get(key).forEach(function(value) {
-          callback(key, value);
-        });
-      }));
-    }
-    catch (err)
-    { 
-      if (!isProduction()) console.error(err);
-    }
+    var self = this;
+
+    this.keys().forEach(function(key) {
+      self._headers.get(key).forEach(function(value) {
+        callback(key, value);
+      });
+    });
   },
 
   getHeader: function(key) {
@@ -88,18 +81,12 @@ AjaxHeaders.prototype = {
   },
 
   cloneHeadersMap: function() {
+    var self = this;
     var out = new Map();
 
-    try
-    {
-      this.keys().forEach(lambda(this, function(key) {
-        out.set(key, this._headers.get(key));
-      }));
-    }
-    catch (err) 
-    { 
-      if (!isProduction()) console.error(err);
-    }
+    this.keys().forEach(function(key) {
+      out.set(key, self._headers.get(key));
+    });
 
     return out;
   },
@@ -112,11 +99,11 @@ AjaxHeaders.prototype = {
     if (typeof(value) !== 'string' || !value) {
       return;
     }
-    
 
     if (!(Array.isArray(this._headers.get(key)))) {
       this._headers.set(key, []);
     }
+
     this._headers.get(key).push(value);
   },
 

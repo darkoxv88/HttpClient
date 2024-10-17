@@ -32,17 +32,4 @@ exports:
 
 **/
 
-var libName = 'HttpClient';
-
-try
-{
-  if (getRoot()[libName]) {
-    throw new Error('window["' + libName + '"] is already in use!');
-  }
-
-  getRoot()[libName] = HTTP;
-}
-catch(err)
-{
-  console.error(err);
-}
+getRoot()['HttpClient'] = HTTP;
