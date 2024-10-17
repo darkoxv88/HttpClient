@@ -1,5 +1,4 @@
 import { getRoot } from "../refs/root";
-import { lambda } from "../utility/lambda";
 import { tryCatch } from "../utility/try-catch";
 
 function catchedError(err) {
@@ -40,7 +39,7 @@ export var Subscription = function(executor) {
   var onRejectedEmitter = new EventEmitter();
   var onFinallyEmitter = new EventEmitter();
 
-  var resolve = lambda(this, function(value) {
+  var resolve = function(value) {
     if (state !== const_PENDING) {
       return;
     } 
@@ -49,9 +48,9 @@ export var Subscription = function(executor) {
     value = value;
     onFulfilledEmitter.emit(value);
     onFinallyEmitter.emit(undefined);
-  });
+  }
 
-  var reject = lambda(this, function(err) {
+  var reject = function(err) {
     if (state !== const_PENDING) {
       return;
     }
@@ -60,7 +59,7 @@ export var Subscription = function(executor) {
     error = err;
     onRejectedEmitter.emit(error);
     onFinallyEmitter.emit(undefined);
-  });
+  }
 
   this.then = function(onFulfilled, onRejected, onFinally) {
     onFulfilledEmitter.addListener(onFulfilled);

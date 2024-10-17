@@ -567,21 +567,6 @@ function safeJsonStringify(value) {
   }
 }
 
-;// CONCATENATED MODULE: ./src/utility/lambda.js
-function lambda(root, func) {
-  if (typeof root !== 'object' || !root) {
-    root = ({ });
-  }
-
-  if (typeof func !== 'function') {
-    return function() { }
-  }
-
-  return function() {
-    return func.apply(root, arguments);
-  }
-}
-
 ;// CONCATENATED MODULE: ./src/utility/try-catch.js
 function tryCatch(func, onError) {
   if (typeof func !== 'function') {
@@ -605,10 +590,6 @@ function tryCatch(func, onError) {
 }
 
 ;// CONCATENATED MODULE: ./src/helpers/subscription.js
-
-
-
-
 function catchedError(err) {
   console.error(err);
 }
@@ -647,7 +628,7 @@ var Subscription = function(executor) {
   var onRejectedEmitter = new EventEmitter();
   var onFinallyEmitter = new EventEmitter();
 
-  var resolve = lambda(this, function(value) {
+  var resolve = function(value) {
     if (state !== const_PENDING) {
       return;
     } 
@@ -656,9 +637,9 @@ var Subscription = function(executor) {
     value = value;
     onFulfilledEmitter.emit(value);
     onFinallyEmitter.emit(undefined);
-  });
+  }
 
-  var reject = lambda(this, function(err) {
+  var reject = function(err) {
     if (state !== const_PENDING) {
       return;
     }
@@ -667,7 +648,7 @@ var Subscription = function(executor) {
     error = err;
     onRejectedEmitter.emit(error);
     onFinallyEmitter.emit(undefined);
-  });
+  }
 
   this.then = function(onFulfilled, onRejected, onFinally) {
     onFulfilledEmitter.addListener(onFulfilled);
@@ -1350,17 +1331,19 @@ function JSONP(url, options, callbackParamName, callbackName) {
           removeIndex(self._index);
         }
 
-        attachCallback(this._index, function(data) {
+        attachCallback(self._index, function(data) {
           if (self._timer) {
             clearTimeout(self._timer);
           }
 
-          __constFinalize__();
-
           resolve(data);
         });
 
-        self._script.onerror = function(ev) {
+        self._script.onload = function() {
+          __constFinalize__();
+        }
+
+        self._script.onerror = function(ev) {  
           if (self._timer) {
             clearTimeout(self._timer);
           }
@@ -1372,8 +1355,7 @@ function JSONP(url, options, callbackParamName, callbackName) {
 
         setTimeout(
           function() {
-            var target = createTarget();
-            target.append(self._script);
+            createTarget().append(self._script);
 
             self._timer = setTimeout(
               function() { 

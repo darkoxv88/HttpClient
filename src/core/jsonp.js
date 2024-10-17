@@ -82,17 +82,19 @@ export function JSONP(url, options, callbackParamName, callbackName) {
           removeIndex(self._index);
         }
 
-        attachCallback(this._index, function(data) {
+        attachCallback(self._index, function(data) {
           if (self._timer) {
             clearTimeout(self._timer);
           }
 
-          __constFinalize__();
-
           resolve(data);
         });
 
-        self._script.onerror = function(ev) {
+        self._script.onload = function() {
+          __constFinalize__();
+        }
+
+        self._script.onerror = function(ev) {  
           if (self._timer) {
             clearTimeout(self._timer);
           }
@@ -104,8 +106,7 @@ export function JSONP(url, options, callbackParamName, callbackName) {
 
         setTimeout(
           function() {
-            var target = createTarget();
-            target.append(self._script);
+            createTarget().append(self._script);
 
             self._timer = setTimeout(
               function() { 
