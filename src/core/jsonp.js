@@ -1,8 +1,7 @@
 import { getRoot } from "../refs/root";
-import { lambda } from "./../utility/lambda";
 import { once } from "../utility/once.js";
 import { randomStringIdGenerator } from "../utility/random-generator";
-import { promiseFactory } from "./../helpers/promise-factory";
+import { Subscription } from "../helpers/subscription.js";
 import { AjaxOptions } from "./ajax-options";
 import { AjaxParams } from "./ajax-params";
 
@@ -61,83 +60,74 @@ export function JSONP(url, options, callbackParamName, callbackName) {
 
   this.params = new AjaxParams(options.params);
 
-  this.fetch = once(
-    lambda(this, function() {
-      this._promise = promiseFactory(
-        lambda(this, function(resolve, reject) {
-          this.params.deleteByKey(callbackParamName);
-          this.params.append(callbackParamName, getCallbackName(this._index));
+  var self = this;
 
-          this._script.src = this._url + '?' + this.params.toString();
-          this._script.type = 'text/javascript';
-          this._script.async = true;
+  this.request = once(
+    function() {
+      self._subscription = Subscription.from(function(resolve, reject) {
+        self.params.deleteByKey(callbackParamName);
+        self.params.append(callbackParamName, getCallbackName(self._index));
 
-          var __constFinalize__ = lambda(this, function() {
-            detachCallback(this._index);
+        self._script.src = self._url + '?' + self.params.toString();
+        self._script.type = 'text/javascript';
+        self._script.async = true;
 
-            if (this._script) {
-              this._script.parentNode ? this._script.parentNode.removeChild(this._script) : null;
-            }
+        var __constFinalize__ = function() {
+          detachCallback(self._index);
 
-            removeIndex(this._index);
-          });
+          if (self._script) {
+            self._script.parentNode ? self._script.parentNode.removeChild(self._script) : null;
+          }
 
-          attachCallback(this._index, lambda(this, function(data) {
-            if (this._timer) {
-              clearTimeout(this._timer);
-            }
+          removeIndex(self._index);
+        }
 
-            __constFinalize__();
+        attachCallback(this._index, function(data) {
+          if (self._timer) {
+            clearTimeout(self._timer);
+          }
 
-            resolve(data);
-          }));
+          __constFinalize__();
 
-          this._script.onerror = lambda(this, function(ev) {
-            if (this._timer) {
-              clearTimeout(this._timer);
-            }
+          resolve(data);
+        });
 
-            __constFinalize__();
+        self._script.onerror = function(ev) {
+          if (self._timer) {
+            clearTimeout(self._timer);
+          }
 
-            reject(ev);
-          });
+          __constFinalize__();
 
-          setTimeout(
-            lambda(this, function() {
-              var target = createTarget();
-              target.append(this._script);
+          reject(ev);
+        }
 
-              this._timer = setTimeout(
-                lambda(this, function() { 
-                  __constFinalize__();
+        setTimeout(
+          function() {
+            var target = createTarget();
+            target.append(self._script);
+
+            self._timer = setTimeout(
+              function() { 
+                __constFinalize__();
     
-                  reject(new Error('JSONP request canceled.'));
-                }), 
-                AjaxOptions.defineTimeout(options.timeout)
-              );
-            }),
-            AjaxOptions.defineDelay(options.delay)
-          );
+                reject(new Error('JSONP request canceled.'));
+              }, 
+              AjaxOptions.defineTimeout(options.timeout)
+            );
+          },
+          AjaxOptions.defineDelay(options.delay)
+        );
 
           return;
-        })
-      );
+      });
 
-      return this._promise;
-    }),
-    lambda(this, function() {
-      return this._promise;
-    })
+      return this._subscription;
+    },
+    function() {
+      return self._subscription;
+    }
   );
 }
 
-JSONP.prototype = {
-
-  params: null,
-  _index: '',
-  _url: '',
-  _script: null,
-  _timer: null,
-  _promise: null,
-  
-}
+JSONP.prototype = { }

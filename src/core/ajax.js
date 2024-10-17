@@ -1,9 +1,8 @@
 import { Callback } from "./../utility/callback";
 import { defineObjProp } from "./../utility/define-obj-prop.js";
-import { lambda } from "./../utility/lambda";
 import { once } from "../utility/once.js";
 import { safeJsonStringify } from "./../utility/safe-json.js";
-import { promiseFactory } from "./../helpers/promise-factory";
+import { Subscription } from "../helpers/subscription.js";
 import { isArrayBuffer, isBlob, isFormData, isUrlSearchParams } from "./../helpers/xhr-body-type-checks";
 import { getResponseUrl } from "./../helpers/xhr-get-response-url";
 import { AjaxStatesEnum } from "../enums/ajax-states-enum.js";
@@ -58,16 +57,18 @@ export function Ajax(type, url, body, headers, options) {
 
   this._onUpload = new Callback();
   this._onDownload = new Callback();
+
+  var self = this;
   
-  this._xhr.onprogress = lambda(this, function(ev) {
-    if (this._body !== null && this._body !== undefined && this._xhr.upload) {
+  this._xhr.onprogress = function(ev) {
+    if (self._body !== null && self._body !== undefined && self._xhr.upload) {
       var lTotal = undefined;
 
       if (ev.lengthComputable) {
         lTotal = ev.total;
       }
 
-      this._onUpload.emit(new HttpOnProgressEvent('UploadProgress', ev.loaded, lTotal, ''));
+      self._onUpload.emit(new HttpOnProgressEvent('UploadProgress', ev.loaded, lTotal, ''));
     }
 
     var lTotal = undefined;
@@ -77,104 +78,93 @@ export function Ajax(type, url, body, headers, options) {
       lTotal = ev.total;
     }
 
-    if (this._options.responseType === 'text' && !!(this._xhr.responseText)) {
-      lResponseText = this._xhr.responseText;
+    if (self._options.responseType === 'text' && !!(self._xhr.responseText)) {
+      lResponseText = self._xhr.responseText;
     }
 
-    this._onDownload.emit(new HttpOnProgressEvent('DownloadProgress', ev.loaded, lTotal, lResponseText));
-  });
+    self._onDownload.emit(new HttpOnProgressEvent('DownloadProgress', ev.loaded, lTotal, lResponseText));
+  }
 
-  this.fetch = once(
-    lambda(this, function() {
-      this._promise = promiseFactory(
-        lambda(this, function(resolve, reject) {
-          this._xhr.open(this._type, this._url + this.params.getQueryString(), true);
+  this.request = once(
+    function() {
+      self._subscription = Subscription.from(function(resolve, reject) {
+        self._xhr.open(self._type, self._url + self.params.getQueryString(), true);
 
-          this._xhr.timeout = (AjaxOptions.defineTimeout(this._options.timeout));
-          this._xhr.withCredentials = (this._options.withCredentials ? true : false);
+        self._xhr.timeout = (AjaxOptions.defineTimeout(self._options.timeout));
+        self._xhr.withCredentials = (self._options.withCredentials ? true : false);
 
-          this._headers.detectContentTypeHeader(this._body);
+        self._headers.detectContentTypeHeader(self._body);
 
-          this._headers.iterate(lambda(this, function(key, value) {
-            this._xhr.setRequestHeader(key, value);
-          }));
+        self._headers.iterate(function(key, value) {
+          self._xhr.setRequestHeader(key, value);
+        });
 
-          this._xhr.onload = lambda(this, function(ev) {
-            this._state = AjaxStatesEnum.Fulfilled;
+        var __onLoad__ = function(ev) {
+          self._state = AjaxStatesEnum.Fulfilled;
 
-            var __status = this._xhr.status || 0;
-            __status = (__status === 1223) ? 204 : __status;
-            if (__status === 0) {
-              __status = !!((typeof(this._xhr.response) === 'undefined') ? this._xhr.responseText : this._xhr.response) ? 200 : 0;
-            }
+          var __status = self._xhr.status || 0;
+          __status = (__status === 1223) ? 204 : __status;
 
-            if (__status >= 200 && __status < 300) 
+          if (__status === 0) {
+            __status = !!((typeof(self._xhr.response) === 'undefined') ? self._xhr.responseText : self._xhr.response) ? 200 : 0;
+          }
+
+          if (__status >= 200 && __status < 300) 
+          {
+            try
             {
-              try
-              {
-                resolve(new HttpResponseEvent(ev, this._xhr, this._options.responseType, __status, (getResponseUrl(this._xhr) || this._url)));
-              }
-              catch(err)
-              {
-                reject(err);
-              }
-            } 
-            else 
-            {
-              reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
-                ev, this._xhr, this._options.responseType, __status, (getResponseUrl(this._xhr) || this._url)
-              )));
+              resolve(new HttpResponseEvent(ev, self._xhr, self._options.responseType, __status, (getResponseUrl(self._xhr) || self._url)));
             }
-
-          });
-
-          var __onError__ = lambda(this, function(ev) {
-            this._state = AjaxStatesEnum.Rejected;
-
-            var __status = this._xhr.status || 0;
-
+            catch(err)
+            {
+              reject(err);
+            }
+          } 
+          else 
+          {
             reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
-              ev, this._xhr, this._options.responseType, __status, (getResponseUrl(this._xhr) || this._url)
+              ev, self._xhr, self._options.responseType, __status, (getResponseUrl(self._xhr) || self._url)
             )));
-          });
+          }
 
-          this._xhr.ontimeout = __onError__;
-          this._xhr.onabort = __onError__;
-          this._xhr.onerror = __onError__;
+        }
 
-          this._state = AjaxStatesEnum.Pending;
+        var __onError__ = function(ev) {
+          self._state = AjaxStatesEnum.Rejected;
 
-          setTimeout(
-            lambda(this, function() {
-              this._xhr.send(serializeRequestBody(this._body));
-            }),
-            AjaxOptions.defineDelay(this._options.delay)
-          );
-        })
-      );
+          var __status = self._xhr.status || 0;
 
-      return this._promise;
-    }),
-    lambda(this, function() {
-      return this._promise;
-    })
+          reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
+            ev, self._xhr, self._options.responseType, __status, (getResponseUrl(self._xhr) || self._url)
+          )));
+        }
+
+        self._xhr.onload = __onLoad__;
+        self._xhr.ontimeout = __onError__;
+        self._xhr.onabort = __onError__;
+        self._xhr.onerror = __onError__;
+
+        self._state = AjaxStatesEnum.Pending;
+
+        setTimeout(
+          function() {
+            self._xhr.send(serializeRequestBody(self._body));
+          },
+          AjaxOptions.defineDelay(self._options.delay)
+        );
+      });
+
+      return self._subscription;
+    },
+    function() {
+      return self._subscription;
+    }
   );
 }
 
 Ajax.prototype = {
 
-  params: null,
-  _options: null,
-  _body: null,
-  _headers: null,
-  _type: null,
-  _url: '',
-  _isAsync: true,
-  _xhr: null,
   _state: AjaxStatesEnum.Unknown,
-  _promise: null,
-  _onUpload: null,
-  _onDownload: null,
 
   onUpload: function(onUpload) {
     this._onUpload = new Callback(onUpload);

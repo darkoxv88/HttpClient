@@ -162,11 +162,18 @@ declare namespace HttpClient {
     params?: AjaxParams;
     delay?: number;
   }
+
+  export interface Subscription<T> {
+    then(onFulfilled: (value: any) => void, onRejected: (error: any) => void, onFinally: () => void): this;
+    catch(onRejected: (error: any) => void, onFinally: () => void): this;
+    finally(onFinally: () => void): this;
+    toPromise() : Promise<T>;
+  }
   
-  export interface JSONP {
+  export interface JSONP<T> {
     params: AjaxParams;
   
-    fetch(): Promise<any>;
+    fetch(): Subscription<T>;
   }
   
   export interface Ajax<T> {
@@ -179,13 +186,13 @@ declare namespace HttpClient {
     onDownload(callback: null | ((ev: HttpOnProgressEvent) => void)): this;
     setHeader(key: string, value: string): this;
     appendParam(key: string, value: string): this;
-    fetch(): Promise<HttpResponseEvent<T>>;
+    request(): Subscription<HttpResponseEvent<T>>;
     abort(): void;
   }
 
   export function setErrorInterceptor(interceptor: (error: HttpErrorResponseEvent) => void): void;
 
-  export function jsonp(url: string, options?: AjaxOptions, callbackParamName?: string, callbackName?: string): JSONP;
+  export function jsonp<T>(url: string, options?: AjaxOptions, callbackParamName?: string, callbackName?: string): JSONP<T>;
 
   export function get<T = any>(url: string, headers?: AjaxHeaders, options?: AjaxOptions): Ajax<T>;
 

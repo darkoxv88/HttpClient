@@ -29,9 +29,8 @@ exports:
 
 **/
 
-/******/ (function() { // webpackBootstrap
-/******/ 	"use strict";
-var __webpack_exports__ = {};
+(function() {
+"use strict";
 
 ;// CONCATENATED MODULE: ./src/refs/root.js
 var root = typeof window !== 'undefined' ? window : typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : ({ });
@@ -44,7 +43,7 @@ function getRoot() {
 function enumValue(ref, key, value) {
   Object.defineProperty(ref, key, { enumerable: true, get: function() { return value; } });
   Object.freeze(ref[key]);
-};
+}
 
 ;// CONCATENATED MODULE: ./src/enums/http-status-code-enum.js
 function HttpStatusCode() {
@@ -119,28 +118,6 @@ var HttpStatusCodeEnum = new HttpStatusCode();
 
 Object.freeze(HttpStatusCodeEnum);
 
-;// CONCATENATED MODULE: ./src/environment.js
-var production = true;
-
-function isProduction() {
-  return production;
-}
-
-;// CONCATENATED MODULE: ./src/utility/lambda.js
-function lambda(root, func) {
-  if (typeof root !== 'object' || !root) {
-    root = ({ });
-  }
-
-  if (typeof func !== 'function') {
-    return function() { }
-  }
-
-  return function() {
-    return func.apply(root, arguments);
-  }
-}
-
 ;// CONCATENATED MODULE: ./src/helpers/xhr-body-type-checks.js
 function isArrayBuffer(value) {
   return (value ? true : false) && (value instanceof ArrayBuffer);
@@ -179,7 +156,6 @@ function safeUriDecode(value) {
   {
     return '';
   }
-
 }
 
 ;// CONCATENATED MODULE: ./src/core/ajax-params.js
@@ -303,18 +279,12 @@ AjaxParams.prototype = {
   },
 
   cloneParamsMap: function() {
+    var self = this;
     var out = new Map();
 
-    try
-    {
-      this.keys().forEach(this, lambda(function(key) {
-        out.set(key, this._map.get(key));
-      }));
-    }
-    catch (err)
-    { 
-      if (!isProduction()) console.error(err);
-    }
+    this.keys().forEach(function(key) {
+      out.set(key, self._map.get(key));
+    });
 
     return out;
   },
@@ -340,13 +310,15 @@ AjaxParams.prototype = {
   },
 
   toString: function() {
-    return this.keys().map(lambda(this, function(key) {
+    var self = this;
+
+    return this.keys().map(function(key) {
       
-      return this._map.get(key).map(function(value) { 
+      return self._map.get(key).map(function(value) { 
         return safeUriEncode(key) + '=' + safeUriEncode(value); 
       }).join('&');
 
-    }))
+    })
     .filter(function(param) { 
       return (param !== '');
     })
@@ -411,18 +383,13 @@ AjaxHeaders.prototype = {
   },
 
   iterate: function(callback) {
-    try
-    {
-      this.keys().forEach(lambda(this, function(key) {
-        this._headers.get(key).forEach(function(value) {
-          callback(key, value);
-        });
-      }));
-    }
-    catch (err)
-    { 
-      if (!isProduction()) console.error(err);
-    }
+    var self = this;
+
+    this.keys().forEach(function(key) {
+      self._headers.get(key).forEach(function(value) {
+        callback(key, value);
+      });
+    });
   },
 
   getHeader: function(key) {
@@ -446,18 +413,12 @@ AjaxHeaders.prototype = {
   },
 
   cloneHeadersMap: function() {
+    var self = this;
     var out = new Map();
 
-    try
-    {
-      this.keys().forEach(lambda(this, function(key) {
-        out.set(key, this._headers.get(key));
-      }));
-    }
-    catch (err) 
-    { 
-      if (!isProduction()) console.error(err);
-    }
+    this.keys().forEach(function(key) {
+      out.set(key, self._headers.get(key));
+    });
 
     return out;
   },
@@ -470,11 +431,11 @@ AjaxHeaders.prototype = {
     if (typeof(value) !== 'string' || !value) {
       return;
     }
-    
 
     if (!(Array.isArray(this._headers.get(key)))) {
       this._headers.set(key, []);
     }
+
     this._headers.get(key).push(value);
   },
 
@@ -542,8 +503,6 @@ function Callback(fn) {
 }
 
 Callback.prototype = {
-  _fn: null,
-
   emit: function(value) {
     try
     {
@@ -608,6 +567,21 @@ function safeJsonStringify(value) {
   }
 }
 
+;// CONCATENATED MODULE: ./src/utility/lambda.js
+function lambda(root, func) {
+  if (typeof root !== 'object' || !root) {
+    root = ({ });
+  }
+
+  if (typeof func !== 'function') {
+    return function() { }
+  }
+
+  return function() {
+    return func.apply(root, arguments);
+  }
+}
+
 ;// CONCATENATED MODULE: ./src/utility/try-catch.js
 function tryCatch(func, onError) {
   if (typeof func !== 'function') {
@@ -630,7 +604,11 @@ function tryCatch(func, onError) {
   }
 }
 
-;// CONCATENATED MODULE: ./src/helpers/promise-factory.js
+;// CONCATENATED MODULE: ./src/helpers/subscription.js
+
+
+
+
 function catchedError(err) {
   console.error(err);
 }
@@ -639,11 +617,11 @@ function asAsync(proc) {
   setTimeout(proc, 1);
 }
 
-var PromiseEventEmitter = function() {
+var EventEmitter = function() {
   this.listeners = [];
 }
 
-PromiseEventEmitter.prototype = {
+EventEmitter.prototype = {
   addListener: function(fn) {
     this.listeners.push(tryCatch(fn, catchedError));
   },
@@ -661,88 +639,89 @@ var const_PENDING = 0;
 var const_FULFILLED = 1;
 var const_REJECTED = 2;
 
-var state = Symbol("promiseState");
-var value = Symbol("promiseValue");
-var error = Symbol("promiseError");
-var onFulfilledEmitter = Symbol("promiseOnFulfilled");
-var onRejectedEmitter = Symbol("promiseOnRejected");
-var onFinallyEmitter = Symbol("promiseOnFinally");
-
-var LocalPromise = function(executor) {
-  this[state] = const_PENDING;
-  this[value] = undefined;
-  this[error] = undefined;
-  this[onFulfilledEmitter] = new PromiseEventEmitter();
-  this[onRejectedEmitter] = new PromiseEventEmitter();
-  this[onFinallyEmitter] = new PromiseEventEmitter();
+var Subscription = function(executor) {
+  var state = const_PENDING;
+  var value = undefined;
+  var error = undefined;
+  var onFulfilledEmitter = new EventEmitter();
+  var onRejectedEmitter = new EventEmitter();
+  var onFinallyEmitter = new EventEmitter();
 
   var resolve = lambda(this, function(value) {
-    if (this[state] !== const_PENDING) {
+    if (state !== const_PENDING) {
       return;
     } 
 
-    this[state] = const_FULFILLED;
-    this[value] = value;
-    this[onFulfilledEmitter].emit(this[value]);
-    this[onFinallyEmitter].emit(undefined);
+    state = const_FULFILLED;
+    value = value;
+    onFulfilledEmitter.emit(value);
+    onFinallyEmitter.emit(undefined);
   });
 
   var reject = lambda(this, function(err) {
-    if (this[state] !== const_PENDING) {
+    if (state !== const_PENDING) {
       return;
     }
 
-    this[state] = const_REJECTED;
-    this[error] = err;
-    this[onRejectedEmitter].emit(this[error]);
-    this[onFinallyEmitter].emit(undefined);
+    state = const_REJECTED;
+    error = err;
+    onRejectedEmitter.emit(error);
+    onFinallyEmitter.emit(undefined);
   });
 
-  var executor = tryCatch(executor, reject);
+  this.then = function(onFulfilled, onRejected, onFinally) {
+    onFulfilledEmitter.addListener(onFulfilled);
 
-  asAsync(
-    lambda(this, function() {
-      executor(resolve, reject);
-    })
-  );
-}
-
-LocalPromise.prototype = {
-  then: function(onFulfilled, onRejected, onFinally) {
-    this[onFulfilledEmitter].addListener(onFulfilled);
-
-    if (this[state] === const_FULFILLED) {
-      this[onFulfilledEmitter].emit(this[value]);
+    if (state === const_FULFILLED) {
+      onFulfilledEmitter.emit(value);
     }
 
     return this.catch(onRejected, onFinally);
-  },
+  }
 
-  catch: function(onRejected, onFinally) {
-    this[onRejectedEmitter].addListener(onRejected);
+  this.catch = function(onRejected, onFinally) {
+    onRejectedEmitter.addListener(onRejected);
 
-    if (this[state] === const_REJECTED) {
-      this[onRejectedEmitter].emit(this[error]);
+    if (state === const_REJECTED) {
+      onRejectedEmitter.emit(error);
     }
 
     return this.finally(onFinally);
-  },
+  }
 
-  finally: function(onFinally) {
-    this[onFinallyEmitter].addListener(onFinally);
+  this.finally = function(onFinally) {
+    onFinallyEmitter.addListener(onFinally);
 
-    if (this[state] !== const_PENDING) {
-      this[onFinallyEmitter].emit(undefined);
+    if (state !== const_PENDING) {
+      onFinallyEmitter.emit(undefined);
     }
-  },
+
+    return this;
+  }
+
+  var executor = tryCatch(executor, reject);
+
+  asAsync(function() {
+    executor(resolve, reject);
+  });
 }
 
-if (typeof(getRoot()['Promise']) === 'function') {
-  LocalPromise = getRoot()['Promise'];
+Subscription.prototype = { 
+  toPromise: function() {
+    if (typeof(getRoot()['Promise']) === 'function') {
+      var self = this;
+
+      return (new Promise(function(res, rej) {
+        self.then(res, rej);
+      }));
+    }
+
+    return this;
+  }
 }
 
-function promiseFactory(executor) {
-  return new LocalPromise(executor);
+Subscription.from = function(executor) {
+  return new Subscription(executor);
 }
 
 ;// CONCATENATED MODULE: ./src/helpers/xhr-get-response-url.js
@@ -789,8 +768,6 @@ function removeXSSI(str) {
 }
 
 ;// CONCATENATED MODULE: ./src/helpers/handle-resp-body.js
-
-
 function handleRespBody(body, respType) {
   switch (respType) {
     case 'arraybuffer': {
@@ -868,13 +845,12 @@ function ResponseHeaders(xhr) {
   }
   catch (err) 
   {
-    if (!(isProduction())) {
-      console.error(err);
-    }
+    console.error(err);
 
     this._headers = ({ });
   }
 }
+
 ResponseHeaders.prototype = { 
   has: function(key) {
     if (typeof(key) !== 'string') {
@@ -1049,8 +1025,6 @@ ajax_options_AjaxOptions.overrideResponseType = function(type) {
 }
 
 ;// CONCATENATED MODULE: ./src/core/error-interceptor.js
-
-
 function ErrorInterceptor(callback) {
   if (typeof(callback) !== 'function') {
     callback = noop;
@@ -1128,16 +1102,18 @@ function Ajax(type, url, body, headers, options) {
 
   this._onUpload = new Callback();
   this._onDownload = new Callback();
+
+  var self = this;
   
-  this._xhr.onprogress = lambda(this, function(ev) {
-    if (this._body !== null && this._body !== undefined && this._xhr.upload) {
+  this._xhr.onprogress = function(ev) {
+    if (self._body !== null && self._body !== undefined && self._xhr.upload) {
       var lTotal = undefined;
 
       if (ev.lengthComputable) {
         lTotal = ev.total;
       }
 
-      this._onUpload.emit(new HttpOnProgressEvent('UploadProgress', ev.loaded, lTotal, ''));
+      self._onUpload.emit(new HttpOnProgressEvent('UploadProgress', ev.loaded, lTotal, ''));
     }
 
     var lTotal = undefined;
@@ -1147,104 +1123,93 @@ function Ajax(type, url, body, headers, options) {
       lTotal = ev.total;
     }
 
-    if (this._options.responseType === 'text' && !!(this._xhr.responseText)) {
-      lResponseText = this._xhr.responseText;
+    if (self._options.responseType === 'text' && !!(self._xhr.responseText)) {
+      lResponseText = self._xhr.responseText;
     }
 
-    this._onDownload.emit(new HttpOnProgressEvent('DownloadProgress', ev.loaded, lTotal, lResponseText));
-  });
+    self._onDownload.emit(new HttpOnProgressEvent('DownloadProgress', ev.loaded, lTotal, lResponseText));
+  }
 
-  this.fetch = once(
-    lambda(this, function() {
-      this._promise = promiseFactory(
-        lambda(this, function(resolve, reject) {
-          this._xhr.open(this._type, this._url + this.params.getQueryString(), true);
+  this.request = once(
+    function() {
+      self._subscription = Subscription.from(function(resolve, reject) {
+        self._xhr.open(self._type, self._url + self.params.getQueryString(), true);
 
-          this._xhr.timeout = (ajax_options_AjaxOptions.defineTimeout(this._options.timeout));
-          this._xhr.withCredentials = (this._options.withCredentials ? true : false);
+        self._xhr.timeout = (ajax_options_AjaxOptions.defineTimeout(self._options.timeout));
+        self._xhr.withCredentials = (self._options.withCredentials ? true : false);
 
-          this._headers.detectContentTypeHeader(this._body);
+        self._headers.detectContentTypeHeader(self._body);
 
-          this._headers.iterate(lambda(this, function(key, value) {
-            this._xhr.setRequestHeader(key, value);
-          }));
+        self._headers.iterate(function(key, value) {
+          self._xhr.setRequestHeader(key, value);
+        });
 
-          this._xhr.onload = lambda(this, function(ev) {
-            this._state = AjaxStatesEnum.Fulfilled;
+        var __onLoad__ = function(ev) {
+          self._state = AjaxStatesEnum.Fulfilled;
 
-            var __status = this._xhr.status || 0;
-            __status = (__status === 1223) ? 204 : __status;
-            if (__status === 0) {
-              __status = !!((typeof(this._xhr.response) === 'undefined') ? this._xhr.responseText : this._xhr.response) ? 200 : 0;
-            }
+          var __status = self._xhr.status || 0;
+          __status = (__status === 1223) ? 204 : __status;
 
-            if (__status >= 200 && __status < 300) 
+          if (__status === 0) {
+            __status = !!((typeof(self._xhr.response) === 'undefined') ? self._xhr.responseText : self._xhr.response) ? 200 : 0;
+          }
+
+          if (__status >= 200 && __status < 300) 
+          {
+            try
             {
-              try
-              {
-                resolve(new HttpResponseEvent(ev, this._xhr, this._options.responseType, __status, (getResponseUrl(this._xhr) || this._url)));
-              }
-              catch(err)
-              {
-                reject(err);
-              }
-            } 
-            else 
-            {
-              reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
-                ev, this._xhr, this._options.responseType, __status, (getResponseUrl(this._xhr) || this._url)
-              )));
+              resolve(new HttpResponseEvent(ev, self._xhr, self._options.responseType, __status, (getResponseUrl(self._xhr) || self._url)));
             }
-
-          });
-
-          var __onError__ = lambda(this, function(ev) {
-            this._state = AjaxStatesEnum.Rejected;
-
-            var __status = this._xhr.status || 0;
-
+            catch(err)
+            {
+              reject(err);
+            }
+          } 
+          else 
+          {
             reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
-              ev, this._xhr, this._options.responseType, __status, (getResponseUrl(this._xhr) || this._url)
+              ev, self._xhr, self._options.responseType, __status, (getResponseUrl(self._xhr) || self._url)
             )));
-          });
+          }
 
-          this._xhr.ontimeout = __onError__;
-          this._xhr.onabort = __onError__;
-          this._xhr.onerror = __onError__;
+        }
 
-          this._state = AjaxStatesEnum.Pending;
+        var __onError__ = function(ev) {
+          self._state = AjaxStatesEnum.Rejected;
 
-          setTimeout(
-            lambda(this, function() {
-              this._xhr.send(serializeRequestBody(this._body));
-            }),
-            ajax_options_AjaxOptions.defineDelay(this._options.delay)
-          );
-        })
-      );
+          var __status = self._xhr.status || 0;
 
-      return this._promise;
-    }),
-    lambda(this, function() {
-      return this._promise;
-    })
+          reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
+            ev, self._xhr, self._options.responseType, __status, (getResponseUrl(self._xhr) || self._url)
+          )));
+        }
+
+        self._xhr.onload = __onLoad__;
+        self._xhr.ontimeout = __onError__;
+        self._xhr.onabort = __onError__;
+        self._xhr.onerror = __onError__;
+
+        self._state = AjaxStatesEnum.Pending;
+
+        setTimeout(
+          function() {
+            self._xhr.send(serializeRequestBody(self._body));
+          },
+          ajax_options_AjaxOptions.defineDelay(self._options.delay)
+        );
+      });
+
+      return self._subscription;
+    },
+    function() {
+      return self._subscription;
+    }
   );
 }
 
 Ajax.prototype = {
 
-  params: null,
-  _options: null,
-  _body: null,
-  _headers: null,
-  _type: null,
-  _url: '',
-  _isAsync: true,
-  _xhr: null,
   _state: AjaxStatesEnum.Unknown,
-  _promise: null,
-  _onUpload: null,
-  _onDownload: null,
 
   onUpload: function(onUpload) {
     this._onUpload = new Callback(onUpload);
@@ -1363,86 +1328,77 @@ function JSONP(url, options, callbackParamName, callbackName) {
 
   this.params = new AjaxParams(options.params);
 
-  this.fetch = once(
-    lambda(this, function() {
-      this._promise = promiseFactory(
-        lambda(this, function(resolve, reject) {
-          this.params.deleteByKey(callbackParamName);
-          this.params.append(callbackParamName, getCallbackName(this._index));
+  var self = this;
 
-          this._script.src = this._url + '?' + this.params.toString();
-          this._script.type = 'text/javascript';
-          this._script.async = true;
+  this.request = once(
+    function() {
+      self._subscription = Subscription.from(function(resolve, reject) {
+        self.params.deleteByKey(callbackParamName);
+        self.params.append(callbackParamName, getCallbackName(self._index));
 
-          var __constFinalize__ = lambda(this, function() {
-            detachCallback(this._index);
+        self._script.src = self._url + '?' + self.params.toString();
+        self._script.type = 'text/javascript';
+        self._script.async = true;
 
-            if (this._script) {
-              this._script.parentNode ? this._script.parentNode.removeChild(this._script) : null;
-            }
+        var __constFinalize__ = function() {
+          detachCallback(self._index);
 
-            removeIndex(this._index);
-          });
+          if (self._script) {
+            self._script.parentNode ? self._script.parentNode.removeChild(self._script) : null;
+          }
 
-          attachCallback(this._index, lambda(this, function(data) {
-            if (this._timer) {
-              clearTimeout(this._timer);
-            }
+          removeIndex(self._index);
+        }
 
-            __constFinalize__();
+        attachCallback(this._index, function(data) {
+          if (self._timer) {
+            clearTimeout(self._timer);
+          }
 
-            resolve(data);
-          }));
+          __constFinalize__();
 
-          this._script.onerror = lambda(this, function(ev) {
-            if (this._timer) {
-              clearTimeout(this._timer);
-            }
+          resolve(data);
+        });
 
-            __constFinalize__();
+        self._script.onerror = function(ev) {
+          if (self._timer) {
+            clearTimeout(self._timer);
+          }
 
-            reject(ev);
-          });
+          __constFinalize__();
 
-          setTimeout(
-            lambda(this, function() {
-              var target = createTarget();
-              target.append(this._script);
+          reject(ev);
+        }
 
-              this._timer = setTimeout(
-                lambda(this, function() { 
-                  __constFinalize__();
+        setTimeout(
+          function() {
+            var target = createTarget();
+            target.append(self._script);
+
+            self._timer = setTimeout(
+              function() { 
+                __constFinalize__();
     
-                  reject(new Error('JSONP request canceled.'));
-                }), 
-                ajax_options_AjaxOptions.defineTimeout(options.timeout)
-              );
-            }),
-            ajax_options_AjaxOptions.defineDelay(options.delay)
-          );
+                reject(new Error('JSONP request canceled.'));
+              }, 
+              ajax_options_AjaxOptions.defineTimeout(options.timeout)
+            );
+          },
+          ajax_options_AjaxOptions.defineDelay(options.delay)
+        );
 
           return;
-        })
-      );
+      });
 
-      return this._promise;
-    }),
-    lambda(this, function() {
-      return this._promise;
-    })
+      return this._subscription;
+    },
+    function() {
+      return self._subscription;
+    }
   );
 }
 
-JSONP.prototype = {
-
-  params: null,
-  _index: '',
-  _url: '',
-  _script: null,
-  _timer: null,
-  _promise: null,
-  
-}
+JSONP.prototype = { }
 
 ;// CONCATENATED MODULE: ./src/http.js
 function HTTP() { }
@@ -1504,19 +1460,6 @@ HTTP.createRequestParams = function(params) {
 HTTP.HttpStatusCode = HttpStatusCodeEnum;
 
 ;// CONCATENATED MODULE: ./src/index.js
-var libName = 'HttpClient';
+getRoot()['HttpClient'] = HTTP;
 
-try
-{
-  if (getRoot()[libName]) {
-    throw new Error('window["' + libName + '"] is already in use!');
-  }
-
-  getRoot()[libName] = HTTP;
-}
-catch(err)
-{
-  console.error(err);
-}
-
-/******/ })();
+})();
