@@ -2,7 +2,7 @@ import { Callback } from "./../utility/callback";
 import { defineObjProp } from "./../utility/define-obj-prop.js";
 import { once } from "../utility/once.js";
 import { safeJsonStringify } from "./../utility/safe-json.js";
-import { Subscription } from "../helpers/subscription.js";
+import { Observer } from "../helpers/observer.js";
 import { isArrayBuffer, isBlob, isFormData, isUrlSearchParams } from "./../helpers/xhr-body-type-checks";
 import { getResponseUrl } from "./../helpers/xhr-get-response-url";
 import { AjaxStatesEnum } from "../enums/ajax-states-enum.js";
@@ -87,7 +87,7 @@ export function Ajax(type, url, body, headers, options) {
 
   this.request = once(
     function() {
-      self._subscription = Subscription.from(function(resolve, reject) {
+      self._subscription = Observer.for(function(resolve, reject) {
         self._xhr.open(self._type, self._url + self.params.getQueryString(), true);
 
         self._xhr.timeout = (AjaxOptions.defineTimeout(self._options.timeout));

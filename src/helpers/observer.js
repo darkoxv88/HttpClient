@@ -1,4 +1,5 @@
 import { getRoot } from "../refs/root";
+import { noop } from "../utility/noop";
 import { tryCatch } from "../utility/try-catch";
 
 function catchedError(err) {
@@ -31,7 +32,7 @@ var const_PENDING = 0;
 var const_FULFILLED = 1;
 var const_REJECTED = 2;
 
-export var Subscription = function(executor) {
+export var Observer = function(executor) {
   var state = const_PENDING;
   var value = undefined;
   var error = undefined;
@@ -39,7 +40,7 @@ export var Subscription = function(executor) {
   var onRejectedEmitter = new EventEmitter();
   var onFinallyEmitter = new EventEmitter();
 
-  var resolve = function(value) {
+  var _resolve = function(value) {
     if (state !== const_PENDING) {
       return;
     } 
@@ -49,8 +50,11 @@ export var Subscription = function(executor) {
     onFulfilledEmitter.emit(value);
     onFinallyEmitter.emit(undefined);
   }
+  var resolve = function(value) {
+    _resolve(value);
+  }
 
-  var reject = function(err) {
+  var _reject = function(err) {
     if (state !== const_PENDING) {
       return;
     }
@@ -59,6 +63,16 @@ export var Subscription = function(executor) {
     error = err;
     onRejectedEmitter.emit(error);
     onFinallyEmitter.emit(undefined);
+  }
+  var reject = function(err) {
+    _reject(err);
+  }
+
+  this.unsubscribe = function() {
+    if (state === const_PENDING) {
+      _resolve = noop;
+      _reject = noop;
+    } 
   }
 
   this.then = function(onFulfilled, onRejected, onFinally) {
@@ -91,14 +105,14 @@ export var Subscription = function(executor) {
     return this;
   }
 
-  var executor = tryCatch(executor, reject);
+  executor = tryCatch(executor, reject);
 
   asAsync(function() {
     executor(resolve, reject);
   });
 }
 
-Subscription.prototype = { 
+Observer.prototype = { 
   toPromise: function() {
     if (typeof(getRoot()['Promise']) === 'function') {
       var self = this;
@@ -112,6 +126,6 @@ Subscription.prototype = {
   }
 }
 
-Subscription.from = function(executor) {
-  return new Subscription(executor);
+Observer.for = function(executor) {
+  return new Observer(executor);
 }

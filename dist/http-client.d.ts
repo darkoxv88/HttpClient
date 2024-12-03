@@ -163,8 +163,9 @@ declare namespace HttpClient {
     delay?: number;
   }
 
-  export interface Subscription<T> {
-    then(onFulfilled: (value: any) => void, onRejected: (error: any) => void, onFinally: () => void): this;
+  export interface Observer<T> {
+    unsubscribe(): void;
+    then(onFulfilled: (value: T) => void, onRejected: (error: any) => void, onFinally: () => void): this;
     catch(onRejected: (error: any) => void, onFinally: () => void): this;
     finally(onFinally: () => void): this;
     toPromise() : Promise<T>;
@@ -173,7 +174,7 @@ declare namespace HttpClient {
   export interface JSONP<T> {
     params: AjaxParams;
   
-    fetch(): Subscription<T>;
+    fetch(): Observer<T>;
   }
   
   export interface Ajax<T> {
@@ -186,7 +187,7 @@ declare namespace HttpClient {
     onDownload(callback: null | ((ev: HttpOnProgressEvent) => void)): this;
     setHeader(key: string, value: string): this;
     appendParam(key: string, value: string): this;
-    request(): Subscription<HttpResponseEvent<T>>;
+    request(): Observer<HttpResponseEvent<T>>;
     abort(): void;
   }
 

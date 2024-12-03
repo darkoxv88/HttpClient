@@ -1,7 +1,7 @@
 import { getRoot } from "../refs/root";
 import { once } from "../utility/once.js";
 import { randomStringIdGenerator } from "../utility/random-generator";
-import { Subscription } from "../helpers/subscription.js";
+import { Observer } from "../helpers/observer.js";
 import { AjaxOptions } from "./ajax-options";
 import { AjaxParams } from "./ajax-params";
 
@@ -64,7 +64,7 @@ export function JSONP(url, options, callbackParamName, callbackName) {
 
   this.request = once(
     function() {
-      self._subscription = Subscription.from(function(resolve, reject) {
+      self._subscription = Observer.for(function(resolve, reject) {
         self.params.deleteByKey(callbackParamName);
         self.params.append(callbackParamName, getCallbackName(self._index));
 
