@@ -515,6 +515,27 @@ Callback.prototype = {
   },
 }
 
+;// CONCATENATED MODULE: ./src/core/interceptors.js
+function Interceptor() {
+  this.cb = new Callback();
+}
+
+Interceptor.prototype = { 
+  setInterceptor: function(fn) {
+    this.cb = new Callback(fn);
+  },
+
+  intercept: function(value) {
+    this.cb.emit(value);
+
+    return value;
+  }
+}
+
+var errorInterceptor = new Interceptor();
+
+var responseInterceptor = new Interceptor();
+
 ;// CONCATENATED MODULE: ./src/utility/define-obj-prop.js.js
 function defineObjProp(ref, key, getter, setter) {
   var def = ({
@@ -590,10 +611,6 @@ function tryCatch(func, onError) {
 }
 
 ;// CONCATENATED MODULE: ./src/helpers/observer.js
-
-
-
-
 function catchedError(err) {
   console.error(err);
 }
@@ -1022,40 +1039,6 @@ ajax_options_AjaxOptions.overrideResponseType = function(type) {
   }
 }
 
-;// CONCATENATED MODULE: ./src/core/error-interceptor.js
-function ErrorInterceptor(callback) {
-  if (typeof(callback) !== 'function') {
-    callback = noop;
-  }
-
-  this._callback = callback;
-}
-
-ErrorInterceptor.prototype = { 
-  emit: function(value) {
-    try
-    {
-      this._callback(value);
-    }
-    catch(err)
-    {
-      console.error(err);
-    }
-  },
-}
-
-ErrorInterceptor.instance = new ErrorInterceptor(noop);
-
-ErrorInterceptor.setInterceptor = function(interceptor) {
-  ErrorInterceptor.instance = new ErrorInterceptor(interceptor);
-}
-
-ErrorInterceptor.intercept = function(value) {
-  ErrorInterceptor.instance.emit(value);
-
-  return value;
-}
-
 ;// CONCATENATED MODULE: ./src/core/ajax.js
 function serializeRequestBody(body) {
   if (body === null || body === undefined) {
@@ -1156,7 +1139,9 @@ function Ajax(type, url, body, headers, options) {
           {
             try
             {
-              resolve(new HttpResponseEvent(ev, self._xhr, self._options.responseType, __status, (getResponseUrl(self._xhr) || self._url)));
+              resolve(responseInterceptor.intercept(new HttpResponseEvent(
+                ev, self._xhr, self._options.responseType, __status, (getResponseUrl(self._xhr) || self._url)
+              )));
             }
             catch(err)
             {
@@ -1165,11 +1150,10 @@ function Ajax(type, url, body, headers, options) {
           } 
           else 
           {
-            reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
+            reject(errorInterceptor.intercept(new HttpErrorResponseEvent(
               ev, self._xhr, self._options.responseType, __status, (getResponseUrl(self._xhr) || self._url)
             )));
           }
-
         }
 
         var __onError__ = function(ev) {
@@ -1177,7 +1161,7 @@ function Ajax(type, url, body, headers, options) {
 
           var __status = self._xhr.status || 0;
 
-          reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
+          reject(errorInterceptor.intercept(new HttpErrorResponseEvent(
             ev, self._xhr, self._options.responseType, __status, (getResponseUrl(self._xhr) || self._url)
           )));
         }
@@ -1254,10 +1238,6 @@ Ajax.prototype = {
     return this;
   }
 
-}
-
-Ajax.setErrorInterceptor = function(interceptor) {
-  ErrorInterceptor.setInterceptor(interceptor);
 }
 
 ;// CONCATENATED MODULE: ./src/utility/random-generator.js
@@ -1405,7 +1385,11 @@ function HTTP() { }
 HTTP.prototype = { }
 
 HTTP.setErrorInterceptor = function(interceptor) {
-  Ajax.setErrorInterceptor(interceptor);
+  errorInterceptor.setInterceptor(interceptor);
+}
+
+HTTP.setResponseInterceptor = function(interceptor) {
+  responseInterceptor.setInterceptor(interceptor);
 }
 
 HTTP.get = function(url, headers, options) {

@@ -2,6 +2,7 @@ import { HttpStatusCodeEnum } from "./enums/http-status-code-enum";
 
 import { AjaxHeaders } from "./core/ajax-headers";
 import { AjaxParams } from "./core/ajax-params";
+import { errorInterceptor, responseInterceptor } from "./core/interceptors";
 import { Ajax } from "./core/ajax";
 import { JSONP } from "./core/jsonp";
 
@@ -10,7 +11,11 @@ export function HTTP() { }
 HTTP.prototype = { }
 
 HTTP.setErrorInterceptor = function(interceptor) {
-  Ajax.setErrorInterceptor(interceptor);
+  errorInterceptor.setInterceptor(interceptor);
+}
+
+HTTP.setResponseInterceptor = function(interceptor) {
+  responseInterceptor.setInterceptor(interceptor);
 }
 
 HTTP.get = function(url, headers, options) {

@@ -12,7 +12,7 @@ import { HttpResponseEvent } from "../events/http/http-response-event.js";
 import { AjaxHeaders } from "./ajax-headers.js";
 import { AjaxOptions } from "./ajax-options.js";
 import { AjaxParams } from "./ajax-params";
-import { ErrorInterceptor } from "./error-interceptor.js";
+import { errorInterceptor, responseInterceptor } from "./interceptors.js";
 
 function serializeRequestBody(body) {
   if (body === null || body === undefined) {
@@ -113,7 +113,9 @@ export function Ajax(type, url, body, headers, options) {
           {
             try
             {
-              resolve(new HttpResponseEvent(ev, self._xhr, self._options.responseType, __status, (getResponseUrl(self._xhr) || self._url)));
+              resolve(responseInterceptor.intercept(new HttpResponseEvent(
+                ev, self._xhr, self._options.responseType, __status, (getResponseUrl(self._xhr) || self._url)
+              )));
             }
             catch(err)
             {
@@ -122,11 +124,10 @@ export function Ajax(type, url, body, headers, options) {
           } 
           else 
           {
-            reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
+            reject(errorInterceptor.intercept(new HttpErrorResponseEvent(
               ev, self._xhr, self._options.responseType, __status, (getResponseUrl(self._xhr) || self._url)
             )));
           }
-
         }
 
         var __onError__ = function(ev) {
@@ -134,7 +135,7 @@ export function Ajax(type, url, body, headers, options) {
 
           var __status = self._xhr.status || 0;
 
-          reject(ErrorInterceptor.intercept(new HttpErrorResponseEvent(
+          reject(errorInterceptor.intercept(new HttpErrorResponseEvent(
             ev, self._xhr, self._options.responseType, __status, (getResponseUrl(self._xhr) || self._url)
           )));
         }
@@ -211,8 +212,4 @@ Ajax.prototype = {
     return this;
   }
 
-}
-
-Ajax.setErrorInterceptor = function(interceptor) {
-  ErrorInterceptor.setInterceptor(interceptor);
 }

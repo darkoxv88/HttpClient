@@ -193,6 +193,8 @@ declare namespace HttpClient {
 
   export function setErrorInterceptor(interceptor: (error: HttpErrorResponseEvent) => void): void;
 
+  export function setResponseInterceptor(interceptor: (response: HttpResponseEvent<any>) => void): void;
+
   export function jsonp<T>(url: string, options?: AjaxOptions, callbackParamName?: string, callbackName?: string): JSONP<T>;
 
   export function get<T = any>(url: string, headers?: AjaxHeaders, options?: AjaxOptions): Ajax<T>;
