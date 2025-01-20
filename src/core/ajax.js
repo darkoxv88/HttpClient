@@ -47,13 +47,11 @@ export function Ajax(type, url, body, headers, options) {
   }
   
   this._options = options;
+  this._options.responseType = AjaxOptions.defineResponseType(this._options.responseType);
 
   this._headers = new AjaxHeaders(headers);
   this.params = new AjaxParams(this._options.params);
   this._xhr = new XMLHttpRequest();
-
-  this._options.responseType = AjaxOptions.defineResponseType(this._options.responseType);
-  this._xhr.responseType = AjaxOptions.overrideResponseType(this._options.responseType);
 
   this._onUpload = new Callback();
   this._onDownload = new Callback();
@@ -88,6 +86,7 @@ export function Ajax(type, url, body, headers, options) {
   this.request = once(
     function() {
       self._subscription = Observer.for(function(resolve, reject) {
+        self._xhr.responseType = AjaxOptions.overrideResponseType(this._options.responseType);
         self._xhr.open(self._type, self._url + self.params.getQueryString(), true);
 
         self._xhr.timeout = (AjaxOptions.defineTimeout(self._options.timeout));

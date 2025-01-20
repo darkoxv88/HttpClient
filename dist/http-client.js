@@ -423,6 +423,10 @@ AjaxHeaders.prototype = {
     return out;
   },
 
+  clone: function() {
+    return new Headers(this);
+  },
+
   setHeader: function(key, value) {
     if (typeof(key) !== 'string' || !key) {
       return;
@@ -899,7 +903,7 @@ function baseHttpResponse(chieldRoot, xhr, status) {
 }
 
 ;// CONCATENATED MODULE: ./src/events/http/http-error-response-event.js
-function HttpErrorResponseEvent(err, xhr, responseTxpe, status, url) {
+function HttpErrorResponseEvent(err, xhr, responseType, status, url) {
   baseHttpResponse(this, xhr, status);
 
   this._timeStamp = err.timeStamp;
@@ -911,8 +915,19 @@ function HttpErrorResponseEvent(err, xhr, responseTxpe, status, url) {
   this._name = 'HttpErrorResponse';
   defineObjProp(this, 'name', function() { return this._name }, noop);
 
+  switch(responseType){
+    case 'json': {
+      break;
+    }
+
+    default: {
+      responseType = 'text';
+      break;
+    }
+  }
+
   this._error = (typeof(xhr.response) === 'undefined') ? xhr.responseText : xhr.response;
-  this._error = handleRespBody(this._error, responseTxpe);
+  this._error = handleRespBody(this._error, responseType);
   this._error = this._error ? this._error : err;
   defineObjProp(this, 'error', function() { return this._error }, noop);
 }
@@ -1073,13 +1088,11 @@ function Ajax(type, url, body, headers, options) {
   }
   
   this._options = options;
+  this._options.responseType = ajax_options_AjaxOptions.defineResponseType(this._options.responseType);
 
   this._headers = new AjaxHeaders(headers);
   this.params = new AjaxParams(this._options.params);
   this._xhr = new XMLHttpRequest();
-
-  this._options.responseType = ajax_options_AjaxOptions.defineResponseType(this._options.responseType);
-  this._xhr.responseType = ajax_options_AjaxOptions.overrideResponseType(this._options.responseType);
 
   this._onUpload = new Callback();
   this._onDownload = new Callback();
@@ -1114,6 +1127,7 @@ function Ajax(type, url, body, headers, options) {
   this.request = once(
     function() {
       self._subscription = Observer["for"](function(resolve, reject) {
+        self._xhr.responseType = ajax_options_AjaxOptions.overrideResponseType(this._options.responseType);
         self._xhr.open(self._type, self._url + self.params.getQueryString(), true);
 
         self._xhr.timeout = (ajax_options_AjaxOptions.defineTimeout(self._options.timeout));

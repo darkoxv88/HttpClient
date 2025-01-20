@@ -138,6 +138,7 @@ declare namespace HttpClient {
     public getHeaders(key: string): Array<string>;
     public getHeadersMap(): Map<string, Array<string>>;
     public cloneHeadersMap(): Map<string, Array<string>>;
+    public clone(): AjaxHeaders;
     public setHeader(key: string, value: string): void;
   }
   

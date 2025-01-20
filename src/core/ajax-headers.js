@@ -91,6 +91,10 @@ AjaxHeaders.prototype = {
     return out;
   },
 
+  clone: function() {
+    return new Headers(this);
+  },
+
   setHeader: function(key, value) {
     if (typeof(key) !== 'string' || !key) {
       return;
