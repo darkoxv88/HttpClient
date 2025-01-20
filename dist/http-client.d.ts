@@ -139,7 +139,8 @@ declare namespace HttpClient {
     public getHeadersMap(): Map<string, Array<string>>;
     public cloneHeadersMap(): Map<string, Array<string>>;
     public clone(): AjaxHeaders;
-    public setHeader(key: string, value: string): void;
+    public set(key: string, value: string): void;
+    public delete(key: string): void;
   }
   
   export class AjaxParams {
@@ -218,4 +219,6 @@ declare namespace HttpClient {
   export function createRequestOptions(): AjaxOptions;
 
   export function createRequestParams(params?: AjaxParams): AjaxParams;
+
+  export function version(): '1.1.0';
 }

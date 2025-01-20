@@ -86,7 +86,7 @@ export function Ajax(type, url, body, headers, options) {
   this.request = once(
     function() {
       self._subscription = Observer.for(function(resolve, reject) {
-        self._xhr.responseType = AjaxOptions.overrideResponseType(this._options.responseType);
+        self._xhr.responseType = AjaxOptions.overrideResponseType(self._options.responseType);
         self._xhr.open(self._type, self._url + self.params.getQueryString(), true);
 
         self._xhr.timeout = (AjaxOptions.defineTimeout(self._options.timeout));

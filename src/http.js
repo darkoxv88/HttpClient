@@ -67,3 +67,7 @@ HTTP.createRequestParams = function(params) {
 }
 
 HTTP.HttpStatusCode = HttpStatusCodeEnum;
+
+HTTP.version = function() {
+  return '1.1.0';
+}

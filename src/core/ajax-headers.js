@@ -95,7 +95,7 @@ AjaxHeaders.prototype = {
     return new Headers(this);
   },
 
-  setHeader: function(key, value) {
+  set: function(key, value) {
     if (typeof(key) !== 'string' || !key) {
       return;
     }
@@ -109,6 +109,10 @@ AjaxHeaders.prototype = {
     }
 
     this._headers.get(key).push(value);
+  },
+
+  delete: function(key) {
+    this._headers.delete(key);
   },
 
   detectContentTypeHeader: function(body) {
