@@ -200,7 +200,7 @@ Ajax.prototype = {
       return this;
     }
 
-    this._headers.setHeader(key, value);
+    this._headers.set(key, value);
 
     return this;
   },

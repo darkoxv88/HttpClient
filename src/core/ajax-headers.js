@@ -117,7 +117,7 @@ AjaxHeaders.prototype = {
 
   detectContentTypeHeader: function(body) {
     if (!(Array.isArray(this._headers.get('Accept')))) {
-      this.setHeader('Accept', 'application/json, text/plain, */*');
+      this.set('Accept', 'application/json, text/plain, */*');
     }
     
     if (Array.isArray(this._headers.get('Content-Type'))) {
@@ -136,7 +136,7 @@ AjaxHeaders.prototype = {
       var check = body.type || null;
 
       if (check) {
-        this.setHeader('Content-Type', check);
+        this.set('Content-Type', check);
       }
 
       return;
@@ -147,19 +147,19 @@ AjaxHeaders.prototype = {
     }
 
     if (typeof(body) === 'string') {
-      this.setHeader('Content-Type', 'text/plain');
+      this.set('Content-Type', 'text/plain');
 
       return;
     }
     
     if (body instanceof AjaxParams) {
-      this.setHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
+      this.set('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
 
       return;
     }
 
     if (typeof(body) === 'object' || typeof(body) === 'number' || typeof(body) === 'boolean') {
-      this.setHeader('Content-Type', 'application/json');
+      this.set('Content-Type', 'application/json');
       
       return;
     }
