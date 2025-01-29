@@ -30,7 +30,7 @@ exports:
 **/
 
 declare namespace HttpClient {
-  export enum HttpStatusCodeEnum { 
+  export enum HttpStatusCodes { 
     Continue = 100,
     SwitchingProtocols = 101,
     Processing = 102,
@@ -193,6 +193,22 @@ declare namespace HttpClient {
     abort(): void;
   }
 
+  export interface RequestInterceptorData {
+    type: string,
+    url: string,
+    headers: AjaxHeaders,
+    params: AjaxParams
+    body: any,
+  }
+
+  export function setRequestInterceptor(interceptor: (
+    data: RequestInterceptorData,
+    factory: (
+      res: (status: number, body: any) => void, 
+      rej: (status: number, error: any) => void
+    ) => void
+  ) => void): void;
+
   export function setErrorInterceptor(interceptor: (error: HttpErrorResponseEvent) => void): void;
 
   export function setResponseInterceptor(interceptor: (response: HttpResponseEvent<any>) => void): void;
@@ -220,5 +236,5 @@ declare namespace HttpClient {
 
   export function createRequestParams(params?: AjaxParams): AjaxParams;
 
-  export function version(): '1.1.0';
+  export function version(): '1.2.1';
 }

@@ -9,10 +9,10 @@ export function Callback(fn) {
 }
 
 Callback.prototype = {
-  emit: function(value) {
+  emit: function(v1, v2, v3) {
     try
     {
-      this._fn(value);
+      this._fn(v1, v2, v3);
     }
     catch(err)
     {

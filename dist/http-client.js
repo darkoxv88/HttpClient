@@ -45,78 +45,107 @@ function enumValue(ref, key, value) {
   Object.freeze(ref[key]);
 }
 
-;// CONCATENATED MODULE: ./src/enums/http-status-code-enum.js
+;// CONCATENATED MODULE: ./src/enums/http-status-codes-enum.js
+function getUpperCasePositions(inputString) {
+  var positions = [];
+
+  for (var i = 0; i < inputString.length; i++) {
+    if(inputString[i].match(/[A-Z]/) != null) {
+      positions.push(i);
+    }
+  }
+
+  return positions;
+}
+
+function defineCode(target, text, code) {
+  enumValue(target, text, code);
+
+  var positions = getUpperCasePositions(text);
+  for (var i = 0; i < positions.length; i++) {
+    if(i === 0) {
+      continue;
+    }
+
+    var pos = positions[i] + (i - 1)
+
+    text = text.slice(0, pos) + ' ' + text.slice(pos);
+  }
+  
+  enumValue(target, code, text);
+}
+
 function HttpStatusCode() {
-  enumValue(this, 'Continue', 100);
-  enumValue(this, 'SwitchingProtocols', 101);
-  enumValue(this, 'Processing', 102);
-  enumValue(this, 'EarlyHints', 103);
-  enumValue(this, 'Ok', 200);
-  enumValue(this, 'Created', 201);
-  enumValue(this, 'Accepted', 202);
-  enumValue(this, 'NonAuthoritativeInformation', 203);
-  enumValue(this, 'NoContent', 204);
-  enumValue(this, 'ResetContent', 205);
-  enumValue(this, 'PartialContent', 206);
-  enumValue(this, 'MultiStatus', 207);
-  enumValue(this, 'AlreadyReported', 208);
-  enumValue(this, 'ImUsed', 226);
-  enumValue(this, 'MultipleChoices', 300);
-  enumValue(this, 'MovedPermanently', 301);
-  enumValue(this, 'Found', 302);
-  enumValue(this, 'SeeOther', 303);
-  enumValue(this, 'NotModified', 304);
-  enumValue(this, 'UseProxy', 305);
-  enumValue(this, 'Unused', 306);
-  enumValue(this, 'TemporaryRedirect', 307);
-  enumValue(this, 'PermanentRedirect', 308);
-  enumValue(this, 'BadRequest', 400);
-  enumValue(this, 'Unauthorized', 401);
-  enumValue(this, 'PaymentRequired', 402);
-  enumValue(this, 'Forbidden', 403);
-  enumValue(this, 'NotFound', 404);
-  enumValue(this, 'MethodNotAllowed', 405);
-  enumValue(this, 'NotAcceptable', 406);
-  enumValue(this, 'ProxyAuthenticationRequired', 407);
-  enumValue(this, 'RequestTimeout', 408);
-  enumValue(this, 'Conflict', 409);
-  enumValue(this, 'Gone', 410);
-  enumValue(this, 'LengthRequired', 411);
-  enumValue(this, 'PreconditionFailed', 412);
-  enumValue(this, 'PayloadTooLarge', 413);
-  enumValue(this, 'UriTooLong', 414);
-  enumValue(this, 'UnsupportedMediaType', 415);
-  enumValue(this, 'RangeNotSatisfiable', 416);
-  enumValue(this, 'ExpectationFailed', 417);
-  enumValue(this, 'ImATeapot', 418);
-  enumValue(this, 'MisdirectedRequest', 421);
-  enumValue(this, 'UnprocessableEntity', 422);
-  enumValue(this, 'Locked', 423);
-  enumValue(this, 'FailedDependency', 424);
-  enumValue(this, 'TooEarly', 425);
-  enumValue(this, 'UpgradeRequired', 426);
-  enumValue(this, 'PreconditionRequired', 428);
-  enumValue(this, 'TooManyRequests', 429);
-  enumValue(this, 'RequestHeaderFieldsTooLarge', 431);
-  enumValue(this, 'UnavailableForLegalReasons', 451);
-  enumValue(this, 'InternalServerError', 500);
-  enumValue(this, 'NotImplemented', 501);
-  enumValue(this, 'BadGateway', 502);
-  enumValue(this, 'ServiceUnavailable', 503);
-  enumValue(this, 'GatewayTimeout', 504);
-  enumValue(this, 'HttpVersionNotSupported', 505);
-  enumValue(this, 'VariantAlsoNegotiates', 506);
-  enumValue(this, 'InsufficientStorage', 507);
-  enumValue(this, 'LoopDetected', 508);
-  enumValue(this, 'NotExtended', 510);
-  enumValue(this, 'NetworkAuthenticationRequired', 511);
+  defineCode(this, 'Continue', 100);
+  defineCode(this, 'SwitchingProtocols', 101);
+  defineCode(this, 'Processing', 102);
+  defineCode(this, 'EarlyHints', 103);
+  defineCode(this, 'Ok', 200);
+  defineCode(this, 'Created', 201);
+  defineCode(this, 'Accepted', 202);
+  defineCode(this, 'NonAuthoritativeInformation', 203);
+  defineCode(this, 'NoContent', 204);
+  defineCode(this, 'ResetContent', 205);
+  defineCode(this, 'PartialContent', 206);
+  defineCode(this, 'MultiStatus', 207);
+  defineCode(this, 'AlreadyReported', 208);
+  defineCode(this, 'ImUsed', 226);
+  defineCode(this, 'MultipleChoices', 300);
+  defineCode(this, 'MovedPermanently', 301);
+  defineCode(this, 'Found', 302);
+  defineCode(this, 'SeeOther', 303);
+  defineCode(this, 'NotModified', 304);
+  defineCode(this, 'UseProxy', 305);
+  defineCode(this, 'Unused', 306);
+  defineCode(this, 'TemporaryRedirect', 307);
+  defineCode(this, 'PermanentRedirect', 308);
+  defineCode(this, 'BadRequest', 400);
+  defineCode(this, 'Unauthorized', 401);
+  defineCode(this, 'PaymentRequired', 402);
+  defineCode(this, 'Forbidden', 403);
+  defineCode(this, 'NotFound', 404);
+  defineCode(this, 'MethodNotAllowed', 405);
+  defineCode(this, 'NotAcceptable', 406);
+  defineCode(this, 'ProxyAuthenticationRequired', 407);
+  defineCode(this, 'RequestTimeout', 408);
+  defineCode(this, 'Conflict', 409);
+  defineCode(this, 'Gone', 410);
+  defineCode(this, 'LengthRequired', 411);
+  defineCode(this, 'PreconditionFailed', 412);
+  defineCode(this, 'PayloadTooLarge', 413);
+  defineCode(this, 'UriTooLong', 414);
+  defineCode(this, 'UnsupportedMediaType', 415);
+  defineCode(this, 'RangeNotSatisfiable', 416);
+  defineCode(this, 'ExpectationFailed', 417);
+  defineCode(this, 'ImATeapot', 418);
+  defineCode(this, 'MisdirectedRequest', 421);
+  defineCode(this, 'UnprocessableEntity', 422);
+  defineCode(this, 'Locked', 423);
+  defineCode(this, 'FailedDependency', 424);
+  defineCode(this, 'TooEarly', 425);
+  defineCode(this, 'UpgradeRequired', 426);
+  defineCode(this, 'PreconditionRequired', 428);
+  defineCode(this, 'TooManyRequests', 429);
+  defineCode(this, 'RequestHeaderFieldsTooLarge', 431);
+  defineCode(this, 'UnavailableForLegalReasons', 451);
+  defineCode(this, 'InternalServerError', 500);
+  defineCode(this, 'NotImplemented', 501);
+  defineCode(this, 'BadGateway', 502);
+  defineCode(this, 'ServiceUnavailable', 503);
+  defineCode(this, 'GatewayTimeout', 504);
+  defineCode(this, 'HttpVersionNotSupported', 505);
+  defineCode(this, 'VariantAlsoNegotiates', 506);
+  defineCode(this, 'InsufficientStorage', 507);
+  defineCode(this, 'LoopDetected', 508);
+  defineCode(this, 'NotExtended', 510);
+  defineCode(this, 'NetworkAuthenticationRequired', 511);
 }
 
 HttpStatusCode.prototype = { };
 
-var HttpStatusCodeEnum = new HttpStatusCode();
+var httpStatusCodesEnum = new HttpStatusCode();
 
-Object.freeze(HttpStatusCodeEnum);
+Object.freeze(httpStatusCodesEnum);
 
 ;// CONCATENATED MODULE: ./src/helpers/xhr-body-type-checks.js
 function isArrayBuffer(value) {
@@ -424,7 +453,7 @@ AjaxHeaders.prototype = {
   },
 
   clone: function() {
-    return new Headers(this);
+    return new AjaxHeaders(this);
   },
 
   set: function(key, value) {
@@ -511,10 +540,10 @@ function Callback(fn) {
 }
 
 Callback.prototype = {
-  emit: function(value) {
+  emit: function(v1, v2, v3) {
     try
     {
-      this._fn(value);
+      this._fn(v1, v2, v3);
     }
     catch(err)
     {
@@ -522,27 +551,6 @@ Callback.prototype = {
     }
   },
 }
-
-;// CONCATENATED MODULE: ./src/core/interceptors.js
-function Interceptor() {
-  this.cb = new Callback();
-}
-
-Interceptor.prototype = { 
-  setInterceptor: function(fn) {
-    this.cb = new Callback(fn);
-  },
-
-  intercept: function(value) {
-    this.cb.emit(value);
-
-    return value;
-  }
-}
-
-var errorInterceptor = new Interceptor();
-
-var responseInterceptor = new Interceptor();
 
 ;// CONCATENATED MODULE: ./src/utility/define-obj-prop.js.js
 function defineObjProp(ref, key, getter, setter) {
@@ -559,41 +567,6 @@ function defineObjProp(ref, key, getter, setter) {
   }
 
   Object.defineProperty(ref, key, def);
-}
-
-;// CONCATENATED MODULE: ./src/utility/once.js
-function once(onFirstCall, onMultipleCalls) {
-  var lHasBeenCalled = false;
-
-  return function() {
-    if (lHasBeenCalled) {
-      if (typeof(onMultipleCalls) === 'function') {
-        return onMultipleCalls.apply(this, arguments);;
-      }
-
-      return;
-    }
-
-    lHasBeenCalled = true;
-
-    if (typeof(onFirstCall) === 'function') {
-      return onFirstCall.apply(this, arguments);
-    }
-  }
-}
-
-;// CONCATENATED MODULE: ./src/utility/safe-json.js
-function safeJsonStringify(value) {
-  try
-  {    
-    return JSON.stringify(value);
-  }
-  catch (err)
-  {
-    console.error(err);
-    
-    return '';
-  }
 }
 
 ;// CONCATENATED MODULE: ./src/utility/try-catch.js
@@ -747,6 +720,170 @@ Observer.for = function(executor) {
   return new Observer(executor);
 }
 
+;// CONCATENATED MODULE: ./src/helpers/response-headers.js
+function ResponseHeaders(xhr) {
+  this._headers = ({ });
+
+  if (!xhr) {
+    return;
+  }
+
+  try
+  {
+    xhr.getAllResponseHeaders().split('\r\n').reduce(
+      function(result, current) {
+        var spl = current.split(': ');
+
+        if (!spl[0] || !spl[1]) {
+          return result;
+        }
+
+        result[spl[0]] = spl[1];
+
+        return result;
+      }, 
+      this._headers
+    );
+  }
+  catch (err) 
+  {
+    console.error(err);
+  }
+}
+
+ResponseHeaders.prototype = { 
+  has: function(key) {
+    if (typeof(key) !== 'string') {
+      return null;
+    }
+
+    return this._headers[key] ? true : false;
+  },
+
+  get: function(key) {
+    if (typeof(key) !== 'string') {
+      return null;
+    }
+
+    return this._headers[key];
+  },
+}
+
+;// CONCATENATED MODULE: ./src/core/interceptors.js
+function Interceptor() {
+  this.cb = new Callback();
+}
+
+Interceptor.prototype = { 
+  setInterceptor: function(fn) {
+    this.cb = new Callback(fn);
+  },
+
+  intercept: function(value) {
+    this.cb.emit(value);
+
+    return value;
+  }
+}
+
+function createBaseResponse(self, ok, eventName, unknownStatusText, url, status) {
+  var headers = new ResponseHeaders();
+  defineObjProp(self, 'headers', function() { return headers }, noop);
+
+  if (typeof(status) !== 'number') {
+    status = 0;
+  }
+  defineObjProp(self, 'status', function() { return status }, noop);
+
+  defineObjProp(self, 'url', function() { return url }, noop);
+  defineObjProp(self, 'ok', function() { return ok }, noop);
+  defineObjProp(self, 'name', function() { return eventName }, noop);
+
+  var timeStamp = Date.now();
+  defineObjProp(self, 'timeStamp', function() { return timeStamp }, noop);
+
+  var statusText = httpStatusCodesEnum[status];
+  if (!statusText) {
+    statusText = unknownStatusText;
+  }
+  defineObjProp(self, 'statusText', function() { return statusText }, noop);
+}
+
+function createResolvedResponse(url, status, data) {
+  var out = ({});
+  createBaseResponse(out, true, 'HttpResponse', 'Unknown Status', url, status);
+  defineObjProp(out, 'body', function() { return data }, noop);
+  return out;
+}
+
+function createRejectedResponse(url, status, data) {
+  var out = ({});
+  createBaseResponse(out, false, 'HttpErrorResponse', 'Unknown Error', url, status);
+  defineObjProp(out, 'error', function() { return data }, noop);
+  return out;
+}
+
+var requestInterceptor = new Interceptor();
+
+requestInterceptor.intercept = function(data, defaultRequest) {
+  this.cb.emit(data, function(executor) {
+    if (typeof(executor) !== 'function') {
+      return;
+    }
+
+    defaultRequest = function() {
+      
+      return (new Observer(function(res, rej) {
+        executor(
+          function() { res(createResolvedResponse.apply(new Object(), [data.url].concat(Array.from(arguments)))); },
+          function() { rej(createRejectedResponse.apply(new Object(), [data.url].concat(Array.from(arguments)))); }
+        );
+      }));
+    }
+  });
+
+  return defaultRequest();
+}
+
+var errorInterceptor = new Interceptor();
+
+var responseInterceptor = new Interceptor();
+
+;// CONCATENATED MODULE: ./src/utility/once.js
+function once(onFirstCall, onMultipleCalls) {
+  var lHasBeenCalled = false;
+
+  return function() {
+    if (lHasBeenCalled) {
+      if (typeof(onMultipleCalls) === 'function') {
+        return onMultipleCalls.apply(this, arguments);;
+      }
+
+      return;
+    }
+
+    lHasBeenCalled = true;
+
+    if (typeof(onFirstCall) === 'function') {
+      return onFirstCall.apply(this, arguments);
+    }
+  }
+}
+
+;// CONCATENATED MODULE: ./src/utility/safe-json.js
+function safeJsonStringify(value) {
+  try
+  {    
+    return JSON.stringify(value);
+  }
+  catch (err)
+  {
+    console.error(err);
+    
+    return '';
+  }
+}
+
 ;// CONCATENATED MODULE: ./src/helpers/xhr-get-response-url.js
 function getResponseUrl(xhr) {
   try
@@ -846,52 +983,6 @@ function handleRespBody(body, respType) {
 }
 
 ;// CONCATENATED MODULE: ./src/events/base-http-response.js
-function ResponseHeaders(xhr) {
-  this._headers = null;
-
-  try
-  {
-    this._headers = xhr.getAllResponseHeaders().split('\r\n').reduce(
-      function(result, current) {
-        var spl = current.split(': ');
-
-        if (!spl[0] || !spl[1]) {
-          return result;
-        }
-
-        result[spl[0]] = spl[1];
-
-        return result;
-      }, 
-      ({ })
-    );
-  }
-  catch (err) 
-  {
-    console.error(err);
-
-    this._headers = ({ });
-  }
-}
-
-ResponseHeaders.prototype = { 
-  has: function(key) {
-    if (typeof(key) !== 'string') {
-      return null;
-    }
-
-    return this._headers[key] ? true : false;
-  },
-
-  get: function(key) {
-    if (typeof(key) !== 'string') {
-      return null;
-    }
-
-    return this._headers[key];
-  },
-}
-
 function baseHttpResponse(chieldRoot, xhr, status) {
   chieldRoot._headers = new ResponseHeaders(xhr);
   defineObjProp(chieldRoot, 'headers', function() { return this._headers }, noop);
@@ -1128,9 +1219,9 @@ function Ajax(type, url, body, headers, options) {
     self._onDownload.emit(new HttpOnProgressEvent('DownloadProgress', ev.loaded, lTotal, lResponseText));
   }
 
-  this.request = once(
+  var request = once(
     function() {
-      self._subscription = Observer["for"](function(resolve, reject) {
+      return Observer["for"](function(resolve, reject) {
         self._xhr.responseType = ajax_options_AjaxOptions.overrideResponseType(self._options.responseType);
         self._xhr.open(self._type, self._url + self.params.getQueryString(), true);
 
@@ -1198,8 +1289,21 @@ function Ajax(type, url, body, headers, options) {
           ajax_options_AjaxOptions.defineDelay(self._options.delay)
         );
       });
+    },
+  );
 
-      return self._subscription;
+  this.request = once(
+    function() {
+      return self._subscription = requestInterceptor.intercept(
+        { 
+          type: self._type,
+          url: self._url,
+          headers: self._headers,
+          params: self.params,
+          body: self._body,
+        }, 
+        request
+      );
     },
     function() {
       return self._subscription;
@@ -1402,6 +1506,10 @@ function HTTP() { }
 
 HTTP.prototype = { }
 
+HTTP.setRequestInterceptor = function(interceptor) {
+  requestInterceptor.setInterceptor(interceptor);
+}
+
 HTTP.setErrorInterceptor = function(interceptor) {
   errorInterceptor.setInterceptor(interceptor);
 }
@@ -1458,10 +1566,10 @@ HTTP.createRequestParams = function(params) {
   return new AjaxParams(params)
 }
 
-HTTP.HttpStatusCode = HttpStatusCodeEnum;
+HTTP.httpStatusCodes = httpStatusCodesEnum;
 
 HTTP.version = function() {
-  return '1.1.0';
+  return '1.2.1';
 }
 
 ;// CONCATENATED MODULE: ./src/index.js

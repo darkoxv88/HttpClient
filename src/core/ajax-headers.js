@@ -92,7 +92,7 @@ AjaxHeaders.prototype = {
   },
 
   clone: function() {
-    return new Headers(this);
+    return new AjaxHeaders(this);
   },
 
   set: function(key, value) {

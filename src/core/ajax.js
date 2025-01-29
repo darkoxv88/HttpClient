@@ -12,7 +12,7 @@ import { HttpResponseEvent } from "../events/http/http-response-event.js";
 import { AjaxHeaders } from "./ajax-headers.js";
 import { AjaxOptions } from "./ajax-options.js";
 import { AjaxParams } from "./ajax-params";
-import { errorInterceptor, responseInterceptor } from "./interceptors.js";
+import { requestInterceptor, errorInterceptor, responseInterceptor } from "./interceptors.js";
 
 function serializeRequestBody(body) {
   if (body === null || body === undefined) {
@@ -83,9 +83,9 @@ export function Ajax(type, url, body, headers, options) {
     self._onDownload.emit(new HttpOnProgressEvent('DownloadProgress', ev.loaded, lTotal, lResponseText));
   }
 
-  this.request = once(
+  var request = once(
     function() {
-      self._subscription = Observer.for(function(resolve, reject) {
+      return Observer.for(function(resolve, reject) {
         self._xhr.responseType = AjaxOptions.overrideResponseType(self._options.responseType);
         self._xhr.open(self._type, self._url + self.params.getQueryString(), true);
 
@@ -153,8 +153,21 @@ export function Ajax(type, url, body, headers, options) {
           AjaxOptions.defineDelay(self._options.delay)
         );
       });
+    },
+  );
 
-      return self._subscription;
+  this.request = once(
+    function() {
+      return self._subscription = requestInterceptor.intercept(
+        { 
+          type: self._type,
+          url: self._url,
+          headers: self._headers,
+          params: self.params,
+          body: self._body,
+        }, 
+        request
+      );
     },
     function() {
       return self._subscription;

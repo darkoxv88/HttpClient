@@ -1,14 +1,18 @@
-import { HttpStatusCodeEnum } from "./enums/http-status-code-enum";
+import { httpStatusCodesEnum } from "./enums/http-status-codes-enum";
 
 import { AjaxHeaders } from "./core/ajax-headers";
 import { AjaxParams } from "./core/ajax-params";
-import { errorInterceptor, responseInterceptor } from "./core/interceptors";
+import { requestInterceptor, errorInterceptor, responseInterceptor } from "./core/interceptors";
 import { Ajax } from "./core/ajax";
 import { JSONP } from "./core/jsonp";
 
 export function HTTP() { }
 
 HTTP.prototype = { }
+
+HTTP.setRequestInterceptor = function(interceptor) {
+  requestInterceptor.setInterceptor(interceptor);
+}
 
 HTTP.setErrorInterceptor = function(interceptor) {
   errorInterceptor.setInterceptor(interceptor);
@@ -66,8 +70,8 @@ HTTP.createRequestParams = function(params) {
   return new AjaxParams(params)
 }
 
-HTTP.HttpStatusCode = HttpStatusCodeEnum;
+HTTP.httpStatusCodes = httpStatusCodesEnum;
 
 HTTP.version = function() {
-  return '1.1.0';
+  return '1.2.1';
 }
