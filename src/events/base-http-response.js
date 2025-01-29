@@ -1,51 +1,7 @@
 import { defineObjProp } from "./../utility/define-obj-prop.js";
 import { noop } from "./../utility/noop";
 
-function ResponseHeaders(xhr) {
-  this._headers = null;
-
-  try
-  {
-    this._headers = xhr.getAllResponseHeaders().split('\r\n').reduce(
-      function(result, current) {
-        var spl = current.split(': ');
-
-        if (!spl[0] || !spl[1]) {
-          return result;
-        }
-
-        result[spl[0]] = spl[1];
-
-        return result;
-      }, 
-      ({ })
-    );
-  }
-  catch (err) 
-  {
-    console.error(err);
-
-    this._headers = ({ });
-  }
-}
-
-ResponseHeaders.prototype = { 
-  has: function(key) {
-    if (typeof(key) !== 'string') {
-      return null;
-    }
-
-    return this._headers[key] ? true : false;
-  },
-
-  get: function(key) {
-    if (typeof(key) !== 'string') {
-      return null;
-    }
-
-    return this._headers[key];
-  },
-}
+import { ResponseHeaders } from "../helpers/response-headers.js";
 
 export function baseHttpResponse(chieldRoot, xhr, status) {
   chieldRoot._headers = new ResponseHeaders(xhr);
