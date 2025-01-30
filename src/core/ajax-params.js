@@ -154,11 +154,9 @@ AjaxParams.prototype = {
     var self = this;
 
     return this.keys().map(function(key) {
-      
       return self._map.get(key).map(function(value) { 
         return safeUriEncode(key) + '=' + safeUriEncode(value); 
       }).join('&');
-
     })
     .filter(function(param) { 
       return (param !== '');

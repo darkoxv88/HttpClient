@@ -21,7 +21,7 @@ function defineCode(target, text, code) {
       continue;
     }
 
-    var pos = positions[i] + (i - 1)
+    var pos = positions[i] + (i - 1);
 
     text = text.slice(0, pos) + ' ' + text.slice(pos);
   }

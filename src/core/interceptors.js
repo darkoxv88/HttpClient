@@ -62,24 +62,23 @@ function createRejectedResponse(url, status, data) {
 
 export var requestInterceptor = new Interceptor();
 
-requestInterceptor.intercept = function(data, defaultRequest) {
+requestInterceptor.intercept = function(data, request) {
   this.cb.emit(data, function(executor) {
     if (typeof(executor) !== 'function') {
       return;
     }
 
-    defaultRequest = function() {
-      
-      return (new Observer(function(res, rej) {
+    request = function() {
+      return (Observer.for(function(res, rej) {
         executor(
-          function() { res(createResolvedResponse.apply(new Object(), [data.url].concat(Array.from(arguments)))); },
-          function() { rej(createRejectedResponse.apply(new Object(), [data.url].concat(Array.from(arguments)))); }
+          function() { res(createResolvedResponse.apply({ }, [data.url].concat(Array.from(arguments)))); },
+          function() { rej(createRejectedResponse.apply({ }, [data.url].concat(Array.from(arguments)))); }
         );
       }));
     }
   });
 
-  return defaultRequest();
+  return request();
 }
 
 export var errorInterceptor = new Interceptor();

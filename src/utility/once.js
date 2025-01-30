@@ -1,8 +1,8 @@
 export function once(onFirstCall, onMultipleCalls) {
-  var lHasBeenCalled = false;
+  var hasBeenCalled = false;
 
   return function() {
-    if (lHasBeenCalled) {
+    if (hasBeenCalled) {
       if (typeof(onMultipleCalls) === 'function') {
         return onMultipleCalls.apply(this, arguments);;
       }
@@ -10,7 +10,7 @@ export function once(onFirstCall, onMultipleCalls) {
       return;
     }
 
-    lHasBeenCalled = true;
+    hasBeenCalled = true;
 
     if (typeof(onFirstCall) === 'function') {
       return onFirstCall.apply(this, arguments);

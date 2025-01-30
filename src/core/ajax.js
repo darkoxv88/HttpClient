@@ -23,6 +23,10 @@ function serializeRequestBody(body) {
     return body;
   }
 
+  if (body instanceof AjaxParams) {
+    return body.toString();
+  }
+
   if (typeof(body) === 'object' || typeof(body) === 'boolean' || Array.isArray(body)) {
     return safeJsonStringify(body);
   }

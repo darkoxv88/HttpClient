@@ -29,7 +29,7 @@ exports:
 
 **/
 
-(function() {
+(() => {
 "use strict";
 
 ;// CONCATENATED MODULE: ./src/refs/root.js
@@ -67,7 +67,7 @@ function defineCode(target, text, code) {
       continue;
     }
 
-    var pos = positions[i] + (i - 1)
+    var pos = positions[i] + (i - 1);
 
     text = text.slice(0, pos) + ' ' + text.slice(pos);
   }
@@ -342,11 +342,9 @@ AjaxParams.prototype = {
     var self = this;
 
     return this.keys().map(function(key) {
-      
       return self._map.get(key).map(function(value) { 
         return safeUriEncode(key) + '=' + safeUriEncode(value); 
       }).join('&');
-
     })
     .filter(function(param) { 
       return (param !== '');
@@ -825,24 +823,23 @@ function createRejectedResponse(url, status, data) {
 
 var requestInterceptor = new Interceptor();
 
-requestInterceptor.intercept = function(data, defaultRequest) {
+requestInterceptor.intercept = function(data, request) {
   this.cb.emit(data, function(executor) {
     if (typeof(executor) !== 'function') {
       return;
     }
 
-    defaultRequest = function() {
-      
-      return (new Observer(function(res, rej) {
+    request = function() {
+      return (Observer["for"](function(res, rej) {
         executor(
-          function() { res(createResolvedResponse.apply(new Object(), [data.url].concat(Array.from(arguments)))); },
-          function() { rej(createRejectedResponse.apply(new Object(), [data.url].concat(Array.from(arguments)))); }
+          function() { res(createResolvedResponse.apply({ }, [data.url].concat(Array.from(arguments)))); },
+          function() { rej(createRejectedResponse.apply({ }, [data.url].concat(Array.from(arguments)))); }
         );
       }));
     }
   });
 
-  return defaultRequest();
+  return request();
 }
 
 var errorInterceptor = new Interceptor();
@@ -851,10 +848,10 @@ var responseInterceptor = new Interceptor();
 
 ;// CONCATENATED MODULE: ./src/utility/once.js
 function once(onFirstCall, onMultipleCalls) {
-  var lHasBeenCalled = false;
+  var hasBeenCalled = false;
 
   return function() {
-    if (lHasBeenCalled) {
+    if (hasBeenCalled) {
       if (typeof(onMultipleCalls) === 'function') {
         return onMultipleCalls.apply(this, arguments);;
       }
@@ -862,7 +859,7 @@ function once(onFirstCall, onMultipleCalls) {
       return;
     }
 
-    lHasBeenCalled = true;
+    hasBeenCalled = true;
 
     if (typeof(onFirstCall) === 'function') {
       return onFirstCall.apply(this, arguments);
@@ -1157,6 +1154,10 @@ function serializeRequestBody(body) {
 
   if (isArrayBuffer(body) || isBlob(body) || isFormData(body) || isUrlSearchParams(body) || typeof(body) === 'string') {
     return body;
+  }
+
+  if (body instanceof AjaxParams) {
+    return body.toString();
   }
 
   if (typeof(body) === 'object' || typeof(body) === 'boolean' || Array.isArray(body)) {
@@ -1569,7 +1570,7 @@ HTTP.createRequestParams = function(params) {
 HTTP.httpStatusCodes = httpStatusCodesEnum;
 
 HTTP.version = function() {
-  return '1.2.1';
+  return '1.2.2';
 }
 
 ;// CONCATENATED MODULE: ./src/index.js
