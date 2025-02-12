@@ -126,6 +126,6 @@ Observer.prototype = {
   }
 }
 
-Observer.for = function(executor) {
-  return new Observer(executor);
+Observer.for = function(observable) {
+  return new Observer(observable);
 }

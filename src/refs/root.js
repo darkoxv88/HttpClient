@@ -3,3 +3,13 @@ var root = typeof window !== 'undefined' ? window : typeof globalThis !== 'undef
 export function getRoot() {
   return root;
 }
+
+export function toRoot(exports) {
+  if (typeof(exports) !== 'object' || !exports) {
+    return;
+  }
+
+  Object.keys(exports).forEach((item) => {
+    root[item] = exports[item];
+  });
+}

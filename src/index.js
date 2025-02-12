@@ -1,4 +1,4 @@
-import { getRoot } from "./refs/root";
+import { toRoot } from "./refs/root";
 import { HTTP } from "./http";
 
 /**
@@ -32,4 +32,4 @@ exports:
 
 **/
 
-getRoot()['HttpClient'] = HTTP;
+toRoot({ HttpClient: HTTP });

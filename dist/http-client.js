@@ -29,7 +29,7 @@ exports:
 
 **/
 
-(() => {
+(function() {
 "use strict";
 
 ;// CONCATENATED MODULE: ./src/refs/root.js
@@ -37,6 +37,16 @@ var root = typeof window !== 'undefined' ? window : typeof globalThis !== 'undef
 
 function getRoot() {
   return root;
+}
+
+function toRoot(exports) {
+  if (typeof(exports) !== 'object' || !exports) {
+    return;
+  }
+
+  Object.keys(exports).forEach((item) => {
+    root[item] = exports[item];
+  });
 }
 
 ;// CONCATENATED MODULE: ./src/utility/enum-value.js
@@ -714,8 +724,8 @@ Observer.prototype = {
   }
 }
 
-Observer.for = function(executor) {
-  return new Observer(executor);
+Observer.for = function(observable) {
+  return new Observer(observable);
 }
 
 ;// CONCATENATED MODULE: ./src/helpers/response-headers.js
@@ -1574,6 +1584,6 @@ HTTP.version = function() {
 }
 
 ;// CONCATENATED MODULE: ./src/index.js
-getRoot()['HttpClient'] = HTTP;
+toRoot({ HttpClient: HTTP });
 
 })();
