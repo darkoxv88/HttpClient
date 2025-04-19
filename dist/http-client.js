@@ -623,6 +623,12 @@ EventEmitter.prototype = {
 
       listener(value);
     }
+  },
+
+  clear: function() {
+    this.listeners = null;
+    this.addListener = noop;
+    this.emit = noop;
   }
 }
 
@@ -670,6 +676,9 @@ var Observer = function(executor) {
     if (state === const_PENDING) {
       _resolve = noop;
       _reject = noop;
+      onFulfilledEmitter.clear();
+      onRejectedEmitter.clear();
+      onFinallyEmitter.clear();
     } 
   }
 
@@ -1306,13 +1315,13 @@ function Ajax(type, url, body, headers, options) {
   this.request = once(
     function() {
       return self._subscription = requestInterceptor.intercept(
-        { 
+        Object.freeze({ 
           type: self._type,
           url: self._url,
           headers: self._headers,
           params: self.params,
           body: self._body,
-        }, 
+        }), 
         request
       );
     },
@@ -1375,7 +1384,7 @@ Ajax.prototype = {
 
 ;// CONCATENATED MODULE: ./src/utility/random-generator.js
 function randomStringIdGenerator() {
-  return ('xxxxyxxxyxxx').replace(/[xy]/g, function(char) {
+  return ('xxxxyxxxyxxxx').replace(/[xy]/g, function(char) {
     var rand = Math.random() * 16 | 0; 
     var out = (char == 'x') ? rand : (rand & 0x3 | 0x8);
 
@@ -1529,6 +1538,16 @@ HTTP.setResponseInterceptor = function(interceptor) {
   responseInterceptor.setInterceptor(interceptor);
 }
 
+HTTP.fetch = function(url, responseType) {
+  if (typeof(responseType) === 'string') {
+    responseType = 'json';
+  }
+
+  return (new Ajax('GET', url, null, null, { responseType: responseType }))
+    .request()
+    .toPromise();
+}
+
 HTTP.get = function(url, headers, options) {
   return new Ajax('GET', url, null, headers, options);
 }
@@ -1580,7 +1599,7 @@ HTTP.createRequestParams = function(params) {
 HTTP.httpStatusCodes = httpStatusCodesEnum;
 
 HTTP.version = function() {
-  return '1.2.2';
+  return '1.2.3';
 }
 
 ;// CONCATENATED MODULE: ./src/index.js

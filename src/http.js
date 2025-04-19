@@ -22,6 +22,16 @@ HTTP.setResponseInterceptor = function(interceptor) {
   responseInterceptor.setInterceptor(interceptor);
 }
 
+HTTP.fetch = function(url, responseType) {
+  if (typeof(responseType) === 'string') {
+    responseType = 'json';
+  }
+
+  return (new Ajax('GET', url, null, null, { responseType: responseType }))
+    .request()
+    .toPromise();
+}
+
 HTTP.get = function(url, headers, options) {
   return new Ajax('GET', url, null, headers, options);
 }
@@ -73,5 +83,5 @@ HTTP.createRequestParams = function(params) {
 HTTP.httpStatusCodes = httpStatusCodesEnum;
 
 HTTP.version = function() {
-  return '1.2.2';
+  return '1.2.3';
 }

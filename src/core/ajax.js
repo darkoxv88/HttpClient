@@ -163,13 +163,13 @@ export function Ajax(type, url, body, headers, options) {
   this.request = once(
     function() {
       return self._subscription = requestInterceptor.intercept(
-        { 
+        Object.freeze({ 
           type: self._type,
           url: self._url,
           headers: self._headers,
           params: self.params,
           body: self._body,
-        }, 
+        }), 
         request
       );
     },

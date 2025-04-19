@@ -25,6 +25,12 @@ EventEmitter.prototype = {
 
       listener(value);
     }
+  },
+
+  clear: function() {
+    this.listeners = null;
+    this.addListener = noop;
+    this.emit = noop;
   }
 }
 
@@ -72,6 +78,9 @@ export var Observer = function(executor) {
     if (state === const_PENDING) {
       _resolve = noop;
       _reject = noop;
+      onFulfilledEmitter.clear();
+      onRejectedEmitter.clear();
+      onFinallyEmitter.clear();
     } 
   }
 

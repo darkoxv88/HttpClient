@@ -156,10 +156,12 @@ declare namespace HttpClient {
     public toString(): string;
     public getQueryString(): string;
   }
+
+  type responseType = '' | 'text' | 'json' | 'blob' | 'arraybuffer' | 'document' | 'ms-stream';
   
   export interface AjaxOptions {
     timeout?: number;
-    responseType?: '' | 'text' | 'json' | 'blob' | 'arraybuffer' | 'document' | 'ms-stream';
+    responseType?: responseType;
     withCredentials?: boolean;
     params?: AjaxParams;
     delay?: number;
@@ -194,11 +196,11 @@ declare namespace HttpClient {
   }
 
   export interface RequestInterceptorData {
-    type: string,
-    url: string,
-    headers: AjaxHeaders,
-    params: AjaxParams
-    body: any,
+    readonly type: string,
+    readonly url: string,
+    readonly headers: AjaxHeaders,
+    readonly params: AjaxParams
+    readonly body: any,
   }
 
   export function setRequestInterceptor(interceptor: (
@@ -214,6 +216,8 @@ declare namespace HttpClient {
   export function setResponseInterceptor(interceptor: (response: HttpResponseEvent<any>) => void): void;
 
   export function jsonp<T>(url: string, options?: AjaxOptions, callbackParamName?: string, callbackName?: string): JSONP<T>;
+
+  export function fetch<T = any>(url: string, responseType?: responseType): Promise<HttpResponseEvent<T>>;
 
   export function get<T = any>(url: string, headers?: AjaxHeaders, options?: AjaxOptions): Ajax<T>;
 
@@ -236,5 +240,5 @@ declare namespace HttpClient {
 
   export function createRequestParams(params?: AjaxParams): AjaxParams;
 
-  export function version(): '1.2.2';
+  export function version(): '1.2.3';
 }
