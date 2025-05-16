@@ -23,7 +23,7 @@ HTTP.setResponseInterceptor = function(interceptor) {
 }
 
 HTTP.fetch = function(url, responseType) {
-  if (typeof(responseType) === 'string') {
+  if (typeof(responseType) !== 'string') {
     responseType = 'json';
   }
 
@@ -83,5 +83,5 @@ HTTP.createRequestParams = function(params) {
 HTTP.httpStatusCodes = httpStatusCodesEnum;
 
 HTTP.version = function() {
-  return '1.2.3';
+  return '1.2.4';
 }
