@@ -240,5 +240,5 @@ declare namespace HttpClient {
 
   export function createRequestParams(params?: AjaxParams): AjaxParams;
 
-  export function version(): '1.2.4';
+  export function version(): '1.2.5';
 }

@@ -4,7 +4,7 @@ export function once(onFirstCall, onMultipleCalls) {
   return function() {
     if (hasBeenCalled) {
       if (typeof(onMultipleCalls) === 'function') {
-        return onMultipleCalls.apply(this, arguments);;
+        return onMultipleCalls.apply(this, arguments);
       }
 
       return;
