@@ -872,7 +872,7 @@ function once(onFirstCall, onMultipleCalls) {
   return function() {
     if (hasBeenCalled) {
       if (typeof(onMultipleCalls) === 'function') {
-        return onMultipleCalls.apply(this, arguments);;
+        return onMultipleCalls.apply(this, arguments);
       }
 
       return;
@@ -1599,7 +1599,7 @@ HTTP.createRequestParams = function(params) {
 HTTP.httpStatusCodes = httpStatusCodesEnum;
 
 HTTP.version = function() {
-  return '1.2.4';
+  return '1.2.5';
 }
 
 ;// CONCATENATED MODULE: ./src/index.js

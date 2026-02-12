@@ -83,5 +83,5 @@ HTTP.createRequestParams = function(params) {
 HTTP.httpStatusCodes = httpStatusCodesEnum;
 
 HTTP.version = function() {
-  return '1.2.4';
+  return '1.2.5';
 }
