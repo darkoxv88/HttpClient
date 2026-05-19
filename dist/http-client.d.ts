@@ -144,7 +144,7 @@ declare namespace HttpClient {
   }
   
   export class AjaxParams {
-    constructor(params?: AjaxParams);
+    constructor(params?: AjaxParams | { [key: string]: string } | string);
   
     public has(key: string): boolean;
     public keys(): Array<string>;
@@ -238,7 +238,7 @@ declare namespace HttpClient {
 
   export function createRequestOptions(): AjaxOptions;
 
-  export function createRequestParams(params?: AjaxParams): AjaxParams;
+  export function createRequestParams(params?: AjaxParams | { [key: string]: string } | string): AjaxParams;
 
   export function version(): '1.2.5';
 }
